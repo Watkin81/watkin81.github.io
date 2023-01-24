@@ -30,6 +30,7 @@
     background-image: url("/images/MonsterAdventureland.jpg");
     background-repeat: no-repeat;
     background-position: center middle;
+    background-size: cover;
     height: 150px;
 }
 .titletext {
