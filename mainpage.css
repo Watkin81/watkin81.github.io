@@ -11,14 +11,11 @@ margin: 0;
 
 .header {
     background-image: url("/images/MonsterAdventureland.jpg");
-    background-repeat: no-repeat;
-    background-position: center center;
+    background-position: center top;
     background-size: cover;
     height: 200px;
 }
 .header h1 {
-	text-align: center;
-	vertical-align: center;
 	color: white;
 	font-family: verdana;
 	font-size: 40px;
