@@ -30,9 +30,9 @@
 .title {
     background-image: url("/images/MonsterAdventureland.jpg");
     background-repeat: no-repeat;
-    background-position: center middle;
+    background-position: center center;
     background-size: cover;
-    height: 150px;
+    height: 200px;
 }
 .titletext {
 	text-align: center;
