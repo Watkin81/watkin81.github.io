@@ -27,6 +27,7 @@
     color: white;
 }
 .title {
+    background-image: url("/images/MonsterAdventureland.jpg");
     background-repeat: no-repeat;
     background-position: left top;
     height: 150px;
