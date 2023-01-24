@@ -27,7 +27,6 @@
     color: white;
 }
 .title {
-    background-image: url("https://entropymag.org/wp-content/uploads/2014/10/outer-space-wallpaper-pictures.jpg");
     background-repeat: no-repeat;
     background-position: left top;
     height: 400px;
@@ -42,7 +41,7 @@
 }
 .paragraph1 {
 	text-align: center;
-	font-family: helvetica;
+	font-family: Tahoma;
 	font-size: 25px;
 	margin: 25px;
 	background-color: lightgray;
