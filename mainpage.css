@@ -29,16 +29,16 @@
 .title {
     background-image: url("/images/MonsterAdventureland.jpg");
     background-repeat: no-repeat;
-    background-position: left top;
+    background-position: center middle;
     height: 150px;
 }
 .titletext {
 	text-align: center;
 	color: white;
-	line-height: 400px;
+	line-height: 55px;
 	font-family: verdana;
 	text-transform: capitalize;
-	font-size: 45px;
+	font-size: 40px;
 }
 .paragraph1 {
 	text-align: center;
