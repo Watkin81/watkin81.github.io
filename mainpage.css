@@ -14,6 +14,11 @@
   	line-height: 200px;
 }
 
+.icons {
+  text-align: right;
+  line-height: 300px;
+}
+
 /* Instagram Button Style */
 .fa {
   padding: 20px;
