@@ -14,11 +14,6 @@
   	line-height: 200px;
 }
 
-.icons {
-  text-align: right;
-  line-height: 300px;
-}
-
 /* Instagram Button Style */
 .fa {
   padding: 20px;
@@ -27,9 +22,10 @@
   text-align: center;
   text-decoration: none;
   margin: 5px 2px;
+  float: right;
 }
 .fa:hover {
-    background: #9c1a63;
+    opacity: 0.7;
 }
 .fa-instagram {
   background: #C13584
