@@ -14,6 +14,11 @@
   /* max-height: 1000px; */
 }
 
+.cycle {
+  width: 100%;
+  height: auto;
+}
+
 /* Instagram Button Style */
 .fa {
   padding: 20px;
