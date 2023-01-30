@@ -1,4 +1,4 @@
-/* Header Style */
+/* XXXXX| Header |XXXXX*/
 .header {
     background-image: url("/images/header/Manta_SWSD.jpg");
     background-position: center center;
@@ -7,19 +7,7 @@
     width: 100%;
 }
 
-.cycle-image {
-  width: 500px;
-  height: auto;
-  object-fit: cover;
-  /* max-height: 1000px; */
-}
-
-.cycle {
-  width: 500px;
-  height: auto;
-}
-
-/* Instagram Button Style */
+/* XXXXX| Insta Button |XXXXX*/
 .fa {
   padding: 20px;
   font-size: 30px;
@@ -28,6 +16,7 @@
   text-decoration: none;
   /* margin: 5px 2px; */
   float: right;
+  opacity: 1.0;
 }
 .fa:hover {
     opacity: 0.7;
@@ -37,12 +26,13 @@
   color: white;
 }
 
+
+/* XXXXX| Navigation Bar |XXXXX*/
 /* Add a black background color to the top navigation */
 .topnav {
     background-color: #333;
     overflow: hidden;
 }
-
 /* Style the links inside the navigation bar */
 .topnav a {
     float: left;
@@ -54,24 +44,35 @@
     font-size: 17px;
     font-family: Tahoma;
 }
-
 /* Change the color of links on hover */
 .topnav a:hover {
     background-color: #ddd;
     color: black;
 }
-
 /* Add a color to the active/current link */
 .topnav a.active {
     background-color: #4CAF50;
     color: white;
 }
 
+
+/* XXXXX| Image Cycle |XXXXX*/
+#cycle-image {
+  width: 100%;
+  background-size: cover;
+  height: 200px;
+  /* max-height: 1000px; */
+}
+.cycle {
+  width: 100%;
+  background-size: cover;
+  height: 200px;
+}
+
+
+/* XXXXX| Text |XXXXX*/
 .paragraph1 {
 	text-align: center;
 	font-family: Tahoma;
 	font-size: 25px;
-}
-.body1 {
-	background-color: green;
 }
