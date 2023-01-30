@@ -41,7 +41,7 @@
       function makeTable(results) {
       var data = results.data
       const newTable = document.createElement("table");
-      newTable.innerHTML = "<thead><th>Coaster</th><th>Park</th></thead>";
+      newTable.innerHTML = "<thead><th>Rank</th><th>Coaster</th><th>Park</th><th>Manufacturer</th></thead>";
       var j = 0;
       while (j < data.length){
         const newRow = document.createElement("tr");
@@ -49,7 +49,7 @@
         const tdCoaster = document.createElement("td");
         const tdPark = document.createElement("td");
         const tdManu = document.createElement("td");
-        tdCoaster.textContent = data[j].RANK;
+        tdRank.textContent = data[j].RANK;
         tdCoaster.textContent = data[j].COASTER;
         tdPark.textContent = data[j].PARK;    
         tdManu.textContent = data[j].MANUFACTURER;
