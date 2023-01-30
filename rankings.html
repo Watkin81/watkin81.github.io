@@ -30,7 +30,7 @@
         let coasternamelist = "";
         while (i < data.length) {
           text2add = data[i].COASTER;
-          coasternamelist.concat(", ", text2add);
+          coasternamelist = coasternamelist.concat(", ", text2add);
           i++;
         }
         document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + coasternamelist;
