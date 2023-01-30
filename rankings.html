@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html>
   <!-- Page Data -->
-<head>
-  <title>Coaster Rankings</title>
-  <link rel="stylesheet" type="text/css" href="mainpage.css">
-  <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
-</head>
+  <head>
+    <title>Coaster Rankings</title>
+    <link rel="stylesheet" type="text/css" href="mainpage.css">
+    <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
+  </head>
   <body>
+    <!-- Header -->
+    <div class="header" style="margin:0;">
+      <!-- <h1 class="headertitle" style="margin:0;">Jake's Roller Coasters</h1>-->
+      <img src="/images/RCITitle.png" alt="Roller.Coaster.Images" class="center">
+    </div>
+  
+    <!-- Navigation Bar -->
+    <div class="topnav" id="myTopnav" style="margin:0;">
+      <a href="https://watkin81.github.io/index.html">Home</a>
+      <a href="https://watkin81.github.io/rankings.html">Rankings and Data</a>
+      <a href="https://watkin81.github.io/index.html">Coaster Images</a>
+      <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller.Coaster.Images Instagram</a>
+      <a href="https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs" target="_blank" rel="noopener noreferrer">The Official Coaster Nerd Spreadsheet</a>
+      <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
+    </div>
+      
     <p id="coasternames"></p>
     <div id="target">
     </div>
 
     <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
-    <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
     <script type="text/javascript">
       var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
 
