@@ -52,7 +52,7 @@
   background-position: center;
 }
 .cycle img {
-  clip-path: inset(0 25% 0 25%);
+  clip-path: inset(25% 0 25% 0);
 }
 
 
