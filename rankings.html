@@ -4,12 +4,12 @@
   <!DOCTYPE html>
 <html>
   <body>
-    <p id="food"></p>
+    <p id="coasternames"></p>
 
     <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
     <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
     <script type="text/javascript">
-      var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRB4E_6RnpLP1wWMjqcwsUvotNATB8Np3OntlXb7066ULcAHI9oqqRhucltFifPTYNd7DRNRE56oTdt/pub?output=csv';
+      var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
 
       function init() {
         Papa.parse(public_spreadsheet_url, {
@@ -26,7 +26,7 @@
 
         // data comes through as a simple array since simpleSheet is turned on
         alert("Successfully processed " + data.length + " rows!")
-        document.getElementById("food").innerHTML = "<strong>Foods:</strong> " + [ data[0].Name, data[1].Name, data[2].Name ].join(", ");
+        document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + [ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", ");
         console.log(data);
       }
 
