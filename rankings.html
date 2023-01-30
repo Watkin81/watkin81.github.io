@@ -12,7 +12,7 @@
       var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
 
       function init() {
-        Papa.parse(public_spreadsheet_url, {
+        Papa.parse(public_spreadsheet_url), {
           download: true,
           header: true,
           complete: showInfo
@@ -26,7 +26,8 @@
 
         // data comes through as a simple array since simpleSheet is turned on
         alert("Successfully processed " + data.length + " rows!")
-        i = 0;
+        var i = 0;
+        String coasternamelist = "";
         while (i < data.length) {
           text2add = data[i].COASTER;
           coasternamelist.concat(", ", text2add);
