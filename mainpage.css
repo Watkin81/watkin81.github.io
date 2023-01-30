@@ -58,13 +58,13 @@
 
 /* XXXXX| Image Cycle |XXXXX*/
 #cycle-image {
-  width: 1000px;
+  width: 100%;
   background-size: cover;
   height: 200px;
   /* max-height: 1000px; */
 }
 .cycle {
-  width: 1000px;
+  width: 100%;
   background-size: cover;
   height: 200px;
   box-sizing: border-box;
