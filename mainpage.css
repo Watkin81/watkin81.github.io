@@ -55,10 +55,11 @@
   height: 600px;
 }
 .cycle img {
-  position: absolute;
+  /*position: absolute;*/
   margin-left: auto;
   margin-right: auto;
-  position: center center;
+  display: flex;
+  justify-content: center;
 }
 
 
