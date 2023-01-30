@@ -35,6 +35,8 @@
         //console.log(coasternamelist);
       }
       
+      function makeTable(results) {
+      var data = results.data
       const newTable = document.createElement("table");
       newTable.innerHTML = "<thead><th>Coaster</th><th>Park</th></thead>";
       var j = 0;
@@ -52,6 +54,7 @@
 
         const target = document.getElementById('target');
         target.appendChild(newTable);
+        }
 
         document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
