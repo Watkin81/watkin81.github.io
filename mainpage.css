@@ -1,13 +1,13 @@
 /* Header Style */
 .header {
-    /* background-image: url("/images/MonsterAdventureland.jpg");
+    background-image: url("/images/header/MonsterAdventureland.jpg");
     background-position: center center;
-    background-size: cover; */
+    background-size: cover;
     height: 200px;
     width: 100%;
 }
 
-#cycle-image {
+.cycle-image {
   width: 100%;
   height: auto;
   object-fit: cover;
