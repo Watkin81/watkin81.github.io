@@ -8,14 +8,14 @@
 }
 
 .cycle-image {
-  width: 100%;
+  width: 1000px;
   height: auto;
   object-fit: cover;
   /* max-height: 1000px; */
 }
 
 .cycle {
-  width: 100%;
+  width: 1000px;
   height: auto;
 }
 
