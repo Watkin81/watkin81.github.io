@@ -60,13 +60,13 @@
 #cycle-image {
   width: 100%;
   background-size: cover;
-  height: 200px;
+  height: 100%;
   /* max-height: 1000px; */
 }
 .cycle {
   width: 100%;
   background-size: cover;
-  height: 200px;
+  height: 100%;
   box-sizing: border-box;
 }
 
