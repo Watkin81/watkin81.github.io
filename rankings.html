@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html>
+  <!-- Page Data -->
+<head>
+  <title>Coaster Rankings</title>
+  <!--<link rel="stylesheet" type="text/css" href="rankings.css">-->
+  <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
+</head>
   <body>
     <p id="coasternames"></p>
     <div id="target">
@@ -22,7 +28,7 @@
       window.addEventListener('DOMContentLoaded', init)
 
       function showInfo(results) {
-        var data = results.data
+        /* var data = results.data
 
         alert("Successfully processed " + data.length + " rows!") //temp alert
         var i = 0;
@@ -35,37 +41,37 @@
         document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + coasternamelist;
           //[ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", "); will use instead of concat after making table
         console.log(data);
-        //console.log(coasternamelist);
+        //console.log(coasternamelist); */
       }
       
       function makeTable(results) {
-      var data = results.data
-      const newTable = document.createElement("table");
-      newTable.innerHTML = "<thead><th>Rank</th><th>Coaster</th><th>Park</th><th>Manufacturer</th></thead>";
-      var j = 0;
-      while (j < data.length){
-        const newRow = document.createElement("tr");
-        const tdRank = document.createElement("td");
-        const tdCoaster = document.createElement("td");
-        const tdPark = document.createElement("td");
-        const tdManu = document.createElement("td");
-        tdRank.textContent = data[j].RANK;
-        tdCoaster.textContent = data[j].COASTER;
-        tdPark.textContent = data[j].PARK;    
-        tdManu.textContent = data[j].MANUFACTURER;
-        newRow.appendChild(tdRank);
-        newRow.appendChild(tdCoaster);
-        newRow.appendChild(tdPark);
-        newRow.appendChild(tdManu);
-        newTable.appendChild(newRow);
-        j++;
+        var data = results.data
+        const newTable = document.createElement("table");
+        newTable.innerHTML = "<thead><th>Rank</th><th>Coaster</th><th>Park</th><th>Manufacturer</th></thead>";
+        var j = 0;
+        while (j < data.length){
+          const newRow = document.createElement("tr");
+          const tdRank = document.createElement("td");
+          const tdCoaster = document.createElement("td");
+          const tdPark = document.createElement("td");
+          const tdManu = document.createElement("td");
+          tdRank.textContent = data[j].RANK;
+          tdCoaster.textContent = data[j].COASTER;
+          tdPark.textContent = data[j].PARK;    
+          tdManu.textContent = data[j].MANUFACTURER;
+          newRow.appendChild(tdRank);
+          newRow.appendChild(tdCoaster);
+          newRow.appendChild(tdPark);
+          newRow.appendChild(tdManu);
+          newTable.appendChild(newRow);
+          j++;
         }
 
         const target = document.getElementById('target');
         target.appendChild(newTable);
-        }
+      }
         
-        document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
+      document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
   </body>
 </html>
