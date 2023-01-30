@@ -53,6 +53,8 @@
 }
 .cycle img {
   /*position: absolute;*/
+  object-fit: cover;
+  background-size: cover;
 }
 
 
