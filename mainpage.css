@@ -9,9 +9,9 @@
 
 #cycle-image {
   width: 100%;
-  height: 1000px;
+  height: auto;
   object-fit: cover;
-  max-height: 1000px;
+  /* max-height: 1000px; */
 }
 
 /* Instagram Button Style */
