@@ -48,6 +48,8 @@
   overflow: hidden;
   position: relative;
   height: 600px;
+  position: absolute;
+  width: 100%;
 }
 .cycle img {
   /*position: absolute;*/
