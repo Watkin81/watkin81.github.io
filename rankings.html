@@ -37,15 +37,17 @@
       
       const newTable = document.createElement("table");
       newTable.innerHTML = "<thead><th>Coaster</th><th>Park</th></thead>";
-      for(data of data){
+      var j = 0;
+      while (j < data.length){
         const newRow = document.createElement("tr");
-        const tdPlayer = document.createElement("td");
-        const tdScore = document.createElement("td");
-        tdCoaster.textContent = data.COASTER;
-        tdPark.textContent = data.PARK;    
+        const tdCoaster = document.createElement("td");
+        const tdPark = document.createElement("td");
+        tdCoaster.textContent = data[j].COASTER;
+        tdPark.textContent = data[j].PARK;    
         newRow.appendChild(tdCoaster);
         newRow.appendChild(tdPark);
         newTable.appendChild(newRow);
+        j++;
         }
 
         const target = document.getElementById('target');
