@@ -12,7 +12,8 @@
         Papa.parse(public_spreadsheet_url, {
           download: true,
           header: true,
-          complete: showInfo
+          complete: showInfo,
+          complete: makeTable
         })
       }
 
