@@ -34,8 +34,24 @@
         console.log(data);
         //console.log(coasternamelist);
       }
+      
+      const newTable = document.createElement("table");
+      newTable.innerHTML = "<thead><th>Coaster</th><th>Park</th></thead>";
+      for(coasters of coasters){
+        const newRow = document.createElement("tr");
+        const tdPlayer = document.createElement("td");
+        const tdScore = document.createElement("td");
+        tdCoaster.textContent = data.COASTER;
+        tdPark.textContent = data.PARK;    
+        newRow.appendChild(tdCoaster);
+        newRow.appendChild(tdPark);
+        newTable.appendChild(newRow);
+        }
 
-      document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
+        const target = document.getElementById('target');
+        target.appendChild(newTable);
+
+        document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
   </body>
 </html>
