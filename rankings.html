@@ -21,8 +21,7 @@
       function showInfo(results) {
         var data = results.data
 
-        // data comes through as a simple array since simpleSheet is turned on
-        alert("Successfully processed " + data.length + " rows!")
+        alert("Successfully processed " + data.length + " rows!") //temp alert
         var i = 0;
         let coasternamelist = "";
         while (i < data.length) {
@@ -31,12 +30,12 @@
           i++;
         }
         document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + coasternamelist;
-          //[ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", ");
+          //[ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", "); will use instead of concat after making table
         console.log(data);
         //console.log(coasternamelist);
       }
 
-      document.write("The published spreadsheet is located at <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
+      document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
   </body>
 </html>
