@@ -26,7 +26,14 @@
 
         // data comes through as a simple array since simpleSheet is turned on
         alert("Successfully processed " + data.length + " rows!")
-        document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + [ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", ");
+        i = 0;
+        while (i < data.length) {
+          text2add = data[i].COASTER;
+          coasternamelist.concat(", ", text2add);
+          i++;
+        }
+        document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + coasternamelist;
+          <!--[ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", ");-->
         console.log(data);
       }
 
