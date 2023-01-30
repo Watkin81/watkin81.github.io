@@ -37,22 +37,30 @@
 }
 
 
-/* XXXXX| Image Cycle |XXXXX*/
+/* XXXXX| Image Cycle |XXXXX
 #cycle-image {
   width: 100%;
   height: 20%;
   background-size: cover;
   overflow: hidden;
-}
+}*/
 .cycle {
-  width: 100%;
+  /*width: 100%;
   height: 20%;
   background-size: cover;
   box-sizing: border-box;
-  background-position: center;
+  background-position: center;*/
+  overflow: hidden;
+  position: relative;
+  height: 370px;
 }
 .cycle img {
-  
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 
