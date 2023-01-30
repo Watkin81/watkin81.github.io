@@ -45,12 +45,18 @@
       var j = 0;
       while (j < data.length){
         const newRow = document.createElement("tr");
+        const tdRank = document.createElement("td");
         const tdCoaster = document.createElement("td");
         const tdPark = document.createElement("td");
+        const tdManu = document.createElement("td");
+        tdCoaster.textContent = data[j].RANK;
         tdCoaster.textContent = data[j].COASTER;
         tdPark.textContent = data[j].PARK;    
+        tdManu.textContent = data[j].MANUFACTURER;
+        newRow.appendChild(tdRank);
         newRow.appendChild(tdCoaster);
         newRow.appendChild(tdPark);
+        newRow.appendChild(tdManu);
         newTable.appendChild(newRow);
         j++;
         }
