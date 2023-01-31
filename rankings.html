@@ -45,7 +45,7 @@ function searchFunction() {
     td = tr[i].getElementsByTagName("td")[1];
     te = tr[i].getElementsByTagName("td")[2];
     if (td || te) {
-      txtValue = td.textContent || td.innerText;
+      txtValue = ((td.textContent || td.innerText) || (te.textContent || te.innerText));
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
       } else {
