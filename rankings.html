@@ -68,18 +68,12 @@
           newTable.appendChild(newRow);
           j++;
         }
-        console.log("CREATES ROWS");
 
         const coasterTable = document.getElementById('coasterTable');
         coasterTable.appendChild(newTable);
       }
      
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
-    
-    
-    
-    <!-- TABLE SORT/SEARCH SCRIPTS HERE -->
-    
     
       function searchFunction() {
         // Declare variables
@@ -116,7 +110,6 @@
         while (switching) {
           // Start by saying: no switching is done:
           switching = false;
-          console.log("CHECKS FOR ROWS");
           console.log(coasterTable);
           console.log(coasterTable.rows);
           rows = coasterTable.rows;
