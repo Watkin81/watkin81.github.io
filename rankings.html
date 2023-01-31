@@ -97,7 +97,7 @@
         for (i = 0; i < tr.length; i++) {
           td3 = tr[i].getElementsByTagName("td")[3];
           if (td3) {
-            txtValue3 = (td1.textContent || td1.innerText);
+            txtValue3 = (td3.textContent || td3.innerText);
             if (txtValue3.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
             } else {
