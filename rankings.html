@@ -162,8 +162,8 @@
     tdCoaster = tr[i].getElementsByTagName("td")[1];
     tdPark = tr[i].getElementsByTagName("td")[2];
     tdManu = tr[i].getElementsByTagName("td")[3];
-    if (tdRank || tdCoaster || tdPark || tdManu) {
-      txtValue = tdCoaster.textContent || tdRank.textContent || tdPark.textContent || tdManu.textContent;
+    if (tdCoaster || tdPark) {
+      txtValue = tdCoaster.textContent || tdPark.textContent;
       if (txtValue.toUpperCase().indexOf(filter) > -1 && txtValue.toUpperCase().indexOf(selectFilter) > -1) {
         tr[i].style.display = "";
       } else {
