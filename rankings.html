@@ -31,7 +31,49 @@
     <div id="coasterTable">
     </div>
     
-    <script>
+    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
+    <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
+
+      function init() {
+        Papa.parse(public_spreadsheet_url, {
+          download: true,
+          header: true,
+          complete: makeTable
+        })
+      }
+
+      window.addEventListener('DOMContentLoaded', init)
+      
+      function makeTable(results) {
+        var data = results.data
+        const newTable = document.createElement("table");
+        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th></thead>';
+        var j = 0;
+        while (j < data.length){
+          const newRow = document.createElement("tr");
+          const tdRank = document.createElement("td");
+          const tdCoaster = document.createElement("td");
+          const tdPark = document.createElement("td");
+          const tdManu = document.createElement("td");
+          tdRank.textContent = data[j].RANK;
+          tdCoaster.textContent = data[j].COASTER;
+          tdPark.textContent = data[j].PARK;    
+          tdManu.textContent = data[j].MANUFACTURER;
+          newRow.appendChild(tdRank);
+          newRow.appendChild(tdCoaster);
+          newRow.appendChild(tdPark);
+          newRow.appendChild(tdManu);
+          newTable.appendChild(newRow);
+          j++;
+        }
+
+        const coasterTable = document.getElementById('coasterTable');
+        coasterTable.appendChild(newTable);
+      }
+      
+      <script>
       function searchFunction() {
         // Declare variables
         var input, filter, table, tr, td1, td2, i, txtValue;
@@ -111,48 +153,6 @@
         }
       }
     </script>
-    
-    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
-    <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-      var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
-
-      function init() {
-        Papa.parse(public_spreadsheet_url, {
-          download: true,
-          header: true,
-          complete: makeTable
-        })
-      }
-
-      window.addEventListener('DOMContentLoaded', init)
-      
-      function makeTable(results) {
-        var data = results.data
-        const newTable = document.createElement("table");
-        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th></thead>';
-        var j = 0;
-        while (j < data.length){
-          const newRow = document.createElement("tr");
-          const tdRank = document.createElement("td");
-          const tdCoaster = document.createElement("td");
-          const tdPark = document.createElement("td");
-          const tdManu = document.createElement("td");
-          tdRank.textContent = data[j].RANK;
-          tdCoaster.textContent = data[j].COASTER;
-          tdPark.textContent = data[j].PARK;    
-          tdManu.textContent = data[j].MANUFACTURER;
-          newRow.appendChild(tdRank);
-          newRow.appendChild(tdCoaster);
-          newRow.appendChild(tdPark);
-          newRow.appendChild(tdManu);
-          newTable.appendChild(newRow);
-          j++;
-        }
-
-        const coasterTable = document.getElementById('coasterTable');
-        coasterTable.appendChild(newTable);
-      }
         
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
