@@ -23,11 +23,37 @@
       <a href="https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs" target="_blank" rel="noopener noreferrer">The Official Coaster Nerd Spreadsheet</a>
       <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
     </div>
-      
+    
+    <input type="text" id="coasterInput" onkeyup="searchFunction()" placeholder="Search for coasters..">
+    
     <p id="coasternames"></p>
-    <div id="target">
+    <div id="coasterTable">
     </div>
+    
+    <script>
+function searchFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("coasterInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("coasterTable");
+  tr = table.getElementsByTagName("tr");
 
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+    
     <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
     <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
     <script type="text/javascript">
@@ -84,8 +110,8 @@
           j++;
         }
 
-        const target = document.getElementById('target');
-        target.appendChild(newTable);
+        const coasterTable = document.getElementById('coasterTable');
+        coasterTable.appendChild(newTable);
       }
         
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
