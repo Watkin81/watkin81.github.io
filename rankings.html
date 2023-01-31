@@ -148,37 +148,35 @@
         }
       } */
       
-      // Get references to the table, search bar, and dropdown menu
-var searchTable = document.getElementById("coasterTable");
-var searchBar = document.getElementById("coasterInput");
-var dropdown = document.getElementById("selectManu");
-      
-      var table = searchTable.getElementsByTagName("tr");
+   function filterRows() {
+  var input, filter, select, table, tr, tdRank, tdCoaster, tdPark, tdManu, i, txtValue;
+  input = document.getElementById("coasterInput");
+  filter = input.value.toUpperCase();
+  select = document.getElementById("selectManu");
+  selectFilter = select.options[select.selectedIndex].value.toUpperCase();
+  table = document.getElementById("coasterTable");
+  tr = table.getElementsByTagName("tr");
 
-// Listen for changes to the search bar and dropdown menu
-searchBar.addEventListener("input", filterTable);
-dropdown.addEventListener("change", filterTable);
-
-// Define the filterTable function
-function filterTable() {
-  // Get the search term and selected dropdown option
-  var searchTerm = searchBar.value.toLowerCase();
-  var selectedOption = dropdown.value;
-
-  // Loop through each row of the table
-  for (var i = 1; i < table.rows.length; i++) {
-    // Get the values from the cells in the current row
-    var td1 = tr[i].getElementsByTagName("td")[1];
-    var td2 = tr[i].getElementsByTagName("td")[2];
-    var td3 = tr[i].getElementsByTagName("td")[3];
-
-    // Check if the values match the search term and selected dropdown option
-    var isMatch = td1.indexOf(searchTerm) > -1 && td2 === selectedOption;
-
-    // Show or hide the row based on whether the values match
-    table.rows[i].style.display = isMatch ? "" : "none";
+  for (i = 0; i < tr.length; i++) {
+    tdRank = tr[i].getElementsByTagName("td")[0];
+    tdCoaster = tr[i].getElementsByTagName("td")[1];
+    tdPark = tr[i].getElementsByTagName("td")[2];
+    tdManu = tr[i].getElementsByTagName("td")[3];
+    if (tdRank || tdCoaster || tdPark || tdManu) {
+      txtValue = tdCoaster.textContent || tdRank.textContent || tdPark.textContent || tdManu.textContent;
+      if (txtValue.toUpperCase().indexOf(filter) > -1 && txtValue.toUpperCase().indexOf(selectFilter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
   }
 }
+
+// Event listener for the input and select elements
+document.getElementById("coasterInput").addEventListener("keyup", filterRows);
+document.getElementById("selectManu").addEventListener("change", filterRows);
+
       
     </script> 
   </body>
