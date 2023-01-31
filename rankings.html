@@ -68,6 +68,7 @@
           newTable.appendChild(newRow);
           j++;
         }
+        console.log("CREATES ROWS");
 
         const coasterTable = document.getElementById('coasterTable');
         coasterTable.appendChild(newTable);
@@ -116,6 +117,7 @@
           // Start by saying: no switching is done:
           switching = false;
           rows = table.rows;
+          console.log("CHECKS FOR ROWS");
           /* Loop through all table rows (except the
           first, which contains table headers): */
           for (i = 1; i < (rows.length - 1); i++) {
