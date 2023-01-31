@@ -148,34 +148,31 @@
         }
       } */
       
-   function filterRows() {
-  var input, filter, select, table, tr, tdRank, tdCoaster, tdPark, tdManu, i, txtValue;
+  function filterTable() {
+  var input, filter, table, tr, td, i, txtValue, select;
   input = document.getElementById("coasterInput");
   filter = input.value.toUpperCase();
   select = document.getElementById("selectManu");
-  selectFilter = select.options[select.selectedIndex].value.toUpperCase();
+  selectedOption = select.options[select.selectedIndex].value.toUpperCase();
   table = document.getElementById("coasterTable");
   tr = table.getElementsByTagName("tr");
 
   for (i = 0; i < tr.length; i++) {
-    tdRank = tr[i].getElementsByTagName("td")[0];
-    tdCoaster = tr[i].getElementsByTagName("td")[1];
-    tdPark = tr[i].getElementsByTagName("td")[2];
-    tdManu = tr[i].getElementsByTagName("td")[3];
-    if (tdCoaster || tdPark) {
-      txtValue = tdCoaster.textContent || tdPark.textContent;
-      if (txtValue.toUpperCase().indexOf(filter) > -1 && txtValue.toUpperCase().indexOf(selectFilter) > -1) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1 && (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1)) {
         tr[i].style.display = "";
       } else {
         tr[i].style.display = "none";
       }
-    }
+    }       
   }
 }
 
 // Event listener for the input and select elements
-document.getElementById("coasterInput").addEventListener("keyup", filterRows);
-document.getElementById("selectManu").addEventListener("change", filterRows);
+document.getElementById("coasterInput").addEventListener("keyup", filterTable);
+document.getElementById("selectManu").addEventListener("change", filterTable);
 
       
     </script> 
