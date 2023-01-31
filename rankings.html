@@ -96,7 +96,7 @@
       }
      
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
-    
+ /*
       function searchManuFunction() {
         // Declare variables
         var input, filter, searchTable, tr, td3, i, txtValue;
@@ -146,7 +146,38 @@
             }
           }
         }
-      }
+      } */
+      
+      // Get references to the table, search bar, and dropdown menu
+var table = document.getElementById("coasterTable");
+var searchBar = document.getElementById("coasterInput");
+var dropdown = document.getElementById("selectManu");
+
+// Listen for changes to the search bar and dropdown menu
+searchBar.addEventListener("input", filterTable);
+dropdown.addEventListener("change", filterTable);
+
+// Define the filterTable function
+function filterTable() {
+  // Get the search term and selected dropdown option
+  var searchTerm = searchBar.value.toLowerCase();
+  var selectedOption = dropdown.value;
+
+  // Loop through each row of the table
+  for (var i = 1; i < table.rows.length; i++) {
+    // Get the values from the cells in the current row
+    var cells = table.rows[i].cells;
+    var cell1Value = cells[0].textContent.toLowerCase();
+    var cell2Value = cells[1].textContent.toLowerCase();
+
+    // Check if the values match the search term and selected dropdown option
+    var isMatch = cell1Value.indexOf(searchTerm) > -1 &&
+                  cell2Value === selectedOption;
+
+    // Show or hide the row based on whether the values match
+    table.rows[i].style.display = isMatch ? "" : "none";
+  }
+}
       
     </script> 
   </body>
