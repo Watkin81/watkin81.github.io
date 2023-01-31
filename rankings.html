@@ -148,7 +148,7 @@
       function makeTable(results) {
         var data = results.data
         const newTable = document.createElement("table");
-        newTable.innerHTML = "<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th></thead>";
+        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th></thead>';
         var j = 0;
         while (j < data.length){
           const newRow = document.createElement("tr");
