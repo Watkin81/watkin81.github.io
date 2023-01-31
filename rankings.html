@@ -72,8 +72,14 @@
         const coasterTable = document.getElementById('coasterTable');
         coasterTable.appendChild(newTable);
       }
-      
-      <script>
+     
+      document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
+    </script>
+    
+    
+    <!-- TABLE SORT/SEARCH SCRIPTS HERE -->
+    
+    <script>
       function searchFunction() {
         // Declare variables
         var input, filter, table, tr, td1, td2, i, txtValue;
@@ -152,9 +158,6 @@
           }
         }
       }
-    </script>
-        
-      document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
     </script>
   </body>
 </html>
