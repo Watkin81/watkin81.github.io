@@ -45,6 +45,13 @@
         
       </select>
     
+    <label>Sort Type:</label>
+      <select id="selectType">
+        <option value="">Both Types</option>
+        <option value="steel">Steel</option>
+        <option value="wood">Wood</option>
+      </select>
+    
     <input type="text" id="coasterInput" placeholder="🔎︎ Search for a coaster or park..." margin-left:auto;margin-right:auto;>
     
     <br>
@@ -70,7 +77,7 @@
       function makeTable(results) {
         var data = results.data
         const newTable = document.createElement("table");
-        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th></thead>';
+        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th><th onclick="sortTable(3)">Type</th></thead>';
         var j = 0;
         while (j < data.length){
           const newRow = document.createElement("tr");
@@ -78,14 +85,17 @@
           const tdCoaster = document.createElement("td");
           const tdPark = document.createElement("td");
           const tdManu = document.createElement("td");
+          const tdType = document.createElement("td");
           tdRank.textContent = data[j].RANK;
           tdCoaster.textContent = data[j].COASTER;
           tdPark.textContent = data[j].PARK;    
           tdManu.textContent = data[j].MANUFACTURER;
+          tdType.textContent = data[j].TYPE;
           newRow.appendChild(tdRank);
           newRow.appendChild(tdCoaster);
           newRow.appendChild(tdPark);
           newRow.appendChild(tdManu);
+          newRow.appendChild(tdType);
           newTable.appendChild(newRow);
           j++;
         }
@@ -149,11 +159,13 @@
       } */
       
   function filterTable() {
-  var input, filter, table, tr, td, te, i, txtValue, txtValue2, select;
+  var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
   input = document.getElementById("coasterInput");
   filter = input.value.toUpperCase();
   select = document.getElementById("selectManu");
   selectedOption = select.options[select.selectedIndex].value.toUpperCase();
+  selectt = document.getElementById("selectType");
+  selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
   table = document.getElementById("coasterTable");
   tr = table.getElementsByTagName("tr");
 
@@ -163,7 +175,9 @@
     if (td || te) {
       txtValue = td.textContent || td.innerText;
       txtValue2 = te.textContent || te.innerText;
-      if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1)) {
+      if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
+          (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
+          (selecttedOption === "ALL TYPES" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
         tr[i].style.display = "";
       } else {
         tr[i].style.display = "none";
@@ -175,6 +189,7 @@
 // Event listener for the input and select elements
 document.getElementById("coasterInput").addEventListener("keyup", filterTable);
 document.getElementById("selectManu").addEventListener("change", filterTable);
+document.getElementById("selectType").addEventListener("change", filterTable);
 
       
     </script> 
