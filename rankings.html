@@ -77,11 +77,11 @@
     
       function searchFunction() {
         // Declare variables
-        var input, filter, coasterTable, tr, td1, td2, i, txtValue;
+        var input, filter, searchTable, tr, td1, td2, i, txtValue;
         input = document.getElementById("coasterInput");
         filter = input.value.toUpperCase();
-        coasterTable = document.getElementById("coasterTable");
-        tr = table.getElementsByTagName("tr");
+        searchTable = document.getElementById("coasterTable");
+        tr = searchTable.getElementsByTagName("tr");
 
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
@@ -100,8 +100,8 @@
       }
       
       function sortTable(n) {
-        var coasterTable, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-        coasterTable = document.getElementById("coasterTable");
+        var sortingTable, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        sortingTable = document.getElementById("coasterTable");
         switching = true;
         // Set the sorting direction to ascending:
         dir = "asc";
@@ -110,9 +110,9 @@
         while (switching) {
           // Start by saying: no switching is done:
           switching = false;
-          console.log(coasterTable);
-          console.log(coasterTable.rows);
-          rows = coasterTable.rows;
+          console.log(sortingTable);
+          console.log(sortingTable.rows);
+          rows = sortingTable.rows;
           /* Loop through all table rows (except the
           first, which contains table headers): */
           for (i = 1; i < (rows.length - 1); i++) {
@@ -120,8 +120,8 @@
             shouldSwitch = false;
             /* Get the two elements you want to compare,
             one from current row and one from the next: */
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
+            x = rows[i].getElementsByTagName("td")[n];
+            y = rows[i + 1].getElementsByTagName("td")[n];
             /* Check if the two rows should switch place,
             based on the direction, asc or desc: */
             if (dir == "asc") {
