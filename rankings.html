@@ -24,7 +24,7 @@
       <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
     </div>
     
-    <p> CHANGE ME LOL: 12<p>
+    <p> version: 13<p>
     <label>Sort Manu:</label>
       <select id="selectManu" onchange="searchManuFunction()">
         <option value="all">All Manufacturers</option>
@@ -86,21 +86,19 @@
     
       function searchManuFunction() {
         // Declare variables
-        var input, filter, searchTable, tr, td1, td2, i, txtValue;
+        var input, filter, searchTable, tr, td3, i, txtValue;
         input = document.getElementById("selectManu");
         filter = input.value.toUpperCase();
         searchTable = document.getElementById("coasterTable");
         tr = searchTable.getElementsByTagName("tr");
 
         // Loop through all table rows, and hide those who don't match the search query
-        if (filter != "all") {
+        if (filter != "ALL") {
         for (i = 0; i < tr.length; i++) {
-          td1 = tr[i].getElementsByTagName("td")[1];
-          td2 = tr[i].getElementsByTagName("td")[2];
-          if (td1 || td2) {
-            txtValue1 = (td1.textContent || td1.innerText);
-            txtValue2 = (td2.textContent || td2.innerText);
-            if ((txtValue1.toUpperCase().indexOf(filter) > -1) || (txtValue2.toUpperCase().indexOf(filter) > -1)) {
+          td3 = tr[i].getElementsByTagName("td")[3];
+          if (td3) {
+            txtValue3 = (td1.textContent || td1.innerText);
+            if (txtValue3.toUpperCase().indexOf(filter) > -1) {
               tr[i].style.display = "";
             } else {
               tr[i].style.display = "none";
