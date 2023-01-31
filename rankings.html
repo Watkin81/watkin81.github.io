@@ -149,9 +149,11 @@
       } */
       
       // Get references to the table, search bar, and dropdown menu
-var table = document.getElementById("coasterTable");
+var searchTable = document.getElementById("coasterTable");
 var searchBar = document.getElementById("coasterInput");
 var dropdown = document.getElementById("selectManu");
+      
+      var table = searchTable.getElementsByTagName("tr");
 
 // Listen for changes to the search bar and dropdown menu
 searchBar.addEventListener("input", filterTable);
