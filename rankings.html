@@ -168,13 +168,12 @@ function filterTable() {
   // Loop through each row of the table
   for (var i = 1; i < table.rows.length; i++) {
     // Get the values from the cells in the current row
-    var cells = table.rows[i].cells;
-    var cell1Value = cells[0].textContent.toLowerCase();
-    var cell2Value = cells[1].textContent.toLowerCase();
+    var td1 = tr[i].getElementsByTagName("td")[1];
+    var td2 = tr[i].getElementsByTagName("td")[2];
+    var td3 = tr[i].getElementsByTagName("td")[3];
 
     // Check if the values match the search term and selected dropdown option
-    var isMatch = cell1Value.indexOf(searchTerm) > -1 &&
-                  cell2Value === selectedOption;
+    var isMatch = td1.indexOf(searchTerm) > -1 && td2 === selectedOption;
 
     // Show or hide the row based on whether the values match
     table.rows[i].style.display = isMatch ? "" : "none";
