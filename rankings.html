@@ -121,29 +121,11 @@
         Papa.parse(public_spreadsheet_url, {
           download: true,
           header: true,
-          complete: showInfo,
           complete: makeTable
         })
       }
 
       window.addEventListener('DOMContentLoaded', init)
-
-      function showInfo(results) {
-        /* var data = results.data    prob can remove idk yet
-
-        alert("Successfully processed " + data.length + " rows!") //temp alert
-        var i = 0;
-        let coasternamelist = "";
-        while (i < data.length) {
-          text2add = data[i].COASTER;
-          coasternamelist = coasternamelist.concat(", ", text2add);
-          i++;
-        }
-        document.getElementById("coasternames").innerHTML = "<strong>Coaster Names:</strong> " + coasternamelist;
-          //[ data[0].COASTER, data[1].COASTER, data[2].COASTER ].join(", "); will use instead of concat after making table
-        console.log(data);
-        //console.log(coasternamelist); */
-      }
       
       function makeTable(results) {
         var data = results.data
