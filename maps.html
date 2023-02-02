@@ -12,36 +12,28 @@
   
   <!-- Temp text -->
   <div class="paragraph1" style="margin:0;">
-    Coming Soon(ish)!
+    map
   </div>
   
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs3x5aql0_KziRnLo8t6jd9QQBBPY2rBs"></script>
-  <div id="map" style="width:500px; height:400px;"></div>
+  <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.2.1/build/ol.js"></script>
+  <div id="map" style="width:100%; height:500px;"></div>
+
   
-  <script>
-    var map;
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 37.7749, lng: -122.4194},
-    zoom: 8
-  });
+ <script>
+var map = new ol.Map({
+  target: 'map',
+  layers: [
+    new ol.layer.Tile({
+      source: new ol.source.OSM()
+    })
+  ],
+  view: new ol.View({
+    center: ol.proj.fromLonLat([37.41, 8.82]),
+    zoom: 4
+  })
+});
+</script>
 
-  // Add markers for the data
-  var data = [
-    {lat: 37.7749, lng: -122.4194, title: 'San Francisco'},
-    {lat: 40.7128, lng: -74.0060, title: 'New York'},
-    {lat: 34.0522, lng: -118.2437, title: 'Los Angeles'}
-  ];
-
-  data.forEach(function(item) {
-    var marker = new google.maps.Marker({
-      position: {lat: item.lat, lng: item.lng},
-      map: map,
-      title: item.title
-    });
-  });
-}
-  </script>
   
 </body>
 </html>
