@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html>
 
-<!-- Page Data -->
 <head>
   <title>Coaster Maps</title>
   <link rel="stylesheet" type="text/css" href="mainpage.css">
@@ -10,7 +9,6 @@
 
 <body>
   
-  <!-- Temp text -->
   <div class="paragraph1" style="margin:0;">
     map
   </div>
@@ -40,4 +38,34 @@
   </script>
   
 </body>
+</html>-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OpenStreetMap Example</title>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+    <style>
+      #map {
+        width: 100%;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([-98.5795, 39.828175]),
+          zoom: 4
+        })
+      });
+    </script>
+  </body>
 </html>
