@@ -1,1 +1,47 @@
-s
+<!DOCTYPE html>
+<html>
+
+<!-- Page Data -->
+<head>
+  <title>Coaster Maps</title>
+  <link rel="stylesheet" type="text/css" href="mainpage.css">
+  <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
+</head>
+
+<body onload="initMap()">
+  
+  <!-- Temp text -->
+  <div class="paragraph1" style="margin:0;">
+    Coming Soon(ish)!
+  </div>
+  
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs3x5aql0_KziRnLo8t6jd9QQBBPY2rBs"></script>
+  <div id="map" style="width:500px; height:400px;"></div>
+  
+  <script>
+    var map;
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 37.7749, lng: -122.4194},
+    zoom: 8
+  });
+
+  // Add markers for the data
+  var data = [
+    {lat: 37.7749, lng: -122.4194, title: 'San Francisco'},
+    {lat: 40.7128, lng: -74.0060, title: 'New York'},
+    {lat: 34.0522, lng: -118.2437, title: 'Los Angeles'}
+  ];
+
+  data.forEach(function(item) {
+    var marker = new google.maps.Marker({
+      position: {lat: item.lat, lng: item.lng},
+      map: map,
+      title: item.title
+    });
+  });
+}
+  </script>
+  
+</body>
+</html>
