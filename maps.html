@@ -66,6 +66,37 @@
           zoom: 4
         })
       });
+      
+      var markerFeatures = [];
+
+// Define marker locations
+var markerLocations = [
+  [39.828175, -98.5795],
+  [51.509865, -0.118092],
+  [40.785091, -73.968285],
+  // Add more marker locations here
+];
+
+// Loop through marker locations and create a feature for each
+for (var i = 0; i < markerLocations.length; i++) {
+  var markerFeature = new ol.Feature({
+    geometry: new ol.geom.Point(ol.proj.fromLonLat(markerLocations[i])),
+  });
+  markerFeatures.push(markerFeature);
+}
+
+// Create a vector source from the marker features
+var markerSource = new ol.source.Vector({
+  features: markerFeatures
+});
+
+// Create a vector layer from the marker source
+var markerLayer = new ol.layer.Vector({
+  source: markerSource
+});
+
+// Add the marker layer to the map
+map.addLayer(markerLayer);
     </script>
   </body>
 </html>
