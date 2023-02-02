@@ -15,12 +15,8 @@
     map
   </div>
   
-  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
-  <div id="map" style="width:100%; height:1000px;"></div>
-
-  
- <script>
-var map = new ol.Map({
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js">
+  var map = new ol.Map({
   target: 'map',
   layers: [
     new ol.layer.Tile({
@@ -32,8 +28,9 @@ var map = new ol.Map({
     zoom: 4
   })
 });
-</script>
-
+    console.log(ol.Map);
+  </script>
+  <div id="map" style="width:100%; height:1000px;"></div>
   
 </body>
 </html>
