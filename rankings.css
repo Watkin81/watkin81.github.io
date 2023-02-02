@@ -12,13 +12,14 @@
   border: 1px solid #ddd; /* Add a grey border */
   font-size: 18px; /* Increase font-size */
   font-family: Tahoma;
-  margin-left: auto;
-  margin-right: auto;
+  margin: auto;
+  width: 60%;
 }
 
 #coasterTable th, #coasterTable td {
   text-align: left; /* Left-align text */
   padding: 12px; /* Add padding */
+  width: 15%;
 }
 
 #coasterTable tr {
