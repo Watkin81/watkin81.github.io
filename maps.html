@@ -32,6 +32,11 @@
   })
 });
     console.log(ol.Map);
+    
+    map.on("rendercomplete", function() {
+  console.log("Map is being rendered");
+});
+
   </script>
   
 </body>
