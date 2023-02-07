@@ -11,6 +11,10 @@
   font-family: Tahoma;
   font-size: 18px;
   margin: auto;
+  width: 49.5%;
+  padding: 10px 18px 10px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
 }
 
 #selectType {
