@@ -3,6 +3,7 @@
   font-size: 17px; /* Increase font-size */
   padding: 12px 0px 12px 12px; /* Add some padding */
   border: 1px solid #ddd; /* Add a grey border */
+  margin: auto;
   /*margin-bottom: 12px; /* Add some space below the input */
 }
 
