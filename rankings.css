@@ -7,6 +7,18 @@
   /*margin-bottom: 12px; /* Add some space below the input */
 }
 
+#selectManu {
+  font-family: Tahoma;
+  font-size: 18px;
+  margin: auto;
+}
+
+#selectType {
+  font-family: Tahoma;
+  font-size: 18px;
+  margin: auto;
+}
+
 #coasterTable {
   border-collapse: collapse; /* Collapse borders */
   /*width: 100%; /* Full-width */
