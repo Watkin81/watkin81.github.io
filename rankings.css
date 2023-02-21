@@ -1,17 +1,19 @@
 #coasterInput {
-  width: 75%; /* Full-width */
+  width: 50%; /* Full-width */
   font-size: 17px; /* Increase font-size */
   padding: 12px 0px 12px 12px; /* Add some padding */
   border: 1px solid #ddd; /* Add a grey border */
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
   /*margin-bottom: 12px; /* Add some space below the input */
 }
 
 #selectManu {
   font-family: Tahoma;
   font-size: 18px;
-  margin: auto;
-  width: 49.5%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 25%;
   padding: 10px 18px 10px 10px;
   border: 1px solid #ddd;
   margin-bottom: 8px;
@@ -20,7 +22,12 @@
 #selectType {
   font-family: Tahoma;
   font-size: 18px;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+  width: 25%;
+  padding: 10px 18px 10px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
 }
 
 #coasterTable {
@@ -30,7 +37,7 @@
   font-size: 18px; /* Increase font-size */
   font-family: Tahoma;
   margin: auto;
-  width: 60%;
+  width: 50%;
 }
 
 #coasterTable th, #coasterTable td {
