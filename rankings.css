@@ -24,7 +24,7 @@
   margin-bottom: 8px;
 }
 
-#options {
+.options {
   display: flex;
   justify-content: center;
   align-items: center;
