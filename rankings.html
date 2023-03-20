@@ -26,6 +26,9 @@
     <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
   </div>
     
+    <p id="coasterCountElement"></p>
+    <p id="parkCountElement"></p>
+    
     <div class="options">
       <br>
       <select id="selectManu">
@@ -135,6 +138,13 @@
       document.getElementById("loader").style.display = "none";
      
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
+      
+  var coasterCount = data[8].AGGREGATE_STATS;
+  var coasterCountEl = document.getElementById("coasterCountElement");
+  var parkCount = data[13].AGGREGATE_STATS;
+  var parkCountEl = document.getElementById("parkCountElement");
+  coasterCountEl = coasterCount;
+  parkCountEl = parkCount;
       
   function filterTable() {
   var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
