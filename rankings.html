@@ -135,17 +135,16 @@
         
         var coasterCount = data[8].AGGREGATE_STATS;
         var parkCount = data[13].AGGREGATE_STATS;
+        var coasterCountEl = document.getElementById("coasterCountElement");
+        var parkCountEl = document.getElementById("parkCountElement");
+        coasterCountEl = coasterCount;
+        parkCountEl = parkCount;
       }
       
       // Hide the loader after the delay
       document.getElementById("loader").style.display = "none";
      
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
-      
-  var coasterCountEl = document.getElementById("coasterCountElement");
-  var parkCountEl = document.getElementById("parkCountElement");
-  coasterCountEl = coasterCount;
-  parkCountEl = parkCount;
       
   function filterTable() {
   var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
