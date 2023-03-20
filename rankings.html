@@ -132,6 +132,9 @@
         const coasterTable = document.getElementById('coasterTableDiv');
         coasterTable.appendChild(newTable);
         coasterTable.setAttribute("id", "coasterTable");
+        
+        var coasterCount = data[8].AGGREGATE_STATS;
+        var parkCount = data[13].AGGREGATE_STATS;
       }
       
       // Hide the loader after the delay
@@ -139,9 +142,7 @@
      
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
       
-  var coasterCount = data[8].AGGREGATE_STATS;
   var coasterCountEl = document.getElementById("coasterCountElement");
-  var parkCount = data[13].AGGREGATE_STATS;
   var parkCountEl = document.getElementById("parkCountElement");
   coasterCountEl = coasterCount;
   parkCountEl = parkCount;
