@@ -137,8 +137,8 @@
         var parkCount = data[11].AGGREGATE_STATS;
         var coasterCountEl = document.getElementById("coasterCountElement");
         var parkCountEl = document.getElementById("parkCountElement");
-        coasterCountEl = coasterCount;
-        parkCountEl = parkCount;
+        coasterCountEl.innerHTML = coasterCount;
+        parkCountEl.innerHTML = parkCount;
         console.log(coasterCount);
         console.log(parkCount);
       }
