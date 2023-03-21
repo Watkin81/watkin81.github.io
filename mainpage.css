@@ -7,6 +7,11 @@
     width: 100%;
 }
 
+.headerimg {
+  max-width: 100%;
+  height: auto;
+}
+
 
 /* XXXXX| Navigation Bar |XXXXX*/
 /* Add a black background color to the top navigation */
