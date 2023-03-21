@@ -1,51 +1,40 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Roller Coaster Gallery</title>
-    <link rel="stylesheet" type="text/css" href="imgteststyle.css">
-  </head>
-  <body>
-    <header>
-      <h1>Roller Coaster Gallery</h1>
-      <div class="tags">
-        <button class="tag" data-tag="wood">Wood</button>
-        <button class="tag" data-tag="steel">Steel</button>
-        <button class="tag" data-tag="inverting">Inverting</button>
-        <button class="tag" data-tag="hyper">Hyper</button>
-      </div>
-    </header>
-    <main>
-      <div class="gallery">
-        <a class="item" href="images/roller-coaster-1-1.jpg">
-          <img src="botimages/easy/e1.png" alt="Roller Coaster 1">
-          <div class="title">Roller Coaster 1</div>
-        </a>
-        <a class="item" href="images/roller-coaster-2-1.jpg">
-          <img src="botimages/easy/e2.png" alt="Roller Coaster 2">
-          <div class="title">Roller Coaster 2</div>
-        </a>
-        <a class="item" href="images/roller-coaster-3-1.jpg">
-          <img src="botimages/easy/e3.png" alt="Roller Coaster 3">
-          <div class="title">Roller Coaster 3</div>
-        </a>
-        <a class="item" href="images/roller-coaster-4-1.jpg">
-          <img src="botimages/easy/e4.png" alt="Roller Coaster 4">
-          <div class="title">Roller Coaster 4</div>
-        </a>
-        <a class="item" href="images/roller-coaster-5-1.jpg">
-          <img src="botimages/easy/e5.png" alt="Roller Coaster 5">
-          <div class="title">Roller Coaster 5</div>
-        </a>
-        <a class="item" href="images/roller-coaster-6-1.jpg">
-          <img src="botimages/easy/e6.png" alt="Roller Coaster 6">
-          <div class="title">Roller Coaster 6</div>
-        </a>
-      </div>
-      <div class="overlay">
-        <div class="close">&times;</div>
-        <div class="content"></div>
-      </div>
-    </main>
-    <script src="script.js"></script>
-  </body>
+<head>
+	<title>Roller Coaster Images</title>
+	<style>
+		/* Style for the image grid */
+		.image-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			grid-gap: 20px;
+			align-items: center;
+			justify-items: center;
+		}
+		
+		/* Style for the image caption */
+		.image-caption {
+			margin-top: 10px;
+			text-align: center;
+		}
+		
+	</style>
+</head>
+<body>
+	<div class="image-grid">
+		<div>
+			<a href="#">
+				<img src="path/to/image1.jpg" alt="Coaster 1">
+				<div class="image-caption">Coaster 1</div>
+			</a>
+		</div>
+		<div>
+			<a href="#">
+				<img src="path/to/image2.jpg" alt="Coaster 2">
+				<div class="image-caption">Coaster 2</div>
+			</a>
+		</div>
+		<!-- Repeat the above div block for each coaster image -->
+	</div>
+</body>
 </html>
