@@ -183,6 +183,46 @@ document.getElementById("coasterInput").addEventListener("keyup", filterTable);
 document.getElementById("selectManu").addEventListener("change", filterTable);
 document.getElementById("selectType").addEventListener("change", filterTable);
 
+      function updateURLParams() {
+        var selectedManufacturer = document.getElementById("selectManu").value;
+        var selectedType = document.getElementById("selectType").value;
+        var searchQuery = document.getElementById("coasterInput").value;
+
+        var queryParams = new URLSearchParams();
+        queryParams.set("manufacturer", selectedManufacturer);
+        queryParams.set("type", selectedType);
+        queryParams.set("search", searchQuery);
+
+        history.replaceState(null, null, "?" + queryParams.toString());
+    }
+
+    function applyURLParams() {
+        var urlParams = new URLSearchParams(window.location.search);
+
+        var selectedManufacturer = urlParams.get("manufacturer");
+        var selectedType = urlParams.get("type");
+        var searchQuery = urlParams.get("search");
+    }
+
+      document.getElementById("coasterInput").addEventListener("keyup", function () {
+        filterTable();
+        updateURLParams();
+    });
+
+    document.getElementById("selectManu").addEventListener("change", function () {
+        filterTable();
+        updateURLParams();
+    });
+
+    document.getElementById("selectType").addEventListener("change", function () {
+        filterTable();
+        updateURLParams();
+    });
+
+    // Call the function to apply filters based on URL parameters when the page loads
+    window.addEventListener('DOMContentLoaded', function () {
+        applyURLParams();
+    });
       
     </script> 
   </body>
