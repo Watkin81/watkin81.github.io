@@ -212,6 +212,7 @@ document.getElementById("selectType").addEventListener("change", filterTable);
         if (searchQuery) {
             coasterInput.value = searchQuery;
         }
+        filterTable();
     }
 
     document.getElementById("coasterInput").addEventListener("keyup", function () {
