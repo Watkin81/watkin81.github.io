@@ -143,6 +143,7 @@
         parkCountEl.innerHTML = parkCount;
         console.log(coasterCount);
         console.log(parkCount);
+        filterTable();
       }
       
       // Hide the loader after the delay
@@ -151,37 +152,37 @@
       document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");        
       
   function filterTable() {
-  var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
-  input = document.getElementById("coasterInput");
-  filter = input.value.toUpperCase();
-  select = document.getElementById("selectManu");
-  selectedOption = select.options[select.selectedIndex].value.toUpperCase();
-  selectt = document.getElementById("selectType");
-  selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
-  table = document.getElementById("coasterTable");
-  tr = table.getElementsByTagName("tr");
-
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[1]; //coaster name
-    te = tr[i].getElementsByTagName("td")[2]; //park name
-    if (td || te) {
-      txtValue = td.textContent || td.innerText;
-      txtValue2 = te.textContent || te.innerText;
-      if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
-          (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
-          (selecttedOption === "WOOD & STEEL" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }       
+    var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
+    input = document.getElementById("coasterInput");
+    filter = input.value.toUpperCase();
+    select = document.getElementById("selectManu");
+    selectedOption = select.options[select.selectedIndex].value.toUpperCase();
+    selectt = document.getElementById("selectType");
+    selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
+    table = document.getElementById("coasterTable");
+    tr = table.getElementsByTagName("tr");
+  
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[1]; //coaster name
+      te = tr[i].getElementsByTagName("td")[2]; //park name
+      if (td || te) {
+        txtValue = td.textContent || td.innerText;
+        txtValue2 = te.textContent || te.innerText;
+        if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
+            (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
+            (selecttedOption === "WOOD & STEEL" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }       
+    }
   }
-}
 
-// Event listener for the input and select elements
-document.getElementById("coasterInput").addEventListener("keyup", filterTable);
-document.getElementById("selectManu").addEventListener("change", filterTable);
-document.getElementById("selectType").addEventListener("change", filterTable);
+  // Event listener for the input and select elements
+  document.getElementById("coasterInput").addEventListener("keyup", filterTable);
+  document.getElementById("selectManu").addEventListener("change", filterTable);
+  document.getElementById("selectType").addEventListener("change", filterTable);
 
       function updateURLParams() {
         var selectedManufacturer = document.getElementById("selectManu").value;
