@@ -189,22 +189,32 @@ document.getElementById("selectType").addEventListener("change", filterTable);
         var searchQuery = document.getElementById("coasterInput").value;
 
         var queryParams = new URLSearchParams();
-        queryParams.set("manufacturer", selectedManufacturer);
-        queryParams.set("type", selectedType);
-        queryParams.set("search", searchQuery);
-
+        queryParams.set("m", selectedManufacturer);
+        queryParams.set("t", selectedType);
+        queryParams.set("s", searchQuery);
         history.replaceState(null, null, "?" + queryParams.toString());
     }
 
     function applyURLParams() {
         var urlParams = new URLSearchParams(window.location.search);
+        var selectedManufacturer = urlParams.get("m");
+        var selectedType = urlParams.get("t");
+        var searchQuery = urlParams.get("s");
 
-        var selectedManufacturer = urlParams.get("manufacturer");
-        var selectedType = urlParams.get("type");
-        var searchQuery = urlParams.get("search");
+        if (selectedManufacturer) {
+          selectManu.value = selectedManufacturer;
+        }
+  
+        if (selectedType) {
+            selectType.value = selectedType;
+        }
+    
+        if (searchQuery) {
+            coasterInput.value = searchQuery;
+        }
     }
 
-      document.getElementById("coasterInput").addEventListener("keyup", function () {
+    document.getElementById("coasterInput").addEventListener("keyup", function () {
         filterTable();
         updateURLParams();
     });
