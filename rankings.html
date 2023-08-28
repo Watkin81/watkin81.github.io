@@ -88,7 +88,7 @@
     
     <!--  onkeyup="searchFunction()"  onchange="searchManuFunction()"   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>-->
     <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
-    <script type="text/javascript">
+    <script defer type="text/javascript">
       
       // Show the loader
       document.getElementById("loader").style.display = "block";
@@ -233,6 +233,10 @@ document.getElementById("selectType").addEventListener("change", filterTable);
     // Call the function to apply filters based on URL parameters when the page loads
     window.addEventListener('DOMContentLoaded', function () {
         applyURLParams();
+    });
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        console.log("DOM fully loaded and parsed");
     });
       
     </script> 
