@@ -144,6 +144,7 @@
         console.log(coasterCount);
         console.log(parkCount);
         filterTable();
+        showElements();
       }
       
       // Hide the loader after the delay
@@ -183,6 +184,19 @@
   document.getElementById("coasterInput").addEventListener("keyup", filterTable);
   document.getElementById("selectManu").addEventListener("change", filterTable);
   document.getElementById("selectType").addEventListener("change", filterTable);
+
+      // show and hide for cosmetics
+      function hideElements() {
+        document.getElementById('selectManu').style.display = 'none';
+        document.getElementById('selectType').style.display = 'none';
+        document.getElementById('coasterInput').style.display = 'none';
+      }
+    
+      function showElements() {
+        document.getElementById('selectManu').style.display = 'inline-block';
+        document.getElementById('selectType').style.display = 'inline-block';
+        document.getElementById('coasterInput').style.display = 'inline-block';
+      }
 
       function updateURLParams() {
         var selectedManufacturer = document.getElementById("selectManu").value;
@@ -236,10 +250,11 @@
         applyURLParams();
     });
 
-    document.addEventListener("load", (event) => {
-        console.log("page is fully loaded");
-    });
-      
+    // Hide the elements when the page loads
+    window.onload = function() {
+      hideElements();
+    };
+
     </script> 
   </body>
 </html>
