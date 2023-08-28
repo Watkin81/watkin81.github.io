@@ -71,7 +71,7 @@
       </select>
     
       <select id="selectType">
-        <option value="">Both Types</option>
+        <option value="">Wood & Steel</option>
         <option value="steel">Steel</option>
         <option value="wood">Wood</option>
       </select>
@@ -169,7 +169,7 @@
       txtValue2 = te.textContent || te.innerText;
       if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
           (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
-          (selecttedOption === "BOTH TYPES" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
+          (selecttedOption === "WOOD & STEEL" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
         tr[i].style.display = "";
       } else {
         tr[i].style.display = "none";
