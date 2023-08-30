@@ -90,7 +90,7 @@
     <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
     <script type="text/javascript">
       
-      // Show the loader
+      // show the loader (default on, turns off once the table loads fully)
       document.getElementById("loader").style.display = "block";
       
       var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
@@ -145,7 +145,6 @@
         console.log(parkCount);
         filterTable();
         showElements();
-        // tested moving this here lol idk if it will work
         //document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");
       }
       
@@ -161,8 +160,8 @@
     tr = table.getElementsByTagName("tr");
   
     for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[1]; //coaster name
-      te = tr[i].getElementsByTagName("td")[2]; //park name
+      td = tr[i].getElementsByTagName("td")[1]; // coaster name
+      te = tr[i].getElementsByTagName("td")[2]; // park name
       if (td || te) {
         txtValue = td.textContent || td.innerText;
         txtValue2 = te.textContent || te.innerText;
@@ -177,7 +176,7 @@
     }
   }
 
-  // Event listener for the input and select elements
+  // event listener for the input and select elements
   document.getElementById("coasterInput").addEventListener("keyup", filterTable);
   document.getElementById("selectManu").addEventListener("change", filterTable);
   document.getElementById("selectType").addEventListener("change", filterTable);
@@ -187,7 +186,7 @@
         document.getElementById('selectManu').style.display = 'none';
         document.getElementById('selectType').style.display = 'none';
         document.getElementById('coasterInput').style.display = 'none';
-        //document.getElementById("loader").style.display = "block";      
+        //document.getElementById("loader").style.display = "block";      this didn't work lol
       }
     
       function showElements() {
@@ -244,12 +243,12 @@
         updateURLParams();
     });
 
-    // Call the function to apply filters based on URL parameters when the page loads
+    // applies url search terms when the page loads
     window.addEventListener('DOMContentLoaded', function () {
         applyURLParams();
     });
 
-    // Hide the elements when the page loads
+    // hide the elements when the page loads and replace with the loader
     window.onload = function() {
       hideElements();
     };
