@@ -134,6 +134,11 @@
         const coasterTable = document.getElementById('coasterTableDiv');
         coasterTable.appendChild(newTable);
         coasterTable.setAttribute("id", "coasterTable");
+
+        document.getElementsByTagName('td')[0].style.width = '10%';
+        document.getElementsByTagName('td')[1].style.width = '40%';
+        document.getElementsByTagName('td')[2].style.width = '40%';
+        document.getElementsByTagName('td')[3].style.width = '10%';
         
         var coasterCount = data[6].AGGREGATE_STATS;
         var parkCount = data[11].AGGREGATE_STATS;
