@@ -71,7 +71,7 @@
 #coasterTable th, #coasterTable td {
   text-align: left; /* Left-align text */
   padding: 12px; /* Add padding */
-  width: 15%;
+  /*width: 15%;*/
 }
 
 #coasterTable tr {
