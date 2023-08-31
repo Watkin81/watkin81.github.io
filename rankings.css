@@ -71,12 +71,13 @@
 #coasterTable th, #coasterTable td {
   text-align: left; /* Left-align text */
   padding: 12px; /* Add padding */
+  border-bottom: 1px solid #ddd;
   /*width: 15%;*/
 }
 
 #coasterTable tr {
   /* Add a bottom border to all table rows */
-  border-bottom: 1px solid #ddd;
+  //border-bottom: 1px solid #ddd;
 }
 
 #coasterTable tr.header, #coasterTable tr:hover {
