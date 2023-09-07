@@ -50,7 +50,7 @@
   overflow: hidden;
 }*/
 .cycle {
-  overflow: hidden;
+  /*overflow: hidden;*/
   position: relative;
   height: 550px;
   width: 100%;
