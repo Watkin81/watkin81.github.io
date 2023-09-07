@@ -41,6 +41,7 @@
                 '/images/header/Thunderhawk_MA.jpg', '/images/header/Voyage_HolidayWorld.jpg'];
   let i = getRandomIndex(images.length); // Get a random starting index
   let imageElement = document.getElementById('cycle-image');
+  let intervalId = startImageCycling(); // Start the initial image cycling
 
   // Function to generate a random index within the specified range
   function getRandomIndex(max) {
@@ -53,24 +54,28 @@
     i = index;
   }
 
+  // Function to start the image cycling and return the interval ID
+  function startImageCycling() {
+    return setInterval(function() {
+      updateImage((i + 1) % images.length); // Use modulo to cycle back to the first image
+    }, 3000);
+  }
+
   // Function to handle button click events
   function onButtonClick(index) {
     return function() {
-      updateImage(index);
+      clearInterval(intervalId); // Clear the existing interval
+      updateImage(index); // Update the image immediately
+      intervalId = startImageCycling(); // Start a new interval
     };
   }
-
-  // Set up the interval for cycling images
-  setInterval(function() {
-    updateImage((i + 1) % images.length); // Use modulo to cycle back to the first image
-  }, 3000);
 
   // Create buttons and attach click event listeners
   let buttonContainer = document.getElementById('image-buttons');
 
   for (let j = 0; j < images.length; j++) {
     let button = document.createElement('button');
-    button.textContent = j + 1;
+    //button.textContent = j + 1;
     button.addEventListener('click', onButtonClick(j));
     buttonContainer.appendChild(button);
   }
