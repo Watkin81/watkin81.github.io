@@ -27,25 +27,54 @@
     <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
   </div>
 
-  <!-- JS Cycle Script -->
-  <script>
-    let images = ['/images/header/Banshee_KingsIsland.jpg', '/images/header/Colossus_Lagoon.jpg', '/images/header/Corkscrew_MA.jpg', 
-                '/images/header/ElectricEel_SWSD.jpg', '/images/header/Emperor_SWSD.jpg', '/images/header/Outlaw_Adventureland.jpg', 
-                  '/images/header/Thunderhawk_MA.jpg', '/images/header/Voyage_HolidayWorld.jpg'];
-    let i = 0;
-    setInterval(function () {
-      document.getElementById('cycle-image').src = images[i];
-      i = i + 1;
-      if (i === images.length) {
-        i = 0;
-      }
-    }, 3000);
-  </script>
-  
-  <!-- Cycle Container -->
-  <div class="cycle">
-    <img src="/images/header/Banshee_KingsIsland.jpg" id="cycle-image">
-  </div>
+<script>
+  let images = ['/images/header/Banshee_KingsIsland.jpg', '/images/header/Colossus_Lagoon.jpg', '/images/header/Corkscrew_MA.jpg',
+                '/images/header/ElectricEel_SWSD.jpg', '/images/header/Emperor_SWSD.jpg', '/images/header/Outlaw_Adventureland.jpg',
+                '/images/header/Thunderhawk_MA.jpg', '/images/header/Voyage_HolidayWorld.jpg'];
+  let i = getRandomIndex(images.length); // Get a random starting index
+  let imageElement = document.getElementById('cycle-image');
+
+  // Function to generate a random index within the specified range
+  function getRandomIndex(max) {
+    return Math.floor(Math.random() * max);
+  }
+
+  // Function to update the displayed image
+  function updateImage(index) {
+    imageElement.src = images[index];
+    i = index;
+  }
+
+  // Function to handle button click events
+  function onButtonClick(index) {
+    return function() {
+      updateImage(index);
+    };
+  }
+
+  // Set up the interval for cycling images
+  setInterval(function() {
+    updateImage((i + 1) % images.length); // Use modulo to cycle back to the first image
+  }, 3000);
+
+  // Create buttons and attach click event listeners
+  let buttonContainer = document.getElementById('image-buttons');
+
+  for (let j = 0; j < images.length; j++) {
+    let button = document.createElement('button');
+    button.textContent = j + 1;
+    button.addEventListener('click', onButtonClick(j));
+    buttonContainer.appendChild(button);
+  }
+</script>
+
+<!-- Cycle Container -->
+<div class="cycle">
+  <img src="/images/header/Banshee_KingsIsland.jpg" id="cycle-image">
+</div>
+
+<!-- Image buttons container -->
+<div id="image-buttons"></div>
   
     <!-- Temp text -->
   <div class="paragraph1" style="margin:0;">
