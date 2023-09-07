@@ -52,7 +52,7 @@
 .cycle {
   overflow: hidden;
   position: relative;
-  height: 400px;
+  height: 550px;
   width: 100%;
 }
 .cycle img {
