@@ -61,11 +61,25 @@
     }, 3000);
   }
 
+  // Function to update the displayed image and highlight the active button
+  function updateImageAndHighlightButton(index) {
+    updateImage(index); // Update the displayed image
+
+    // Remove the "active" class from all buttons
+    let buttons = document.querySelectorAll('#image-buttons button');
+    buttons.forEach(button => {
+      button.classList.remove('active');
+    });
+
+    // Add the "active" class to the clicked button
+    buttons[index].classList.add('active');
+  }
+  
   // Function to handle button click events
   function onButtonClick(index) {
     return function() {
       clearInterval(intervalId); // Clear the existing interval
-      updateImage(index); // Update the image immediately
+      updateImageAndHighlightButton(index); // Update the image and highlight the button
       intervalId = startImageCycling(); // Start a new interval
     };
   }
@@ -85,13 +99,18 @@
   /* Style for the image buttons */
   #image-buttons {
     text-align: center; /* Center the buttons */
-    margin-top: 10px; /* Add some spacing from the image */
   }
 
   #image-buttons button {
-    padding: 5px 10px;
+    padding: 20px 20px;
     margin: 5px;
     cursor: pointer;
+  }
+
+  /* Style for the active button */
+  #image-buttons .active {
+    background-color: #007bff; /* Change to the color you want for the active button */
+    color: #fff;
   }
 </style>
   
