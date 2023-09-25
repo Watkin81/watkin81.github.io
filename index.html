@@ -84,6 +84,18 @@
     };
   }
 
+    // Function to update the active button based on the current image index
+  function updateActiveButton(index) {
+    let buttons = document.querySelectorAll('#image-buttons button');
+    buttons.forEach((button, buttonIndex) => {
+      if (buttonIndex === index) {
+        button.classList.add('active');
+      } else {
+        button.classList.remove('active');
+      }
+    });
+  }
+
   // Create buttons and attach click event listeners
   let buttonContainer = document.getElementById('image-buttons');
 
