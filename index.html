@@ -42,6 +42,7 @@
   let i = getRandomIndex(images.length); // Get a random starting index
   let imageElement = document.getElementById('cycle-image');
   let intervalId = startImageCycling(); // Start the initial image cycling
+  updateActiveButton(index);
 
   // Function to generate a random index within the specified range
   function getRandomIndex(max) {
