@@ -100,6 +100,11 @@
     //button.textContent = j + 1;
     button.addEventListener('click', onButtonClick(j));
     buttonContainer.appendChild(button);
+
+    if (j === 0) {
+      button.classList.add('active');
+    }
+  }
   }
 
   intervalId = startImageCycling();
@@ -109,12 +114,20 @@
   /* Style for the image buttons */
   #image-buttons {
     text-align: center; /* Center the buttons */
+    margin-top: 15px;
   }
 
   #image-buttons button {
-    padding: 20px 20px;
-    margin: 5px;
+    width: 20px; /* Adjust the size as needed */
+    height: 20px; /* Adjust the size as needed */
+    border: 2px solid #333; /* Border color */
+    border-radius: 50%; /* Make it a circle */
+    background-color: transparent; /* Transparent inside */
+
+    /* Add additional styling as needed */
+    margin: 0 5px; /* Adjust the spacing between buttons */
     cursor: pointer;
+    transition: background-color 0.2s; /* Smooth transition for the background color */
   }
 
   /* Style for the active button */
