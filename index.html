@@ -41,7 +41,7 @@
                 '/images/header/Corkscrew_MA.jpg', '/images/header/Banshee_KingsIsland.jpg'];
   let i = 0;
   let imageElement = document.getElementById('cycle-image');
-  let intervalId = startImageCycling(); // Start the initial image cycling
+  let intervalId;
 
   // Function to update the displayed image
   function updateImage(index) {
@@ -101,6 +101,8 @@
     button.addEventListener('click', onButtonClick(j));
     buttonContainer.appendChild(button);
   }
+
+  intervalId = startImageCycling();
 </script>
 
 <style>
