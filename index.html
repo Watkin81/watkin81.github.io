@@ -52,6 +52,7 @@
   function updateImage(index) {
     imageElement.src = images[index];
     i = index;
+    updateActiveButton(index);
   }
 
   // Function to start the image cycling and return the interval ID
