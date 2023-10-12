@@ -52,7 +52,7 @@
 .cycle {
   /*overflow: hidden;*/
   position: relative;
-  height: 550px;
+  height: 25%;
   width: 100%;
 }
 .cycle img {
@@ -60,6 +60,7 @@
   object-fit: cover;
   background-size: cover;
   width: 100%;
+  height: 100%;
 }
 
 .add-button {
