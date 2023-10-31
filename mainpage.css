@@ -3,7 +3,9 @@
     background-image: url("/images/header/Manta_SWSD.jpg");
     background-position: center center;
     background-size: cover;
-    height: 125px;
+    height: 15%;
+    min-height: 125px;
+    max-height: 500px;
     width: 100%;
 }
 
