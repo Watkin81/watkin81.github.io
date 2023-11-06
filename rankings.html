@@ -156,33 +156,33 @@
         //document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");
       }
       
-  function filterTable() {
-    var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
-    input = document.getElementById("coasterInput");
-    filter = input.value.toUpperCase();
-    select = document.getElementById("selectManu");
-    selectedOption = select.options[select.selectedIndex].value.toUpperCase();
-    selectt = document.getElementById("selectType");
-    selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
-    table = document.getElementById("coasterTable");
-    tr = table.getElementsByTagName("tr");
+      function filterTable() {
+        var input, filter, table, tr, td, te, i, txtValue, txtValue2, select, selectt;
+        input = document.getElementById("coasterInput");
+        filter = input.value.toUpperCase();
+        select = document.getElementById("selectManu");
+        selectedOption = select.options[select.selectedIndex].value.toUpperCase();
+        selectt = document.getElementById("selectType");
+        selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
+        table = document.getElementById("coasterTable");
+        tr = table.getElementsByTagName("tr");
   
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[1]; // coaster name
-      te = tr[i].getElementsByTagName("td")[2]; // park name
-      if (td || te) {
-        txtValue = td.textContent || td.innerText;
-        txtValue2 = te.textContent || te.innerText;
-        if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
-            (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
-            (selecttedOption === "WOOD & STEEL" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1]; // coaster name
+          te = tr[i].getElementsByTagName("td")[2]; // park name
+          if (td || te) {
+            txtValue = td.textContent || td.innerText;
+            txtValue2 = te.textContent || te.innerText;
+            if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
+                (selectedOption === "ALL MANUFACTURERS" || tr[i].getElementsByTagName("td")[3].textContent.toUpperCase().indexOf(selectedOption) > -1) &&
+                (selecttedOption === "WOOD & STEEL" || tr[i].getElementsByTagName("td")[4].textContent.toUpperCase().indexOf(selecttedOption) > -1)) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }       
         }
-      }       
-    }
-  }
+      }
 
   // event listener for the input and select elements
   document.getElementById("coasterInput").addEventListener("keyup", filterTable);
@@ -214,9 +214,9 @@
         queryParams.set("t", selectedType);
         queryParams.set("s", searchQuery);
         history.replaceState(null, null, "?" + queryParams.toString());
-    }
+      }
 
-    function applyURLParams() {
+      function applyURLParams() {
         var urlParams = new URLSearchParams(window.location.search);
         var selectedManufacturer = urlParams.get("m");
         var selectedType = urlParams.get("t");
@@ -234,32 +234,32 @@
             coasterInput.value = searchQuery;
         }
         filterTable();
-    }
+      }
 
-    document.getElementById("coasterInput").addEventListener("keyup", function () {
+      document.getElementById("coasterInput").addEventListener("keyup", function () {
         filterTable();
         updateURLParams();
-    });
+      });
 
-    document.getElementById("selectManu").addEventListener("change", function () {
+      document.getElementById("selectManu").addEventListener("change", function () {
         filterTable();
         updateURLParams();
-    });
+      });
 
-    document.getElementById("selectType").addEventListener("change", function () {
+      document.getElementById("selectType").addEventListener("change", function () {
         filterTable();
         updateURLParams();
-    });
+      });
 
-    // applies url search terms when the page loads
-    window.addEventListener('DOMContentLoaded', function () {
+      // applies url search terms when the page loads
+      window.addEventListener('DOMContentLoaded', function () {
         applyURLParams();
-    });
+      });
 
-    // hide the elements when the page loads and replace with the loader
-    window.onload = function() {
-      hideElements();
-    };
+      // hide the elements when the page loads and replace with the loader
+      window.onload = function() {
+        hideElements();
+      };
 
     </script> 
-  </html>
+</html>
