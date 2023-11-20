@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Coaster Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Coaster Viewer</h1>
+  <button onclick="getRandomCoaster()">Get Random Coaster</button>
+  <pre id="coasterData"></pre>
+
+  <script>
+    function getRandomCoaster() {
+      // Make a request to the Captain Coaster API
+      fetch('https://captaincoaster.com/api/coasters?page=1')
+        .then(response => response.json())
+        .then(data => {
+          // Get a random coaster from the response
+          const randomIndex = Math.floor(Math.random() * data.length);
+          const randomCoaster = data[randomIndex];
+
+          // Display the coaster data in the console
+          console.log('Random Coaster:', randomCoaster);
+
+          // Display the coaster data on the HTML page
+          displayCoasterData(randomCoaster);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function displayCoasterData(coaster) {
+      const coasterDataElement = document.getElementById('coasterData');
+
+      // Clear previous data
+      coasterDataElement.innerHTML = '';
+
+      // Display coaster data in a readable format
+      coasterDataElement.textContent = JSON.stringify(coaster, null, 2);
+    }
+  </script>
+</body>
+</html>
