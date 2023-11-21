@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Coaster Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      transition: background-image 0.5s ease;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .coasterContainer {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px;
+    }
+
+    .coasterInfo {
+      flex: 1;
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .coasterData {
+      text-align: left;
+      white-space: pre-wrap;
+      max-width: 400px;
+      margin: 0 auto;
+      color: white;
+    }
+
+    .imageCredit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Coaster Viewer</h1>
+
+  <div class="coasterContainer">
+    <div class="coasterInfo" id="leftCoasterInfo"></div>
+    <div class="coasterInfo" id="rightCoasterInfo"></div>
+  </div>
+
+  <div class="imageCredit" id="leftImageCredit"></div>
+  <div class="imageCredit" id="rightImageCredit"></div>
+
+  <button onclick="getRandomCoasters()">Get Random Coasters</button>
+
+  <script>
+    function getRandomCoasters() {
+      // Disable the button to prevent spamming
+      document.getElementById('randomCoastersButton').disabled = true;
+
+      // Make requests to the rcdb scraper for two random coasters
+      Promise.all([
+        fetch('https://rcdb-api.vercel.app/api/coasters/random').then(response => response.json()),
+        fetch('https://rcdb-api.vercel.app/api/coasters/random').then(response => response.json())
+      ])
+      .then(data => {
+        // Check if the coasters have pictures and valid names
+        const isValidCoaster1 = isValidCoaster(data[0]);
+        const isValidCoaster2 = isValidCoaster(data[1]);
+
+        // Display coaster information on the HTML page
+        displayCoasterInfo('left', data[0], isValidCoaster1);
+        displayCoasterInfo('right', data[1], isValidCoaster2);
+
+        // Display the full coaster data in the console
+        console.log('Left Coaster Data:', data[0]);
+        console.log('Right Coaster Data:', data[1]);
+
+        // Change the background image of the page to the left coaster's picture
+        changeBackgroundImage(data[0].mainPicture, 'left');
+
+        // Display image credit
+        displayImageCredit(data[0].mainPicture, 'left');
+
+        // Enable the button after a delay (1 second in this example)
+        setTimeout(() => {
+          document.getElementById('randomCoastersButton').disabled = false;
+        }, 1000);
+
+        // If both coasters are valid, schedule the right coaster to move to the left after a delay
+        if (isValidCoaster1 && isValidCoaster2) {
+          setTimeout(() => {
+            moveCoasterToTheLeft('right');
+          }, 5000); // Move after 5 seconds (adjust as needed)
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+
+        // Enable the button in case of an error
+        document.getElementById('randomCoastersButton').disabled = false;
+      });
+    }
+
+    function isValidCoaster(coaster) {
+      // Check if the coaster has a picture and a valid name
+      return coaster.mainPicture && coaster.mainPicture.url && coaster.name && coaster.name !== 'Unknown';
+    }
+
+    function displayCoasterInfo(side, coaster, isValid) {
+      const coasterInfoElement = document.getElementById(`${side}CoasterInfo`);
+
+      // Display coaster name, park name, and park location
+      coasterInfoElement.innerHTML = isValid
+        ? `<div>${coaster.name}</div><div>${coaster.park.name}, ${coaster.city}, ${coaster.state}, ${coaster.country}</div>`
+        : 'Invalid Coaster';
+
+      // Reset image credit when displaying a new coaster
+      document.getElementById(`${side}ImageCredit`).textContent = '';
+    }
+
+    function changeBackgroundImage(picture, side) {
+      const body = document.body;
+
+      // Check if there is a main picture for the coaster
+      if (picture && picture.url) {
+        body.style.backgroundImage = `url(${picture.url})`;
+
+        // Move the coaster to the right if it's on the left side
+        if (side === 'left') {
+          moveCoasterToTheRight('left');
+        }
+      } else {
+        // Reset background image if there is no picture
+        body.style.backgroundImage = 'none';
+      }
+    }
+
+    function displayImageCredit(picture, side) {
+      const imageCreditElement = document.getElementById(`${side}ImageCredit`);
+
+      // Display image credit
+      imageCreditElement.textContent = `Photo by ${picture.credit || 'Unknown'}`;
+    }
+
+    function moveCoasterToTheRight(side) {
+      const coasterInfoElement = document.getElementById(`${side}CoasterInfo`);
+      coasterInfoElement.style.transform = 'translateX(100%)';
+    }
+
+    function moveCoasterToTheLeft(side) {
+      const coasterInfoElement = document.getElementById(`${side}CoasterInfo`);
+      coasterInfoElement.style.transition = 'transform 1s ease-in-out';
+      coasterInfoElement.style.transform = 'translateX(0)';
+    }
+  </script>
+</body>
+</html>
