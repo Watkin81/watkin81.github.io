@@ -9,12 +9,29 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 20px;
+      transition: background-image 0.5s ease;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #coasterName {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    #coasterData {
+      text-align: left;
+      white-space: pre-wrap;
+      max-width: 800px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
   <h1>Random Coaster Viewer</h1>
-  <button onclick="getRandomCoaster()">Get Random Coaster</button>
+  <div id="coasterName"></div>
   <pre id="coasterData"></pre>
 
   <script>
@@ -26,21 +43,38 @@
           // Display the coaster data in the console
           console.log('Random Coaster:', data);
 
-          // Display the coaster data on the HTML page
-          displayCoasterData(data);
+          // Display only the coaster name on the HTML page
+          displayCoasterName(data);
+
+          // Display the full coaster data in the console
+          console.log('Full Coaster Data:', data);
+
+          // Change the background image of the page to the coaster's picture
+          changeBackgroundImage(data.mainPicture);
         })
         .catch(error => console.error('Error fetching data:', error));
     }
 
-    function displayCoasterData(coaster) {
-      const coasterDataElement = document.getElementById('coasterData');
+    function displayCoasterName(coaster) {
+      const coasterNameElement = document.getElementById('coasterName');
 
-      // Clear previous data
-      coasterDataElement.innerHTML = '';
+      // Display only the coaster name
+      coasterNameElement.textContent = coaster.name;
+    }
 
-      // Display coaster data in a readable format
-      coasterDataElement.textContent = JSON.stringify(coaster, null, 2);
+    function changeBackgroundImage(picture) {
+      const body = document.body;
+
+      // Check if there is a main picture for the coaster
+      if (picture && picture.url) {
+        body.style.backgroundImage = `url(${picture.url})`;
+      } else {
+        // Reset background image if there is no picture
+        body.style.backgroundImage = 'none';
+      }
     }
   </script>
+
+  <button onclick="getRandomCoaster()">Get Random Coaster</button>
 </body>
 </html>
