@@ -47,23 +47,31 @@
 
   <script>
     function getRandomCoaster() {
-      // Make a request to rcdb with github rcdb scraper
+      // Make a request to the rcdb scraper
       fetch('https://rcdb-api.vercel.app/api/coasters/random')
         .then(response => response.json())
         .then(data => {
-          // Display the coaster data in the console
-          console.log('Random Coaster:', data);
+          // Check if the coaster has a picture and a valid name
+          if (isValidCoaster(data)) {
+            // Display coaster information on the HTML page
+            displayCoasterInfo(data);
 
-          // Display coaster information on the HTML page
-          displayCoasterInfo(data);
+            // Display the full coaster data in the console
+            console.log('Full Coaster Data:', data);
 
-          // Display the full coaster data in the console
-          console.log('Full Coaster Data:', data);
-
-          // Change the background image of the page to the coaster's picture
-          changeBackgroundImage(data.mainPicture);
+            // Change the background image of the page to the coaster's picture
+            changeBackgroundImage(data.mainPicture);
+          } else {
+            // If conditions are not met, get another random coaster
+            getRandomCoaster();
+          }
         })
         .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function isValidCoaster(coaster) {
+      // Check if the coaster has a picture and a valid name
+      return coaster.mainPicture && coaster.mainPicture.url && coaster.name && coaster.name !== 'Unknown';
     }
 
     function displayCoasterInfo(coaster) {
