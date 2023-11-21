@@ -158,10 +158,11 @@
 
     function changeBackgroundImage(picture) {
       const body = document.body;
-
+    
       // Check if there is a main picture for the coaster
       if (picture && picture.url) {
         body.style.backgroundImage = `url(${picture.url})`;
+        body.style.backgroundSize = 'cover'; // Set background size to cover
       } else {
         // Reset background image if there is no picture
         body.style.backgroundImage = 'none';
@@ -170,9 +171,10 @@
 
     function displayImageCredit(picture) {
       const imageCreditElement = document.getElementById('imageCredit');
-
-      // Display image credit
-      imageCreditElement.textContent = `Photo by ${picture.credit || 'Unknown'}`;
+    
+      // Display image credit if available, otherwise show 'Unknown'
+      const credit = picture.copyName ? `Photo by ${picture.copyName}` : 'Unknown';
+      imageCreditElement.textContent = credit;
     }
   </script>
 </div>
