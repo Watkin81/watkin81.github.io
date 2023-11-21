@@ -31,6 +31,7 @@
       justify-content: space-between;
       width: 100%;
       padding: 10px;
+      box-sizing: border-box;
     }
 
     .coasterInfo {
@@ -38,6 +39,8 @@
       font-size: 18px;
       margin-bottom: 20px;
       color: white;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .coasterData {
@@ -70,14 +73,14 @@
   <div class="imageCredit" id="leftImageCredit"></div>
   <div class="imageCredit" id="rightImageCredit"></div>
 
-  <button id="randomCoastersButton" onclick="getRandomCoasters()">Get Random Coasters</button>
+  <button onclick="getRandomCoasters()">Get Random Coasters</button>
 
   <script>
     function getRandomCoasters() {
       // Disable the button to prevent spamming
-      document.getElementById('randomCoastersButton').disabled = true;
+      document.getElementById('randomCoasterButton').disabled = true;
 
-      // Make requests to the rcdb scraper for two random coasters
+      // Make requests to the Captain Coaster API for two random coasters
       Promise.all([
         fetch('https://rcdb-api.vercel.app/api/coasters/random').then(response => response.json()),
         fetch('https://rcdb-api.vercel.app/api/coasters/random').then(response => response.json())
@@ -103,7 +106,7 @@
 
         // Enable the button after a delay (1 second in this example)
         setTimeout(() => {
-          document.getElementById('randomCoastersButton').disabled = false;
+          document.getElementById('randomCoasterButton').disabled = false;
         }, 1000);
 
         // If both coasters are valid, schedule the right coaster to move to the left after a delay
@@ -117,7 +120,7 @@
         console.error('Error fetching data:', error);
 
         // Enable the button in case of an error
-        document.getElementById('randomCoastersButton').disabled = false;
+        document.getElementById('randomCoasterButton').disabled = false;
       });
     }
 
@@ -164,13 +167,13 @@
 
     function moveCoasterToTheRight(side) {
       const coasterInfoElement = document.getElementById(`${side}CoasterInfo`);
-      coasterInfoElement.style.transform = 'translateX(100%)';
+      coasterInfoElement.style.transform = 'translateX(0)';
     }
 
     function moveCoasterToTheLeft(side) {
       const coasterInfoElement = document.getElementById(`${side}CoasterInfo`);
       coasterInfoElement.style.transition = 'transform 1s ease-in-out';
-      coasterInfoElement.style.transform = 'translateX(0)';
+      coasterInfoElement.style.transform = 'translateX(-100%)';
     }
   </script>
 </body>
