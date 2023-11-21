@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Random Coaster Viewer</title>
+  <link rel="stylesheet" type="text/css" href="mainpage.css">
+  <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -19,6 +21,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     h1 {
@@ -49,21 +52,51 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
+
+    #imageCredit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
+  <!-- Header -->
+  <div class="header" style="margin:0;">
+   <!-- <h1 class="headertitle" style="margin:0;">Jake's Roller Coasters</h1>-->
+    <img src="/images/RCITitle.png" alt="Roller.Coaster.Images" class="center" id="headerimg" height="125px">
+  </div>
+  
+  <!-- Navigation Bar -->
+  <div class="topnav" id="myTopnav" style="margin:0;">
+    <a href="https://watkin81.github.io/index.html">Home</a>
+    <a href="https://watkin81.github.io/rankings.html">Rankings and Data</a>
+    <a href="https://watkin81.github.io/images.html">Coaster Images</a>
+    <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller.Coaster.Images Instagram</a>
+    <a href="https://watkin81.github.io/guessthecoaster.html">GuessTheCoaster</a>
+    <a href="https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs" target="_blank" rel="noopener noreferrer">Coaster Nerd Spreadsheet</a>
+    <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
+    <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
+  </div>
+
   <h1>Random Coaster Viewer</h1>
   <div id="coasterInfo"></div>
   <pre id="coasterData"></pre>
 
   <button id="randomCoasterButton" onclick="getRandomCoaster()">Get Random Coaster</button>
 
+  <div id="imageCredit"></div>
+
   <script>
     function getRandomCoaster() {
       // Disable the button to prevent spamming
       document.getElementById('randomCoasterButton').disabled = true;
 
-      // Make a request to the rcdb rest api
+      // Make a request to the rcdb scraper
       fetch('https://rcdb-api.vercel.app/api/coasters/random')
         .then(response => response.json())
         .then(data => {
@@ -77,6 +110,9 @@
 
             // Change the background image of the page to the coaster's picture
             changeBackgroundImage(data.mainPicture);
+
+            // Display image credit
+            displayImageCredit(data.mainPicture);
           } else {
             // If conditions are not met, get another random coaster
             getRandomCoaster();
@@ -85,7 +121,7 @@
           // Enable the button after a delay (1 second in this example)
           setTimeout(() => {
             document.getElementById('randomCoasterButton').disabled = false;
-          }, 2000);
+          }, 1000);
         })
         .catch(error => {
           console.error('Error fetching data:', error);
@@ -120,6 +156,13 @@
         // Reset background image if there is no picture
         body.style.backgroundImage = 'none';
       }
+    }
+
+    function displayImageCredit(picture) {
+      const imageCreditElement = document.getElementById('imageCredit');
+
+      // Display image credit
+      imageCreditElement.textContent = `Photo by ${picture.credit || 'Unknown'}`;
     }
   </script>
 </body>
