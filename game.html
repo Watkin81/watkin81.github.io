@@ -23,15 +23,11 @@
       fetch('https://rcdb-api.vercel.app/api/coasters/random')
         .then(response => response.json())
         .then(data => {
-          // Get a random coaster from the response
-          const randomIndex = Math.floor(Math.random() * data.length);
-          const randomCoaster = data[randomIndex];
-
           // Display the coaster data in the console
-          console.log('Random Coaster:', randomCoaster);
+          console.log('Random Coaster:', data);
 
           // Display the coaster data on the HTML page
-          displayCoasterData(randomCoaster);
+          displayCoasterData(data);
         })
         .catch(error => console.error('Error fetching data:', error));
     }
