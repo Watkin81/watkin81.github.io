@@ -38,6 +38,17 @@
       margin: 0 auto;
       color: white;
     }
+
+    #randomCoasterButton {
+      margin-top: 10px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #randomCoasterButton:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -45,9 +56,14 @@
   <div id="coasterInfo"></div>
   <pre id="coasterData"></pre>
 
+  <button id="randomCoasterButton" onclick="getRandomCoaster()">Get Random Coaster</button>
+
   <script>
     function getRandomCoaster() {
-      // Make a request to the rcdb scraper
+      // Disable the button to prevent spamming
+      document.getElementById('randomCoasterButton').disabled = true;
+
+      // Make a request to the rcdb rest api
       fetch('https://rcdb-api.vercel.app/api/coasters/random')
         .then(response => response.json())
         .then(data => {
@@ -65,8 +81,18 @@
             // If conditions are not met, get another random coaster
             getRandomCoaster();
           }
+
+          // Enable the button after a delay (1 second in this example)
+          setTimeout(() => {
+            document.getElementById('randomCoasterButton').disabled = false;
+          }, 2000);
         })
-        .catch(error => console.error('Error fetching data:', error));
+        .catch(error => {
+          console.error('Error fetching data:', error);
+
+          // Enable the button in case of an error
+          document.getElementById('randomCoasterButton').disabled = false;
+        });
     }
 
     function isValidCoaster(coaster) {
@@ -96,7 +122,5 @@
       }
     }
   </script>
-
-  <button onclick="getRandomCoaster()">Get Random Coaster</button>
 </body>
 </html>
