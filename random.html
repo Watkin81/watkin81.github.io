@@ -7,7 +7,7 @@
   <link rel="stylesheet" type="text/css" href="mainpage.css">
   <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
   <style>
-    body {
+    #thebody {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
@@ -91,7 +91,8 @@
     <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
   </div>
 </header>
-  
+
+  <div id=thebody>
   <h1>Random Coaster Viewer</h1>
   <div id="coasterInfo"></div>
   <pre id="coasterData"></pre>
@@ -174,5 +175,6 @@
       imageCreditElement.textContent = `Photo by ${picture.credit || 'Unknown'}`;
     }
   </script>
+</div>
 </body>
 </html>
