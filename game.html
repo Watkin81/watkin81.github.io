@@ -622,7 +622,7 @@
             <div>Opening Year: ${yearValue}</div>`;*/
 
       // Display full coaster data in the console
-      console.log(`Full Coaster Data ${coasterId}:`, coaster);
+      //console.log(`Full Coaster Data ${coasterId}:`, coaster);
 
       // Display image on the HTML page
       displayImage(coasterId, coaster.mainPicture, coasterPicElement);
@@ -734,23 +734,23 @@
       postStatDisplay = statAAdd;
 
       // Display the random stat and values for both coasters
-      console.log(`Random Stat: ${randomStat}`);
-      console.log(`${coasterA.name}'s ${randomStat}: ${statA}`);
-      console.log(`${coasterB.name}'s ${randomStat}: ${statB}`);
+      //console.log(`Random Stat: ${randomStat}`);
+      //console.log(`${coasterA.name}'s ${randomStat}: ${statA}`);
+      //console.log(`${coasterB.name}'s ${randomStat}: ${statB}`);
 
       // Compare the stats
       if (!isNaN(statA) && !isNaN(statB)) {
         if (statA > statB) {
-          console.log(`A: ${coasterStats['A'].name} has a higher ${randomStat}`);
+          //console.log(`A: ${coasterStats['A'].name} has a higher ${randomStat}`);
           answer = 'lower';
         } else if (statA < statB) {
-          console.log(`B: ${coasterStats['B'].name} has a higher ${randomStat}`);
+          //console.log(`B: ${coasterStats['B'].name} has a higher ${randomStat}`);
           answer = 'higher';
         } else {
-          console.log(`Both coasters have the same ${randomStat}`); // this should never happen lol
+          //console.log(`Both coasters have the same ${randomStat}`); // this should never happen lol
         }
       } else {
-        console.log(`Cannot compare non-numeric stats for ${randomStat}`); // this should also never happen lol
+        //console.log(`Cannot compare non-numeric stats for ${randomStat}`); // this should also never happen lol
       }
 
       // enable the game buttons so the user can play
@@ -820,7 +820,7 @@
       }
 
       function setUnits() {
-        statType = localStorage.getItem('statType') || false; // Default to false if not set
+        statType = localStorage.getItem('statType') || "false"; // Default to false if not set
         if (statType == "true") {
           document.getElementById('unitSwitch').checked = true;
         } else if (statType == "false") {
@@ -903,12 +903,6 @@
         document.getElementById('restartButton').style.display = 'block';
         document.getElementById('scoreText').style.display = 'block';
         document.getElementById('endText').style.display = 'block';
-        //document.getElementById('postRoundText').style.display = 'none';
-        //document.getElementById('randomStatDisplay').innerHTML = ``;
-        //document.getElementById('randomStatDisplayA').innerHTML = ``;
-        //document.getElementById('randomNameDisplay').innerHTML = ``;
-        //document.getElementById('statValA').innerHTML = ``;
-        //document.getElementById('unitValA').innerHTML = ``;
         document.getElementById('scoreDisplay').style.display = 'none';
         document.getElementById('highScoreDisplay').style.display = 'block';
       }
