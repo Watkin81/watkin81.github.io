@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Title LOL</title>
+    <title>StatRide - A Coaster Statistics Game</title>
     <meta name="description" content="A roller coaster statistic game.">
     <link rel="stylesheet" type="text/css" href="mainpage.css">
-    <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
+    <link rel="icon" type="image/x-icon" href="/images/FaviconGame.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
 
@@ -403,13 +403,13 @@
     </div>
   </div>
 
-  <p id="titleText">TITLE TEXT GOES HERE</p>
-  <p id="descriptionText">Game description / tagline goes here</p>
+  <p id="titleText">STATRIDE</p>
+  <p id="descriptionText">A Roller Coaster Statistics Game</p>
   <button id="startButton" onclick="startGame()">START GAME <i class="fa-solid fa-caret-right"></i></button>
 
   <p id="loader"></p>
 
-  <p id="endText">SCORE TEMP TEXT XD</p>
+  <p id="endText">Your Score:</p>
   <p id="scoreText"></p>
   <button id="restartButton" onclick="startGame()">PLAY AGAIN <i class="fa-solid fa-caret-right"></i></button>
 
@@ -425,9 +425,9 @@
     <p id="smallText">Unit changes will take effect on the next coaster.</p>
     <p><strong>Coaster Pool:</strong></p>
       <input type="radio" id="allWhitelist" name="difficulty" value="Whitelist">
-      <label for="allWhitelist">Whitelist - No Defunct</label><br>
+      <label for="allWhitelist">Whitelist - With Defunct</label><br>
       <input type="radio" id="allDefunct" name="difficulty" value="Defunct">
-      <label for="allPhoto">Whitelist - With Defunct</label><br>
+      <label for="allPhoto">Whitelist - No Defunct</label><br>
     <p id="smallText">Non-Whitelist pools coming soon(ish).</p>
     <p id="smallText">Coaster pool changes will take effect on the next game.</p>
     <button id="closeButton" onclick="closeSettingsPanel()"><i class="fa-solid fa-xmark"></i></button>
