@@ -490,6 +490,7 @@
     let delayTime = 1250;
     let score = -1;
     let highScore = 0;
+    let statBfixed = ''; // no more cheating sorry :(
   
     whitelist = [1, 3, 5, 7, 10, 11, 12, 13, 15, 17, 18, 22, 24, 25, 28, 29, 30, 31, 32, 35, 37, 40,
     4173, 615, 130, 129, 470, 2169, 140, 3305, 12282, 16588, 19515, 750, 526, 15413, 291, 4089, 3704, 2536, 1574, 20275, 14683, 17030, 2079, 9819,
@@ -735,7 +736,6 @@
     function compareRandomStat(coasterA, coasterB) {
       const randomStat = getRandomStat();
       let randomStatFixed = '';
-      let statBfixed = '';
       let statAOut = '';
       let statAAdd = '';
 
@@ -765,7 +765,8 @@
 
       document.getElementById('statValA').innerHTML = `<p id="leftStat">${statAOut}</p>`;
       document.getElementById('unitValA').innerHTML = `<p id="leftUnit">${statAAdd}</p>`;
-      document.getElementById('postRoundText').innerHTML = `${statBfixed}`;
+      //document.getElementById('postRoundText').innerHTML = `${statBfixed}`; IM A CYBERSECURITY MAJOR AND I MESSED THIS UP LOL
+      document.getElementById('postRoundText').innerHTML = 'no cheating! :)';
 
       postStatDisplay = statAAdd;
 
@@ -909,6 +910,7 @@
       function endRound() {
         score += 1;
         updateScoreDisplay();
+        document.getElementById('postRoundText').innerHTML = `${statBfixed}`; // no more cheating
         document.getElementById('lowerButton').style.display = 'none';
         document.getElementById('higherButton').style.display = 'none';
         document.getElementById('randomNameDisplay').innerHTML = `<p id="randomNameDeco">${postStatDisplay}</p>`;
