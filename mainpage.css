@@ -10,8 +10,11 @@
 }
 
 .headerimg {
-  max-width: 50%;
-  height: 75px;
+  width: 100%; 
+  max-width: 100%; 
+  height: auto; 
+  display: block; 
+  margin: 0 auto;
 }
 
 
