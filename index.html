@@ -10,22 +10,27 @@
 
 <body style="margin: 0">
   <!-- Header -->
-<div class="header" style="margin:0;">
+<div class="header" style="margin: 0">
    <!-- <h1 class="headertitle" style="margin:0;">Jake's Roller Coasters</h1>-->
-    <img src="/images/RCITitle.png" alt="Roller.Coaster.Images" class="center" id="headerimg" height="125px">
+    <img src="/images/RCITitle.png" alt="Roller.Coaster.Images" class="center" id="headerimg">
   </div>
   
   <!-- Navigation Bar -->
   <div class="topnav" id="myTopnav" style="margin:0;">
     <a href="https://watkin81.github.io/index.html">Home</a>
-    <a href="https://watkin81.github.io/rankings.html">Rankings and Data</a>
-    <a href="https://watkin81.github.io/images.html">Coaster Images</a>
-    <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller.Coaster.Images Instagram</a>
+    <a href="https://watkin81.github.io/myrankings.html">My Rankings</a>
+    <div class="dropdown">
+        <button class="dropbtn">My Documents</button>
+        <div class="dropdown-content">
+            <a href="https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs" target="_blank" rel="noopener noreferrer">Coaster Nerd Spreadsheet</a>
+            <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
+            <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
+        </div>
+    </div>
     <a href="https://watkin81.github.io/guessthecoaster.html">GuessTheCoaster</a>
-    <a href="https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs" target="_blank" rel="noopener noreferrer">Coaster Nerd Spreadsheet</a>
-    <a href="https://docs.google.com/document/d/1R9gMBCIvhuTBLrbh60jCBUDpgeWp7a6Lxy510fxzx-g" target="_blank" rel="noopener noreferrer">Coaster List Document</a>
-    <a href="https://www.google.com/maps/d/u/0/edit?mid=16KMz7_0vdE-FJ3sVxDGovtYZztEn_cE&usp=sharing" target="_blank" rel="noopener noreferrer">My Coaster Map</a>
-  </div>
+    <a href="https://watkin81.github.io/statride.html">StatRide</a>
+    <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller.Coaster.Images Instagram</a>
+    </div>
 
   <!-- Cycle Container -->
 <div class="cycle">
@@ -113,31 +118,29 @@
 <style>
   /* Style for the image buttons */
   #image-buttons {
-    text-align: center; /* Center the buttons */
+    text-align: center; 
     margin-top: 10px;
   }
 
   #image-buttons button {
-    width: 15px; /* Adjust the size as needed */
-    height: 15px; /* Adjust the size as needed */
-    border: 1px solid #000000; /* Border color */
-    border-radius: 50%; /* Make it a circle */
-    background-color: transparent; /* Transparent inside */
-
-    /* Add additional styling as needed */
-    margin: 0 5px; /* Adjust the spacing between buttons */
+    width: 15px; 
+    height: 15px; 
+    border: 1px solid #000000; 
+    border-radius: 50%; 
+    background-color: transparent; 
+    margin: 0 5px; 
     cursor: pointer;
-    transition: background-color 0.2s; /* Smooth transition for the background color */
+    transition: background-color 0.2s; 
   }
 
   /* Style for the active button */
   #image-buttons .active {
-    background-color: #007bff; /* Change to the color you want for the active button */
+    background-color: #007bff; 
     color: #000000;
   }
 
   #image-buttons button:hover {
-    background-color: #99ccff; /* Change to the color you want for the active button */
+    background-color: #99ccff; 
     color: #000000;
   }
   
