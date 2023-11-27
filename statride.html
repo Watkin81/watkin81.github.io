@@ -955,6 +955,9 @@
 
       // Function to convert year to just year, remove - for comparison later
       function convertYear(dateString) {
+        if (typeof dateString != 'string') {
+          string(dateString);
+        }
         const yearPart = dateString.split('-')[0];
         return !isNaN(yearPart) ? parseInt(yearPart, 10) : 'Unknown';
       }
