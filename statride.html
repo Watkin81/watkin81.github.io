@@ -849,7 +849,7 @@
       costValue = coaster.stats && coaster.stats.cost ? parseNumericValue(coaster.stats.cost) || 'Unknown' : 'Unknown';
       capacityValue = coaster.stats && coaster.stats.capacity ? parseNumericValue(coaster.stats.capacity) || 'Unknown' : 'Unknown';
       durationValue = coaster.stats && coaster.stats.duration ? convertDuration(coaster.stats.duration) : 'Unknown';
-      yearValue = coaster.status && coaster.status.date ? convertYear(coaster.status.date) : 'Unknown';
+      yearValue = coaster.status && coaster.status.date.opened ? convertYear(coaster.status.date.opened) : 'Unknown';
     }
 
     function parseNumericValue(value) {
