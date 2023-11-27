@@ -40,7 +40,7 @@
   overflow: hidden;
 }
 .dropdown .dropbtn {
-  font-size: 16px;  
+  font-size: 17px;  
   border: none;
   outline: none;
   color: white;
@@ -48,6 +48,7 @@
   background-color: inherit;
   font-family: inherit;
   margin: 0;
+  font-family: Tahoma;
 }
 /* Change the color of links on hover */
 .topnav a:hover .dropdown:hover .dropbtn {
