@@ -39,7 +39,8 @@
   float: left;
   overflow: hidden;
 }
-.dropdown .dropbtn {
+.dropdown,
+.dropbtn {
   font-size: 17px;  
   border: none;
   outline: none;
@@ -50,10 +51,13 @@
   font-family: Tahoma;
 }
 /* Change the color of links on hover */
-.topnav a:hover .dropdown:hover .dropbtn:hover {
+.topnav a:hover,
+.dropdown:hover,
+.dropbtn {
     background-color: #ddd;
     color: black;
 }
+
 /* Add a color to the active/current link */
 .topnav a.active {
     background-color: #4CAF50;
