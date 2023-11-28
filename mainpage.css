@@ -39,8 +39,7 @@
   float: left;
   overflow: hidden;
 }
-.dropdown,
-.dropbtn {
+.dropdown {
   font-size: 17px;  
   border: none;
   outline: none;
