@@ -590,6 +590,8 @@
     <p><strong>Coaster Pool:</strong></p>
       <input type="radio" id="usaWhitelist" name="whitelist" value="usaWhitelist" onchange="toggleWhitelist()">
       <label for="usaWhitelist">USA</label><br>
+      <input type="radio" id="globalWhitelist" name="whitelist" value="globalWhitelist" onchange="toggleWhitelist()">
+      <label for="globalWhitelist">Global</label><br>
       <input type="radio" id="allWhitelist" name="whitelist" value="allWhitelist" onchange="toggleWhitelist()">
       <label for="allWhitelist">USA + Global</label><br>
       <input type="radio" id="comingSoon" name="whitelist" value="comingSoon" onchange="toggleWhitelist()">
@@ -660,6 +662,8 @@
         //set the Whitelist to be used for the game here, this way it cannot be updated in the middle of a game
         if (currentWhitelist == "usaWhitelist") {
           gameWhitelist = whitelistUSA;
+        } else if (currentWhitelist == "globalWhitelist") {
+          gameWhitelist = whitelistGlobal;
         } else if (currentWhitelist == "allWhitelist") {
           gameWhitelist = whitelistALL;
         } else {
@@ -1024,9 +1028,15 @@
         currentWhitelist = localStorage.getItem('whitelist') || "usaWhitelist";
         if (currentWhitelist == "usaWhitelist") {
           document.getElementById('usaWhitelist').checked = true;
+          document.getElementById('globalWhitelist').unchecked = true;
+          document.getElementById('allWhitelist').unchecked = true;
+        } else if (currentWhitelist == "globalWhitelist") {
+          document.getElementById('usaWhitelist').unchecked = true;
+          document.getElementById('globalWhitelist').checked = true;
           document.getElementById('allWhitelist').unchecked = true;
         } else if (currentWhitelist == "allWhitelist") {
           document.getElementById('usaWhitelist').unchecked = true;
+          document.getElementById('globalWhitelist').unchecked = true;
           document.getElementById('allWhitelist').checked = true;
         } else {
           currentWhitelist = "usaWhitelist"; // coming soon
@@ -1037,6 +1047,8 @@
       function toggleWhitelist() {
         if (document.getElementById("usaWhitelist").checked == true) {
           currentWhitelist = "usaWhitelist";
+        } else if (document.getElementById("globalWhitelist").checked == true) {
+          currentWhitelist = "globalWhitelist";
         } else if (document.getElementById("allWhitelist").checked == true) {
           currentWhitelist = "allWhitelist";
         } else {
