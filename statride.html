@@ -621,7 +621,7 @@
     <h3>About the Project</h3>
     <p>This game was coded fully in html, css, and javascript as a personal project.</p>
     <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller Coaster Instagram</a>!</p>
-    <p>The github for the project can be found at <a href="https://github.com/Watkin81/watkin81.github.io" target="_blank" rel="noopener noreferrer">https://github.com/Watkin81/watkin81.github.io</a>!</p>
+    <p>The code for the project can be found on the <a href="https://github.com/Watkin81/watkin81.github.io/blob/main/statride.html" target="_blank" rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
     <p>A random roller coaster viewer can be found at <a href="https://watkin81.github.io/random.html" target="_blank" rel="noopener noreferrer">https://watkin81.github.io/random.html</a>!</p>
     <p id="smallText">Data is pulled from <a href="https://rcdb.com/" target="_blank" rel="noopener noreferrer">rcdb.com</a>. If this game does not use the data in an acceptable way please contact me so I can work to fix it. 👍</p>
     <a id="closeButton" onclick="closeInfoPanel()"><i class="fa-solid fa-xmark"></i></a>
@@ -1226,7 +1226,7 @@
       }
 
       function updateAverage(newValue) {
-        let oldAverage = parseFloat(localStorage.getItem('average')) || 0;
+        let oldAverage = parseFloat(localStorage.getItem('average')) || 0.00;
         let numberOfOldValues = parseInt(localStorage.getItem('numberOfOldValues')) || 0;
 
         let newAverage = (oldAverage * numberOfOldValues + newValue) / (numberOfOldValues + 1);
@@ -1239,7 +1239,7 @@
       }
 
       function setAverageScore() {
-        let averageScore = parseFloat(localStorage.getItem('average')) || 0;
+        let averageScore = parseFloat(localStorage.getItem('average')) || 0.00;
         newAverage = averageScore.toFixed(2);
         document.getElementById('averageScoreValue').textContent = averageScore;
       }
