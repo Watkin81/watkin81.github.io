@@ -582,11 +582,14 @@
 
   <div id="settingsPanel">
     <h3>Game Settings</h3>
-    <p><strong>Units:</strong></p>
+    <p><strong>Toggles:</strong></p>
     <label>
       <input type="checkbox" id="unitSwitch" onchange="toggleUnits()"> Use Metric Units
+    </label><br>
+    <label>
+      <input type="checkbox" id="durationSwitch" onchange="toggleDuration()"> Allow Duration Stats
     </label>
-    <p id="smallText">Unit changes will take effect on the next coaster.</p>
+    <p id="smallText">Toggle changes will take effect on the next coaster.</p>
     <p><strong>Coaster Pool:</strong></p>
       <input type="radio" id="usaWhitelist" name="whitelist" value="usaWhitelist" onchange="toggleWhitelist()">
       <label for="usaWhitelist">USA</label><br>
@@ -637,24 +640,28 @@
     535, 1977, 113, 10137, 16682, 4049, 468, 109, 10089, 108, 2498, 107, 20462, 3866, 15330, 557, 703, 6992, 278, 3635, 532, 17278, 14302, 76, 80, 10857, 77, 79, 15412,
     16587, 357, 1143, 13422, 163, 617, 17660, 10139, 15410, 1862, 447, 4155, 178, 18691, 176, 550, 1659, 256, 255, 254, 586, 153, 4191, 155, 18398, 20336, 12896, 214,
     16885, 212, 653, 469, 3244, 4296, 2572, 20340, 1455, 1903, 220, 15168, 720, 20328, 501, 16124, 6691, 13369, 3609, 534, 2451, 10148, 527, 81, 83, 16349, 4269,
-    12273, 85, 8588, 1897, 2514, 1478, 86, 2508, 101, 3727];
+    12273, 85, 8588, 1897, 2514, 1478, 86, 2508, 101, 3727, 19332];
     whitelistGlobal = [3254, 1190, 9795, 3117, 15201, 12723, 1235, 1412, 1747, 4162, 3081, 9820, 1458, 777, 2787, 11062, 2472, 15029, 12959, 1845, 12272, 15561, 15515,
     1178, 1173, 15562, 17412, 12362, 14462, 16184, 13637, 10154, 2999, 12083, 4526, 897, 770, 1565, 12315, 773, 16047, 769, 14717, 3589, 2747, 10333, 1028, 1414, 4074,
-    972, 971, 1891, 10018, 1043, 3245, 20266, 1042, 9863, 9040, 4224, 15502, 6764, 12413, 16308, 10077, 17725, 4181, 7645, 16138, 9206, 1073, 3916, 3613, 19332, 3938,
+    972, 971, 1891, 10018, 1043, 3245, 20266, 1042, 9863, 9040, 4224, 15502, 6764, 12413, 16308, 10077, 17725, 4181, 7645, 16138, 9206, 1073, 3916, 3613, 3938, 12771,
     753, 9675, 752, 16327, 1038, 12032, 20019, 1368, 1365, 1369, 1366, 977, 6736, 10239, 762, 760, 3430, 759, 11615, 4075, 981, 982, 11034, 3849, 19160, 4485, 12772,
-    12771, 12575];
+    12575];
     whitelistALL = whitelistUSA.concat(whitelistGlobal);
     let previousCoasters = [];
     let answer = 'tempN/A';
     let gameWhitelist;
     let statType; let currentWhitelist; // imperial by default complain louder I care so much, also USA only cry
 
+    console.log(`Whitelist: USA=${whitelistUSA.length}, Global=${whitelistGlobal.length}, All=${whitelistALL.length}`);
+
     setUnits();
+    setDuration();
     updateHighScore();
     setWhitelist();
     
     async function getRandomCoasters() {
       let dataA, dataB;
+      let tempcyc2 = 0;
 
       // Check if very first round or if the coasters are the same
       if (isFirstPress || (coasterA && coasterB && coasterA.id === coasterB.id)) {
@@ -694,9 +701,11 @@
 
           // Fetch new data for Coaster B
           do {
+            tempcyc2 += 1;
             dataB = await fetchRandomCoaster('B');
           } while (isCoasterInPreviousCoasters(dataB)); // Keep fetching until Coaster B is different from both Coaster A, the previous Coaster B, and not in the previousCoasters array
 
+          //console.log(`Coaster Rolls: ${tempcyc2}`);
           await delay(delayTime);
 
           displayCoasterInfo('B', dataB);
@@ -870,22 +879,38 @@
     }
 
     function getRandomStat() {
-      //                 0        1         2           3               4             5           6        7        8    extras, I want these to happen more since rarer
-      const stats = ['length', 'height', 'speed', 'inversions', 'verticalAngle', 'duration', 'capacity', 'cost', 'year', 'cost', 'verticalAngle', 'speed', 'cost'];
+      let stats = ['length', 'height', 'speed', 'inversions', 'verticalAngle', 'capacity', 'year', 'verticalAngle', 'speed', 'inversions'];
+      
+      let aID, bID;
+      aID = coasterStats['A']['id'];
+      bID = coasterStats['B']['id'];
+      // random stat fixes due to database bugs / unfair stuff
+      if (whitelistUSA.includes(aID) && whitelistUSA.includes(bID)) {
+        stats.push('cost'); stats.push('cost'); stats.push('cost');
+      }
+      if (addDuration == "true") {
+        stats.push('duration'); stats.push('duration');
+      }
+      //console.log(`Stat Array: ${stats}`);
+
       let randomIndex = Math.floor(Math.random() * stats.length);
       randomStat = stats[randomIndex];
+
+      let tempcyc = 1;
 
       // Check if both coasters have a value for the selected stat or if they are equal, if so reroll
       while (
         coasterStats['A'][randomStat] === 'Unknown' || // if either is unknown (no stat for that category)
         coasterStats['B'][randomStat] === 'Unknown' ||
         coasterStats['A'][randomStat] === coasterStats['B'][randomStat] || // or if the stats are equal
-        ((randomStat == 'inversions') && ((coasterStats['A'][randomStat] === 0) || (coasterStats['B'][randomStat] === 0))) // or if there is a coaster with 0 inversions
+        ((randomStat == 'inversions') && ((coasterStats['A'][randomStat] == 0) || (coasterStats['B'][randomStat] == 0))) // or if there is a coaster with 0 inversions
       ) {
         randomIndex = Math.floor(Math.random() * stats.length);
         randomStat = stats[randomIndex];
+        tempcyc += 1;
       }
 
+      //console.log(`Stat Rolls: ${tempcyc}`);
       return stats[randomIndex];
     }
 
@@ -952,13 +977,24 @@
 
       // Function to convert duration to remove the : for comparison later
       function convertDuration(duration) {
+        if (typeof duration !== 'string') {
+          return 'Unknown';
+        }
+
         const parts = duration.split(':');
+
         if (parts.length === 2) {
           const minutes = parseInt(parts[0], 10);
           const seconds = parseInt(parts[1], 10);
-          return minutes * 60 + seconds;
+
+          if (!isNaN(minutes) && !isNaN(seconds)) {
+            return minutes * 60 + seconds;
+          } else {
+            return 'Unknown';
+          }
+        } else {
+          return 'Unknown';
         }
-        return 'Unknown';
       }
 
       // Function to convert year to just year, remove - for comparison later
@@ -1021,6 +1057,24 @@
           document.getElementById('unitSwitch').checked = true;
         } else if (statType == "false") {
           document.getElementById('unitSwitch').checked = false;
+        }
+      }
+
+      function toggleDuration() {
+        if (document.getElementById('durationSwitch').checked) { // true for on, false for off
+          addDuration = "true";
+        } else {
+          addDuration = "false";
+        }
+        localStorage.setItem('duration',addDuration);
+      }
+
+      function setDuration() {
+        addDuration = localStorage.getItem('duration') || "true"; // Default to true if not set
+        if (addDuration == "true") {
+          document.getElementById('durationSwitch').checked = true;
+        } else if (addDuration == "false") {
+          document.getElementById('durationSwitch').checked = false;
         }
       }
 
