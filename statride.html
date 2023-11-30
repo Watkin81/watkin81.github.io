@@ -1226,7 +1226,7 @@
       }
 
       function updateAverage(newValue) {
-        let oldAverage = parseFloat(localStorage.getItem('average')) || 0.00;
+        let oldAverage = parseFloat(localStorage.getItem('average')) || 0;
         let numberOfOldValues = parseInt(localStorage.getItem('numberOfOldValues')) || 0;
 
         let newAverage = (oldAverage * numberOfOldValues + newValue) / (numberOfOldValues + 1);
@@ -1239,8 +1239,8 @@
       }
 
       function setAverageScore() {
-        let averageScore = parseFloat(localStorage.getItem('average')) || 0.00;
-        newAverage = averageScore.toFixed(2);
+        let averageScore = parseFloat(localStorage.getItem('average')) || 0;
+        averageScore = averageScore.toFixed(2);
         document.getElementById('averageScoreValue').textContent = averageScore;
       }
 
