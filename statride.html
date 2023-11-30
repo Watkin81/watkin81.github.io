@@ -899,10 +899,10 @@
       bID = coasterStats['B']['id'];
       // random stat fixes due to database bugs / unfair stuff
       if (whitelistUSA.includes(aID) && whitelistUSA.includes(bID)) {
-        //stats.push('cost'); stats.push('cost'); stats.push('cost');
+        stats.push('cost'); stats.push('cost'); stats.push('cost');
       }
       if (addDuration == "true") {
-        //stats.push('duration'); stats.push('duration');
+        stats.push('duration'); stats.push('duration');
       }
       if (isNaN(coasterStats['A']['inversions']) || isNaN(coasterStats['B']['inversions'])) {
       } else { stats.push('inversions'); stats.push('inversions'); }
