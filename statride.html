@@ -578,20 +578,24 @@
     </div>
   </div>
 
+  <!-- Title and Tagline -->
   <p id="titleText"><i class="fa-solid fa-caret-down"></i> StatRide <i class="fa-solid fa-caret-up"></i></p>
   <p id="descriptionText">A Roller Coaster Statistics Game</p>
   <button id="startButton" onclick="startGame()">START GAME <i class="fa-solid fa-caret-right"></i></button>
 
   <p id="loader"></p>
 
+  <!-- End of Game Score Display -->
   <p id="endText">Your Score:</p>
   <p id="scoreText"></p>
   <button id="restartButton" onclick="startGame()">PLAY AGAIN <i class="fa-solid fa-caret-right"></i></button>
 
+  <!-- Bottom of Screen Score Display -->
   <p id="scoreDisplay">Coasters: <span id="scoreValue">0</span></p>
   <p id="highScoreDisplay">High Score: <span id="highScoreValue">0</span></p>
   <p id="averageScoreDisplay">Average Score: <span id="averageScoreValue">0</span></p>
 
+  <!-- Settings Window -->
   <div id="settingsPanel">
     <h3>Game Settings</h3>
     <p><strong>Toggles:</strong></p>
@@ -615,6 +619,7 @@
     <button id="closeButton" onclick="closeSettingsPanel()"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
+  <!-- Info Window -->
   <div id="infoPanel">
     <h3>How to Play</h3>
     <p>An random roller coaster is selected from a pool of coasters. Check the stats of the coaster on the left and determine if the coaster on the right has stats that are higher or lower.</p>
@@ -627,6 +632,7 @@
     <a id="closeButton" onclick="closeInfoPanel()"><i class="fa-solid fa-xmark"></i></a>
   </div>
 
+  <!-- Buttons! -->
   <button id="settingsButton" onclick="toggleSettingsPanel()"><i class="fas fa-cog"></i></button>
   <button id="infoButton" onclick="toggleGameInfoPanel()"><i class="fas fa-info-circle"></i></button>
   <button id="homeButton" onclick="window.location.href='https://watkin81.github.io/index.html'"><i class="fa-solid fa-house-chimney"></i></button>
@@ -634,12 +640,11 @@
 
   <script>
     let lengthValue, heightValue, dropValue, speedValue, angleValue, capacityValue, durationValue, yearValue, invertValue, costValue; // scope
-    let moveCoasterStats, moveCoasterPicImage, moveCoasterPicSize, moveCoasterPicPos, moveImageCredit; // scope
-    let isFirstPress = true; // basically is it the first round, do we need to start the game with 2 coasters or port over?
-    let coasterA, coasterB, postStatDisplay; // scope
-    let coasterStats = []; // all coaster stats ig
-    let repeatLen = 10; // number of coasters to cycle before repeats are allowed
-    let delayTime = 1250;
+    let moveCoasterStats, moveCoasterPicImage, moveCoasterPicSize, moveCoasterPicPos, moveImageCredit, coasterA, coasterB, postStatDisplay; // scope
+    let isFirstPress = true; // is it the first round, aka do we need to start the game with 2 coasters or move coasterB over?
+    let coasterStats = []; // all coaster stats array
+    let repeatLen = 50; // number of coasters to cycle before repeats are allowed
+    let delayTime = 1250; // Manual delay to allow the player to check the comparison post-round
     let score = -1;
     let highScore = 0;
     let statBfixed = ''; // no more cheating sorry :(
@@ -669,7 +674,7 @@
     let previousCoasters = [];
     let answer = 'tempN/A';
     let gameWhitelist;
-    let statType; let currentWhitelist; // imperial by default complain louder I care so much, also USA only cry
+    let statType; let currentWhitelist; // imperial by default
 
     console.log(`Whitelist: USA=${whitelistUSA.length}, Global=${whitelistGlobal.length}, All=${whitelistALL.length}`);
 
@@ -1100,7 +1105,7 @@
       }
 
       function setWhitelist() {
-        currentWhitelist = localStorage.getItem('whitelist') || "usaWhitelist";
+        currentWhitelist = localStorage.getItem('whitelist') || "allWhitelist";
         if (currentWhitelist == "usaWhitelist") {
           document.getElementById('usaWhitelist').checked = true;
           document.getElementById('globalWhitelist').unchecked = true;
