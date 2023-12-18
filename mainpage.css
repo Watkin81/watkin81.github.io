@@ -37,6 +37,8 @@
 }
 .dropbtn {
     background-color: transparent;
+    outline: none;
+    border: none;
 }
 .topnav a {
     padding: 14px 16px;
