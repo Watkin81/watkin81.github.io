@@ -36,7 +36,7 @@
     font-family: Tahoma;
 }
 .dropbtn {
-    background-color: transparent;
+    background: none;
     outline: none;
     border: none;
 }
