@@ -36,8 +36,6 @@
     font-family: Tahoma;
 }
 .dropbtn {
-    background: none;
-    outline: none;
     border: none;
 }
 .topnav a {
@@ -60,7 +58,7 @@
 /* Change the color of links on hover */
 .topnav a:hover,
 .dropdown:hover,
-.dropbtn {
+.dropbtn:hover {
     background-color: #ddd;
     color: black;
 }
