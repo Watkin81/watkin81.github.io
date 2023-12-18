@@ -35,6 +35,9 @@
     font-size: 17px;
     font-family: Tahoma;
 }
+.dropbtn {
+    background-color: transparent;
+}
 .topnav a {
     padding: 14px 16px;
 }
