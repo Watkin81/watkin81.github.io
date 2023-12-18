@@ -35,11 +35,13 @@
     font-size: 17px;
     font-family: Tahoma;
 }
-.dropbtn {
-    border: none;
-}
 .topnav a {
     padding: 14px 16px;
+}
+.dropbtn {
+    border: none;
+    background: none;
+    padding: 13px 16px;
 }
 .dropdown {
   float: left;
