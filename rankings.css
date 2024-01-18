@@ -16,6 +16,25 @@
   100% { transform: rotate(360deg); }
 }
 
+@media only screen and (max-width: 600px) {
+    /* Add styles for smaller screens */
+    #coasterTable {
+        width: 100%;
+    }
+    #coasterTable th, #coasterTable td {
+        width: auto;
+        display: block;
+        text-align: center;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    /* Adjust font sizes for smaller screens */
+    #coasterTable th, #coasterTable td {
+        font-size: 12px;
+    }
+}
+
 #coasterInput {
   width: 50%; /* Full-width */
   font-size: 17px; /* Increase font-size */
