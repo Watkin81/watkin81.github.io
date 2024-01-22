@@ -18,6 +18,10 @@
 
 @media only screen and (max-width: 600px) {
     /* Add styles for smaller screens */
+    #coasterTable thead {
+        display: none;
+    }
+  
     #coasterTable {
         width: 100%;
     }
