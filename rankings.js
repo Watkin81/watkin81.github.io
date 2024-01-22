@@ -116,11 +116,21 @@
         var searchQuery = document.getElementById("coasterInput").value;
 
         var queryParams = new URLSearchParams();
-        queryParams.set("m", selectedManufacturer);
-        queryParams.set("t", selectedType);
-        queryParams.set("s", searchQuery);
-        history.replaceState(null, null, "?" + queryParams.toString());
-      }
+
+        if (selectedManufacturer !== "") {
+              queryParams.set("m", selectedManufacturer);
+          }
+      
+          if (selectedType !== "") {
+              queryParams.set("t", selectedType);
+          }
+      
+          if (searchQuery !== "") {
+              queryParams.set("s", searchQuery);
+          }
+            
+          history.replaceState(null, null, "?" + queryParams.toString());
+        }
 
       function applyURLParams() {
           var urlParams = new URLSearchParams(window.location.search);
