@@ -123,38 +123,34 @@
       }
 
       function applyURLParams() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var selectedManufacturer = urlParams.get("m");
-        var selectedType = urlParams.get("t");
-        var searchQuery = urlParams.get("s");
-
-        var selectedManufacturer = document.getElementById("selectManu").value;
-        var selectedType = document.getElementById("selectType").value;
-        var searchQuery = document.getElementById("coasterInput").value;
-
-        if (selectedManufacturer && Array.from(selectManu.options).some(option => option.value === selectedManufacturer)) {
-            selectManu.value = selectedManufacturer;
-        } else {
-            selectManu.value = "";
-            urlParams.delete("m");
-        }
-
-        if (selectedType && Array.from(selectType.options).some(option => option.value === selectedType)) {
-            selectType.value = selectedType;
-        } else {
-            selectType.value = "";
-            urlParams.delete("t");
-        }
-    
-        if (searchQuery) {
-            coasterInput.value = searchQuery;
-        } else {
-            urlParams.delete("s");
-        }
-
-        history.replaceState(null, null, "?" + urlParams.toString());
-        
-        filterTable();
+          var urlParams = new URLSearchParams(window.location.search);
+          var selectedManufacturer = urlParams.get("m");
+          var selectedType = urlParams.get("t");
+          var searchQuery = urlParams.get("s");
+      
+          if (selectedManufacturer && Array.from(selectManu.options).some(option => option.value === selectedManufacturer)) {
+              selectManu.value = selectedManufacturer;
+          } else {
+              selectManu.value = "";
+              urlParams.delete("m");
+          }
+      
+          if (selectedType && Array.from(selectType.options).some(option => option.value === selectedType)) {
+              selectType.value = selectedType;
+          } else {
+              selectType.value = "";
+              urlParams.delete("t");
+          }
+      
+          if (searchQuery) {
+              coasterInput.value = searchQuery;
+          } else {
+              urlParams.delete("s");
+          }
+      
+          history.replaceState(null, null, "?" + urlParams.toString());
+      
+          filterTable();
       }
 
       document.getElementById("coasterInput").addEventListener("keyup", function () {
