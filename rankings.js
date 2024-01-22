@@ -111,26 +111,32 @@
       }
 
       function updateURLParams() {
-        var selectedManufacturer = document.getElementById("selectManu").value;
-        var selectedType = document.getElementById("selectType").value;
-        var searchQuery = document.getElementById("coasterInput").value;
+          var selectedManufacturer = document.getElementById("selectManu").value;
+          var selectedType = document.getElementById("selectType").value;
+          var searchQuery = document.getElementById("coasterInput").value;
 
-        var queryParams = new URLSearchParams();
+          var queryParams = new URLSearchParams();
 
-        if (selectedManufacturer !== "") {
+          if (selectedManufacturer !== "") {
               queryParams.set("m", selectedManufacturer);
+          } else {
+              urlParams.delete("m");
           }
       
           if (selectedType !== "") {
               queryParams.set("t", selectedType);
+          } else {
+              urlParams.delete("t");
           }
       
           if (searchQuery !== "") {
               queryParams.set("s", searchQuery);
+          } else {
+              urlParams.delete("s");
           }
             
           history.replaceState(null, null, "?" + queryParams.toString());
-        }
+      }
 
       function applyURLParams() {
           var urlParams = new URLSearchParams(window.location.search);
