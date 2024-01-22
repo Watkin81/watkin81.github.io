@@ -129,7 +129,13 @@
               queryParams.set("s", searchQuery);
           }
             
-          history.replaceState(null, null, "?" + queryParams.toString());
+          var queryString = queryParams.toString();
+            
+          if (queryString !== "") {
+              history.replaceState(null, null, "?" + queryString);
+          } else {
+              history.replaceState(null, null, window.location.pathname);
+          }
       }
 
       function applyURLParams() {
@@ -157,8 +163,14 @@
           } else {
               urlParams.delete("s");
           }
-      
-          history.replaceState(null, null, "?" + urlParams.toString());
+
+          var queryString = queryParams.toString();
+            
+          if (queryString !== "") {
+              history.replaceState(null, null, "?" + queryString);
+          } else {
+              history.replaceState(null, null, window.location.pathname);
+          }
       
           filterTable();
       }
