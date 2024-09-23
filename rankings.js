@@ -25,16 +25,19 @@
           const tdPark = document.createElement("td");
           const tdManu = document.createElement("td");
           const tdType = document.createElement("td");
+          const tdStat = document.createElement("td");
           tdRank.textContent = data[j].RANK;
           tdCoaster.textContent = data[j].COASTER;
           tdPark.textContent = data[j].PARK;    
           tdManu.textContent = data[j].MANUFACTURER;
           tdType.textContent = data[j].TYPE;
+          tdStat.textContent = data[j].YEAR;
           newRow.appendChild(tdRank);
           newRow.appendChild(tdCoaster);
           newRow.appendChild(tdPark);
           newRow.appendChild(tdManu);
           newRow.appendChild(tdType);
+          newRow.appendChild(tdStat);
           newTable.appendChild(newRow);
           j++;
         }
@@ -44,10 +47,11 @@
         coasterTable.setAttribute("id", "coasterTable");
 
         document.getElementsByTagName('td')[0].style.width = '3%';
-        document.getElementsByTagName('td')[1].style.width = '30%';
-        document.getElementsByTagName('td')[2].style.width = '30%';
-        document.getElementsByTagName('td')[3].style.width = '30%';
+        document.getElementsByTagName('td')[1].style.width = '25%';
+        document.getElementsByTagName('td')[2].style.width = '25%';
+        document.getElementsByTagName('td')[3].style.width = '25%';
         document.getElementsByTagName('td')[4].style.width = '7%';
+        document.getElementsByTagName('td')[4].style.width = '15%';
         
         var coasterCount = data[9].AGGREGATE_STATS;
         var parkCount = data[14].AGGREGATE_STATS;
@@ -189,6 +193,43 @@
         filterTable();
         updateURLParams();
       });
+
+      document.getElementById("selectStat").addEventListener("change", function () {
+        var selectedStat = document.getElementById("selectStat").value;
+        var statHeader = document.getElementById("statHeader");
+      
+        switch (selectedStat) {
+          case "inversions":
+            statHeader.textContent = "Inversions";
+            updateStatColumn("INVER");
+            break;
+          case "height":
+            statHeader.textContent = "Height";
+            updateStatColumn("HIGHT");
+            break;
+          case "speed":
+            statHeader.textContent = "Speed";
+            updateStatColumn("SPED");
+            break;
+          case "drop":
+            statHeader.textContent = "Drop";
+            updateStatColumn("DROP");
+            break;
+          default:
+            statHeader.textContent = "Opening Year";
+            updateStatColumn("YEAR");
+        }
+      });
+      
+      function updateStatColumn(statKey) {
+        var table = document.getElementById("coasterTable");
+        var tr = table.getElementsByTagName("tr");
+      
+        for (var i = 1; i < tr.length; i++) {
+          var td = tr[i].getElementsByTagName("td")[5]; // Stat column
+          td.textContent = data[i - 1][statKey]; // Update based on selected stat
+        }
+      }
 
       // applies url search terms when the page loads
       window.addEventListener('DOMContentLoaded', function () {
