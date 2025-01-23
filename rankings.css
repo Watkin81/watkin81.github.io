@@ -107,3 +107,15 @@
   /* Add a grey background color to the table header and on hover */
   background-color: #f1f1f1;
 }
+
+#coasterTable thead th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sort-arrow {
+  margin-left: 5px;
+  font-size: 0.7em;
+  vertical-align: middle;
+  color: #666;
+}
