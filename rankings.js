@@ -1,4 +1,4 @@
-      // show the loader (default on, turns off once the table loads fully)
+// show the loader (default on, turns off once the table loads fully)
       document.getElementById("loader").style.display = "block";
       
       var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
@@ -14,9 +14,12 @@
       window.addEventListener('DOMContentLoaded', init)
       
       function makeTable(results) {
+       
+        window.tableData = results.data;
+        
         var data = results.data
         const newTable = document.createElement("table");
-        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th><th onclick="sortTable(3)">Type</th></thead>';
+        newTable.innerHTML = '<thead><th onclick="sortTable(0)">Rank</th><th onclick="sortTable(1)">Coaster</th><th onclick="sortTable(2)">Park</th><th onclick="sortTable(3)">Manufacturer</th><th onclick="sortTable(3)">Type</th><th id="statHeader">Opening Year</th></thead>';
         var j = 0;
         while (j < data.length){
           const newRow = document.createElement("tr");
@@ -44,7 +47,7 @@
 
         const coasterTable = document.getElementById('coasterTableDiv');
         coasterTable.appendChild(newTable);
-        coasterTable.setAttribute("id", "coasterTable");
+        newTable.setAttribute("id", "coasterTable");
 
         document.getElementsByTagName('td')[0].style.width = '3%';
         document.getElementsByTagName('td')[1].style.width = '25%';
@@ -63,7 +66,6 @@
         console.log(parkCount);
         filterTable();
         showElements();
-        //document.write("spreadsheet link: <a target='_new' href='" + public_spreadsheet_url + "'>" + public_spreadsheet_url + "</a>");
       }
       
       function filterTable() {
@@ -94,17 +96,16 @@
         }
       }
 
-  // event listener for the input and select elements
-  document.getElementById("coasterInput").addEventListener("keyup", filterTable);
-  document.getElementById("selectManu").addEventListener("change", filterTable);
-  document.getElementById("selectType").addEventListener("change", filterTable);
+      // event listener for the input and select elements
+      document.getElementById("coasterInput").addEventListener("keyup", filterTable);
+      document.getElementById("selectManu").addEventListener("change", filterTable);
+      document.getElementById("selectType").addEventListener("change", filterTable);
 
       // show and hide for cosmetics
       function hideElements() {
         document.getElementById('selectManu').style.display = 'none';
         document.getElementById('selectType').style.display = 'none';
         document.getElementById('coasterInput').style.display = 'none';
-        //document.getElementById("loader").style.display = "block";      this didn't work lol
       }
     
       function showElements() {
@@ -224,10 +225,10 @@
       function updateStatColumn(statKey) {
         var table = document.getElementById("coasterTable");
         var tr = table.getElementsByTagName("tr");
-      
+
         for (var i = 1; i < tr.length; i++) {
-          var td = tr[i].getElementsByTagName("td")[5]; // Stat column
-          td.textContent = data[i - 1][statKey]; // Update based on selected stat
+          var td = tr[i].getElementsByTagName("td")[5]; // stat column
+          td.textContent = window.tableData[i - 1][statKey];
         }
       }
 
