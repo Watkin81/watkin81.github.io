@@ -223,14 +223,46 @@
       });
       
       function updateStatColumn(statKey) {
-        var table = document.getElementById("coasterTable");
-        var tr = table.getElementsByTagName("tr");
-
-        for (var i = 1; i < tr.length; i++) {
-          var td = tr[i].getElementsByTagName("td")[5]; // stat column
-          td.textContent = window.tableData[i - 1][statKey];
-        }
-      }
+              var table = document.getElementById("coasterTable");
+              var tr = table.getElementsByTagName("tr");
+            
+              var statTitles = {
+                "YEAR": "Opening Year",
+                "INVER": "Inversions",
+                "HIGHT": "Height (ft)",
+                "SPED": "Speed (mph)",
+                "DROP": "Drop (ft)"
+              };
+            
+              var statHeader = document.getElementById("statHeader");
+              statHeader.textContent = statTitles[statKey] || "Opening Year";
+            
+              for (var i = 1; i < tr.length; i++) {
+                var td = tr[i].getElementsByTagName("td")[5];
+                td.textContent = window.tableData[i - 1][statKey] || "N/A";
+              }
+            }
+            
+            document.getElementById("selectStat").addEventListener("change", function () {
+              var selectedStat = this.value;
+              
+              switch (selectedStat) {
+                case "inversions":
+                  updateStatColumn("INVER");
+                  break;
+                case "height":
+                  updateStatColumn("HIGHT");
+                  break;
+                case "speed":
+                  updateStatColumn("SPED");
+                  break;
+                case "drop":
+                  updateStatColumn("DROP");
+                  break;
+                default:
+                  updateStatColumn("YEAR");
+              }
+            });
 
       // applies url search terms when the page loads
       window.addEventListener('DOMContentLoaded', function () {
