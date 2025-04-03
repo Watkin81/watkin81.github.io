@@ -7,7 +7,7 @@
   animation: spin 2s linear infinite;
   display: none; /* Initially hidden */
   margin-left: auto;
-  margin-right: auto
+  margin-right: auto;
 }
 
 /* Spin animation */
@@ -16,67 +16,66 @@
   100% { transform: rotate(360deg); }
 }
 
-@media only screen and (max-width: 600px) {
-    #coasterTable thead {
-        display: none;
-    }
-  
-    #coasterTable {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-    }
+#coasterTableDiv {
+    width: 100%;
+    overflow-x: auto; /* scrolling */
+    white-space: nowrap;
+}
 
-    #coasterTable th, #coasterTable td {
-        display: block;
-        text-align: center;
-        font-size: 12px;
-    }
+#coasterTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+#coasterTable th, #coasterTable td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#coasterTable thead {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 2;
 }
 
 @media only screen and (max-width: 600px) {
-    /* Adjust font sizes for smaller screens */
+    #coasterTableDiv {
+        overflow-x: auto; /* scrollable */
+    }
+
+    #coasterTable {
+        display: block;
+        overflow-x: auto;
+        min-width: 500px;
+    }
+
     #coasterTable th, #coasterTable td {
-        font-size: 12px;
+        font-size: 14px;
+        padding: 5px;
     }
 }
 
 #coasterInput {
-  width: 16%; /* Full-width */
-  font-size: 17px; /* Increase font-size */
-  padding: 12px 0px 12px 12px; /* Add some padding */
-  border: 1px solid #ddd; /* Add a grey border */
-  /*margin-bottom: 12px; /* Add some space below the input */
+  width: 16%;
+  font-size: 17px;
+  padding: 12px 0px 12px 12px;
+  border: 1px solid #ddd;
 }
 
-#selectManu {
+#selectManu, #selectType, #selectStat {
   font-family: Tahoma;
   font-size: 18px;
   width: 16%;
   padding: 10px 18px 10px 10px;
   border: 1px solid #ddd;
   margin-bottom: 8px;
-  margin-right: 0.5%;
-}
-
-#selectType {
-  font-family: Tahoma;
-  font-size: 18px;
-  width: 16%;
-  padding: 10px 18px 10px 10px;
-  border: 1px solid #ddd;
-  margin-bottom: 8px;
-  margin-left: 0.5%;
 }
 
 #selectStat {
-    font-family: Tahoma !important;
-    font-size: 18px !important;
-    width: 16% !important;
-    padding: 10px 18px 10px 10px !important;
-    border: 1px solid #ddd !important;
-    margin-bottom: 8px !important;
-    margin-left: 0.5% !important;
+  margin-left: 0.5% !important;
 }
 
 .topData {
@@ -89,45 +88,32 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /*margin-left: auto;
-  margin-right: auto; */
 }
 
 #coasterTable {
-  border-collapse: collapse; /* Collapse borders */
-  /*width: 100%; /* Full-width */
-  border: 1px solid #ddd; /* Add a grey border */
-  font-size: 18px; /* Increase font-size */
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+  font-size: 18px;
   font-family: Tahoma;
   margin: auto;
   width: 50%;
 }
 
 #coasterTable th, #coasterTable td {
-  text-align: left; /* Left-align text */
-  padding: 12px; /* Add padding */
+  text-align: left;
+  padding: 12px;
   border-bottom: 1px solid #ddd;
-  /*width: 15%;*/
-}
-
-#coasterTable tr {
-  /* Add a bottom border to all table rows */
-  //border-bottom: 1px solid #ddd;
 }
 
 #coasterTable tr.header, #coasterTable tr:hover {
-  /* Add a grey background color to the table header and on hover */
   background-color: #f1f1f1;
+}
+
+.sort-arrow {
+  display: none;
 }
 
 #coasterTable thead th {
   cursor: pointer;
   user-select: none;
-}
-
-.sort-arrow {
-  margin-left: 5px;
-  font-size: 0.7em;
-  vertical-align: middle;
-  color: #666;
 }
