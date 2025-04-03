@@ -156,12 +156,14 @@ function hideElements() {
   document.getElementById('selectManu').style.display = 'none';
   document.getElementById('selectType').style.display = 'none';
   document.getElementById('coasterInput').style.display = 'none';
+  document.getElementById("selectStat").style.display = "none";
 }
     
 function showElements() {
   document.getElementById('selectManu').style.display = 'inline-block';
   document.getElementById('selectType').style.display = 'inline-block';
   document.getElementById('coasterInput').style.display = 'inline-block';
+  document.getElementById("selectStat").style.display = "inline-block";
   document.getElementById("loader").style.display = "none";
 }
 
