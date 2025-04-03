@@ -17,18 +17,20 @@
 }
 
 @media only screen and (max-width: 600px) {
-    /* Add styles for smaller screens */
     #coasterTable thead {
         display: none;
     }
   
     #coasterTable {
         width: 100%;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
     }
+
     #coasterTable th, #coasterTable td {
-        width: auto;
         display: block;
         text-align: center;
+        font-size: 12px;
     }
 }
 
@@ -58,6 +60,16 @@
 }
 
 #selectType {
+  font-family: Tahoma;
+  font-size: 18px;
+  width: 25%;
+  padding: 10px 18px 10px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
+  margin-left: 0.5%;
+}
+
+#selectStat {
   font-family: Tahoma;
   font-size: 18px;
   width: 25%;
