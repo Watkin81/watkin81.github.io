@@ -645,7 +645,8 @@
       <label for="comingSoon">Coming Soon</label><br>
     <p id="smallText">Coaster pool changes will take effect on the next game.</p>
     <p><strong>Reset Statistics:</strong></p>
-    <button id="resetScoresButton" onclick="resetScores()">Reset Average & High Score</button>
+    <button id="resetScoresButton" onclick="resetScores()">Delete Scores</button><br>
+    <p id="smallText">Use this button to delete your Average and High score values.</p>
     <button id="closeButton" onclick="closeSettingsPanel()"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
@@ -1306,18 +1307,20 @@
       }
 
     function resetScores() {
-      // Clear stored values
-      localStorage.removeItem('highScore');
-      localStorage.removeItem('average');
-      localStorage.removeItem('numberOfOldValues');
-      
-      // Reset display values
-      highScore = 0;
-      document.getElementById('highScoreValue').textContent = '0';
-      document.getElementById('averageScoreValue').textContent = '0.00';
-      
-      // Optional: Show confirmation
-      alert('Average Score and High Score have been RESET!');
+      if (confirm("Are you sure you want to RESET your scores? This cannot be undone!")) {
+        // Clear stored values
+        localStorage.removeItem('highScore');
+        localStorage.removeItem('average');
+        localStorage.removeItem('numberOfOldValues');
+        
+        // Reset display values
+        highScore = 0;
+        document.getElementById('highScoreValue').textContent = '0';
+        document.getElementById('averageScoreValue').textContent = '0.00';
+        
+        // Optional: Show confirmation
+        alert('Average Score and High Score have been RESET!');
+      }
     }
 
       function delay(ms) {
