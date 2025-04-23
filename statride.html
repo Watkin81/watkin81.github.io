@@ -615,7 +615,10 @@
     <label>
       <input type="checkbox" id="durationSwitch" onchange="toggleDuration()"> Allow Duration Stats
     </label>
-    <p id="smallText">Toggle changes will take effect on the next coaster.</p>
+    <label>
+      <input type="checkbox" id="capacitySwitch" onchange="toggleCapacity()"> Allow Capacity Stats
+    </label>
+    <p id="smallText">Toggle changes will take effect on the next random coaster.</p>
     <p><strong>Coaster Pool:</strong></p>
       <input type="radio" id="usaWhitelist" name="whitelist" value="usaWhitelist" onchange="toggleWhitelist()">
       <label for="usaWhitelist">USA</label><br>
@@ -690,6 +693,7 @@
 
     setUnits();
     setDuration();
+    setCapacity();
     updateHighScore();
     setWhitelist();
     setAverageScore();
@@ -914,7 +918,7 @@
     }
 
     function getRandomStat() {
-      let stats = ['length', 'height', 'speed', 'verticalAngle', 'capacity', 'year', 'verticalAngle', 'speed'];
+      let stats = ['length', 'height', 'speed', 'verticalAngle', 'year', 'verticalAngle', 'speed'];
       
       let aID, bID;
       aID = coasterStats['A']['id'];
@@ -925,6 +929,9 @@
       }
       if (addDuration == "true") {
         stats.push('duration'); stats.push('duration');
+      }
+      if (addCapacity == "true") {
+        stats.push('capacity'); stats.push('capacity');
       }
       if (isNaN(coasterStats['A']['inversions']) || isNaN(coasterStats['B']['inversions'])) {
       } else { stats.push('inversions'); stats.push('inversions'); }
@@ -1113,6 +1120,24 @@
           document.getElementById('durationSwitch').checked = false;
         }
       }
+
+    function toggleCapacity() {
+      if (document.getElementById('capacitySwitch').checked) { // true for on, false for off
+        addCapacity = "true";
+      } else {
+        addCapacity = "false";
+      }
+      localStorage.setItem('capacity', addCapacity);
+    }
+    
+    function setCapacity() {
+      addCapacity = localStorage.getItem('capacity') || "true"; // Default to true if not set
+      if (addCapacity == "true") {
+        document.getElementById('capacitySwitch').checked = true;
+      } else if (addCapacity == "false") {
+        document.getElementById('capacitySwitch').checked = false;
+      }
+}
 
       function setWhitelist() {
         currentWhitelist = localStorage.getItem('whitelist') || "allWhitelist";
