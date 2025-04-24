@@ -363,74 +363,96 @@
     }
     
     function generatePuzzle() {
-      // Create possible criteria categories based on available data
-      const manufacturerValues = getTopValues(allCoasters, 'manufacturer', 5);
-      const parkValues = getTopValues(allCoasters, 'park', 5);
-      
-      const criteriaOptions = [
-        { 
-          type: "manufacturer", 
-          values: manufacturerValues 
-        },
-        { 
-          type: "height", 
-          values: ["> 50ft", "> 100ft", "> 200ft", "< 100ft", "< 150ft"] 
-        },
-        { 
-          type: "inversions", 
-          values: ["0 Inversions", "≥ 1 Inversion", "≥ 3 Inversions", "< 3 Inversions", "4+ Inversions"] 
-        },
-        { 
-          type: "year", 
-          values: ["Pre-1990", "1990-2000", "2000-2010", "2010+", "Pre-2000"] 
-        },
-        { 
-          type: "park", 
-          values: parkValues.concat(["Six Flags Parks", "Cedar Fair Parks"])
-        }
-      ];
-      
-      // Select row and column criteria randomly
-      const shuffledOptions = [...criteriaOptions].sort(() => 0.5 - Math.random());
-      rowCriteria = shuffledOptions.slice(0, 3).map(option => {
-        const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
-        return { type: option.type, values };
-      });
-      
-      const remainingOptions = shuffledOptions.slice(3).concat(shuffledOptions.slice(0, 3)).sort(() => 0.5 - Math.random());
-      colCriteria = remainingOptions.slice(0, 3).map(option => {
-        const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
-        return { type: option.type, values };
-      });
-      
-      // Find matching coasters for each cell
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const rowCriterion = rowCriteria[row];
-          const colCriterion = colCriteria[col];
-          
-          // Find coasters that match both criteria
-          const matches = allCoasters.filter(coaster => {
-            return matchesCriterion(coaster, rowCriterion) && matchesCriterion(coaster, colCriterion);
+  let attempts = 0;
+  let validPuzzle = false;
+  
+  while (!validPuzzle && attempts < 10) {
+    attempts++;
+    solution = [];
+    
+    // Create possible criteria categories based on available data
+    const manufacturerValues = getTopValues(allCoasters, 'manufacturer', 10);
+    const parkValues = getTopValues(allCoasters, 'park', 10);
+    
+    const criteriaOptions = [
+      { 
+        type: "manufacturer", 
+        values: manufacturerValues 
+      },
+      { 
+        type: "height", 
+        values: ["> 50ft", "> 100ft", "> 200ft", "< 100ft", "< 150ft"] 
+      },
+      { 
+        type: "inversions", 
+        values: ["0 Inversions", "≥ 1 Inversion", "≥ 3 Inversions", "< 3 Inversions", "4+ Inversions"] 
+      },
+      { 
+        type: "year", 
+        values: ["Pre-1990", "1990-2000", "2000-2010", "2010+", "Pre-2000"] 
+      },
+      { 
+        type: "park", 
+        values: parkValues.concat(["Six Flags Parks", "Cedar Fair Parks"])
+      }
+    ];
+    
+    // Select row and column criteria randomly
+    const shuffledOptions = [...criteriaOptions].sort(() => 0.5 - Math.random());
+    rowCriteria = shuffledOptions.slice(0, 3).map(option => {
+      const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
+      return { type: option.type, values };
+    });
+    
+    const remainingOptions = shuffledOptions.slice(3).concat(shuffledOptions.slice(0, 3)).sort(() => 0.5 - Math.random());
+    colCriteria = remainingOptions.slice(0, 3).map(option => {
+      const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
+      return { type: option.type, values };
+    });
+    
+    // Find matching coasters for each cell
+    let allCellsHaveMatches = true;
+    
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
+        
+        // Find coasters that match both criteria
+        const matches = allCoasters.filter(coaster => {
+          return matchesCriterion(coaster, rowCriterion) && matchesCriterion(coaster, colCriterion);
+        });
+        
+        // If we have matches, select one randomly
+        if (matches.length > 0) {
+          const selectedMatch = matches[Math.floor(Math.random() * matches.length)];
+          solution.push({
+            row,
+            col,
+            coaster: selectedMatch
           });
-          
-          // If we have matches, select one randomly
-          if (matches.length > 0) {
-            const selectedMatch = matches[Math.floor(Math.random() * matches.length)];
-            solution.push({
-              row,
-              col,
-              coaster: selectedMatch
-            });
-          }
+        } else {
+          // This cell has no matches - puzzle is invalid
+          allCellsHaveMatches = false;
+          break;
         }
       }
       
-      // If we don't have enough solutions, regenerate the puzzle
-      if (solution.length < 5) {
-        return generatePuzzle();
-      }
+      if (!allCellsHaveMatches) break;
     }
+    
+    // If all cells have matches, we have a valid puzzle
+    if (allCellsHaveMatches && solution.length === 9) {
+      validPuzzle = true;
+    }
+  }
+  
+  // If we couldn't generate a valid puzzle after multiple attempts,
+  // try with more relaxed criteria or alert the user
+  if (!validPuzzle) {
+    console.warn("Could not generate a complete puzzle after multiple attempts. Some cells may be empty.");
+  }
+}
     
     // Helper function to get top values for a property
     function getTopValues(coasters, property, count) {
