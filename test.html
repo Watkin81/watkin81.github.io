@@ -289,7 +289,7 @@
     async function loadCoasterData() {
       try {
         // Replace with the path to your JSON file
-        const response = await fetch('coasters.json');
+        const response = await fetch('coasterData.json');
         if (!response.ok) {
           throw new Error('Failed to load coaster data');
         }
