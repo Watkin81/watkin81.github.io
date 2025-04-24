@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Coaster Grid Game</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      text-align: center; 
+      background: #f5f5f5; 
+      margin: 0;
+      padding: 20px;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 5px; 
+      margin: 20px auto; 
+      width: 80vw; 
+      max-width: 600px;
+    }
+    .cell {
+      border: 1px solid #ccc; 
+      padding: 10px; 
+      min-height: 60px; 
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 14px;
+    }
+    .header { 
+      font-weight: bold; 
+      background-color: #e0e0e0; 
+    }
+    .input-cell { 
+      cursor: pointer; 
+    }
+    .input-cell:hover { 
+      background: #f0f0f0; 
+    }
+    .filled-cell {
+      background-color: #e6f7ff;
+    }
+    .park-name {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .correct {
+      background-color: #b7eb8f;
+    }
+    .incorrect {
+      background-color: #ffccc7;
+    }
+    
+    /* Search Modal Styles */
+    .search-modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .search-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .search-container {
+      position: relative;
+      width: 100%;
+    }
+    
+    #coasterSearchBox {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    
+    .search-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+    }
+    
+    .search-list .search-item {
+      padding: 10px;
+      cursor: pointer;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .search-list .search-item:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .hide-search-list {
+      display: none;
+    }
+    
+    .search-item-details {
+      font-size: 0.8em;
+      color: #666;
+    }
+    
+    .selected-coaster {
+      background-color: #e6f7ff;
+      border-left: 3px solid #1890ff;
+    }
+    
+    .modal-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .modal-button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .cancel-button {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .select-button {
+      background-color: #1890ff;
+      color: white;
+    }
+    
+    .select-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .game-controls {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .game-button {
+      padding: 10px 20px;
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .game-button:hover {
+      background-color: #40a9ff;
+    }
+    
+    .game-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .check-results {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .success {
+      background-color: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #52c41a;
+    }
+    
+    .failure {
+      background-color: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #ff4d4f;
+    }
+    
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+    }
+    
+    .loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Coaster Grid Game</h1>
+  <p>Fill the grid with roller coasters that match the criteria in both the row and column headers!</p>
+
+  <div class="game-controls">
+    <button class="game-button" id="newGameBtn">New Game</button>
+    <button class="game-button" id="checkAnswersBtn">Check Answers</button>
+    <button class="game-button" id="solutionBtn">Show Solution</button>
+  </div>
+
+  <div id="loadingContainer" class="loading">
+    <div class="loading-spinner"></div>
+    <div>Loading coaster data...</div>
+  </div>
+
+  <div class="grid-container" id="coasterGrid" style="display: none;">
+    <!-- Grid will be generated dynamically -->
+  </div>
+
+  <div id="resultsMessage" class="check-results"></div>
+
+  <!-- Search Modal -->
+  <div id="searchModal" class="search-modal">
+    <div class="search-content">
+      <h2>Select a Coaster</h2>
+      <div class="search-container">
+        <input type="text" id="coasterSearchBox" placeholder="Type coaster name...">
+        <div class="search-list hide-search-list" id="searchList">
+          <!-- Search results will be added here -->
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-button cancel-button" onclick="closeSearchModal()">Cancel</button>
+        <button class="modal-button select-button" id="selectButton" disabled>Select</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game variables
+    let currentCell = null;
+    let debounce = null;
+    let selectedCoaster = null;
+    let gameGrid = [];
+    let solution = [];
+    let rowCriteria = [];
+    let colCriteria = [];
+    let allCoasters = [];
+    
+    // DOM elements
+    const searchModal = document.getElementById('searchModal');
+    const coasterSearchBox = document.getElementById('coasterSearchBox');
+    const searchList = document.getElementById('searchList');
+    const selectButton = document.getElementById('selectButton');
+    const coasterGrid = document.getElementById('coasterGrid');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const checkAnswersBtn = document.getElementById('checkAnswersBtn');
+    const solutionBtn = document.getElementById('solutionBtn');
+    const resultsMessage = document.getElementById('resultsMessage');
+    const loadingContainer = document.getElementById('loadingContainer');
+    
+    // Load coaster data
+    async function loadCoasterData() {
+      try {
+        // Replace with the path to your JSON file
+        const response = await fetch('coasters.json');
+        if (!response.ok) {
+          throw new Error('Failed to load coaster data');
+        }
+        
+        const data = await response.json();
+        
+        // Process and filter the data
+        if (data && data.coasters && data.coasters.length > 0) {
+          // Filter out coasters with missing essential data
+          allCoasters = data.coasters.filter(coaster => {
+            return coaster.name && 
+                   coaster.park && 
+                   coaster.details && 
+                   coaster.details.manufacturer &&
+                   coaster.stats &&
+                   (coaster.stats.height || coaster.stats.inversions || coaster.status.opened);
+          }).map(coaster => {
+            // Normalize the data structure
+            return {
+              id: coaster.id,
+              name: coaster.name,
+              park: coaster.park,
+              manufacturer: coaster.details.manufacturer,
+              height: parseFloat(coaster.stats.height) || 0,
+              inversions: parseInt(coaster.stats.inversions) || 0,
+              year: coaster.status.opened ? parseInt(coaster.status.opened.split('-')[0]) : 0,
+              location: coaster.location
+            };
+          });
+          
+          console.log(`Loaded ${allCoasters.length} coasters`);
+          
+          // Hide loading indicator and show grid
+          loadingContainer.style.display = 'none';
+          coasterGrid.style.display = 'grid';
+          
+          // Initialize game
+          initGame();
+        } else {
+          throw new Error('No coaster data found');
+        }
+      } catch (error) {
+        console.error('Error loading coaster data:', error);
+        loadingContainer.innerHTML = `
+          <div>Error loading coaster data: ${error.message}</div>
+          <button class="game-button" onclick="location.reload()">Retry</button>
+        `;
+      }
+    }
+    
+    // Initialize game
+    function initGame() {
+      newGameBtn.addEventListener('click', createNewGame);
+      checkAnswersBtn.addEventListener('click', checkAnswers);
+      solutionBtn.addEventListener('click', showSolution);
+      
+      createNewGame();
+    }
+    
+    function createNewGame() {
+      // Clear any existing game state
+      solution = [];
+      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+      resultsMessage.style.display = 'none';
+      
+      // Generate puzzle solution and criteria
+      generatePuzzle();
+      
+      // Generate grid UI
+      renderGrid();
+    }
+    
+    function generatePuzzle() {
+      // Create possible criteria categories based on available data
+      const manufacturerValues = getTopValues(allCoasters, 'manufacturer', 5);
+      const parkValues = getTopValues(allCoasters, 'park', 5);
+      
+      const criteriaOptions = [
+        { 
+          type: "manufacturer", 
+          values: manufacturerValues 
+        },
+        { 
+          type: "height", 
+          values: ["> 50ft", "> 100ft", "> 200ft", "< 100ft", "< 150ft"] 
+        },
+        { 
+          type: "inversions", 
+          values: ["0 Inversions", "≥ 1 Inversion", "≥ 3 Inversions", "< 3 Inversions", "4+ Inversions"] 
+        },
+        { 
+          type: "year", 
+          values: ["Pre-1990", "1990-2000", "2000-2010", "2010+", "Pre-2000"] 
+        },
+        { 
+          type: "park", 
+          values: parkValues.concat(["Six Flags Parks", "Cedar Fair Parks"])
+        }
+      ];
+      
+      // Select row and column criteria randomly
+      const shuffledOptions = [...criteriaOptions].sort(() => 0.5 - Math.random());
+      rowCriteria = shuffledOptions.slice(0, 3).map(option => {
+        const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
+        return { type: option.type, values };
+      });
+      
+      const remainingOptions = shuffledOptions.slice(3).concat(shuffledOptions.slice(0, 3)).sort(() => 0.5 - Math.random());
+      colCriteria = remainingOptions.slice(0, 3).map(option => {
+        const values = [...option.values].sort(() => 0.5 - Math.random()).slice(0, 3);
+        return { type: option.type, values };
+      });
+      
+      // Find matching coasters for each cell
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const rowCriterion = rowCriteria[row];
+          const colCriterion = colCriteria[col];
+          
+          // Find coasters that match both criteria
+          const matches = allCoasters.filter(coaster => {
+            return matchesCriterion(coaster, rowCriterion) && matchesCriterion(coaster, colCriterion);
+          });
+          
+          // If we have matches, select one randomly
+          if (matches.length > 0) {
+            const selectedMatch = matches[Math.floor(Math.random() * matches.length)];
+            solution.push({
+              row,
+              col,
+              coaster: selectedMatch
+            });
+          }
+        }
+      }
+      
+      // If we don't have enough solutions, regenerate the puzzle
+      if (solution.length < 5) {
+        return generatePuzzle();
+      }
+    }
+    
+    // Helper function to get top values for a property
+    function getTopValues(coasters, property, count) {
+      const valueMap = new Map();
+      
+      // Count occurrences of each value
+      coasters.forEach(coaster => {
+        let value;
+        
+        if (property === 'manufacturer') {
+          value = coaster.manufacturer;
+        } else if (property === 'park') {
+          value = coaster.park;
+        }
+        
+        if (value) {
+          valueMap.set(value, (valueMap.get(value) || 0) + 1);
+        }
+      });
+      
+      // Sort by count and get top values
+      return [...valueMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, count)
+        .map(entry => entry[0]);
+    }
+    
+    function matchesCriterion(coaster, criterion) {
+      const value = criterion.values[0]; // Just use the first value for simplicity
+      
+      switch(criterion.type) {
+        case "manufacturer":
+          return coaster.manufacturer === value || 
+                 (coaster.manufacturer && coaster.manufacturer.includes(value));
+        
+        case "height":
+          if (value === "> 50ft") return coaster.height > 50;
+          if (value === "> 100ft") return coaster.height > 100;
+          if (value === "> 200ft") return coaster.height > 200;
+          if (value === "< 100ft") return coaster.height < 100;
+          if (value === "< 150ft") return coaster.height < 150;
+          return false;
+        
+        case "inversions":
+          if (value === "0 Inversions") return coaster.inversions === 0;
+          if (value === "≥ 1 Inversion") return coaster.inversions >= 1;
+          if (value === "≥ 3 Inversions") return coaster.inversions >= 3;
+          if (value === "< 3 Inversions") return coaster.inversions < 3;
+          if (value === "4+ Inversions") return coaster.inversions >= 4;
+          return false;
+        
+        case "year":
+          if (value === "Pre-1990") return coaster.year < 1990;
+          if (value === "1990-2000") return coaster.year >= 1990 && coaster.year <= 2000;
+          if (value === "2000-2010") return coaster.year >= 2000 && coaster.year <= 2010;
+          if (value === "2010+") return coaster.year > 2010;
+          if (value === "Pre-2000") return coaster.year < 2000;
+          return false;
+        
+        case "park":
+          if (value === "Six Flags Parks") return coaster.park.includes("Six Flags");
+          if (value === "Cedar Fair Parks") return (
+            coaster.park.includes("Cedar Point") || 
+            coaster.park.includes("Kings Island") || 
+            coaster.park.includes("Canada's Wonderland") ||
+            coaster.park.includes("Knott's Berry Farm") ||
+            coaster.park.includes("Carowinds") ||
+            coaster.park.includes("Kings Dominion") ||
+            coaster.park.includes("California's Great America") ||
+            coaster.park.includes("Dorney Park") ||
+            coaster.park.includes("Worlds of Fun") ||
+            coaster.park.includes("Valleyfair") ||
+            coaster.park.includes("Michigan's Adventure")
+          );
+          return coaster.park === value || (coaster.park && coaster.park.includes(value));
+        
+        default:
+          return false;
+      }
+    }
+    
+    function renderGrid() {
+      // Clear existing grid
+      coasterGrid.innerHTML = '';
+      
+      // Add blank corner cell
+      const cornerCell = document.createElement('div');
+      cornerCell.className = 'cell header';
+      coasterGrid.appendChild(cornerCell);
+      
+      // Add column headers
+      for (let col = 0; col < 3; col++) {
+        const colHeader = document.createElement('div');
+        colHeader.className = 'cell header';
+        colHeader.textContent = colCriteria[col].values[0];
+        coasterGrid.appendChild(colHeader);
+      }
+      
+      // Add rows (headers + cells)
+      for (let row = 0; row < 3; row++) {
+        // Add row header
+        const rowHeader = document.createElement('div');
+        rowHeader.className = 'cell header';
+        rowHeader.textContent = rowCriteria[row].values[0];
+        coasterGrid.appendChild(rowHeader);
+        
+        // Add cells
+        for (let col = 0; col < 3; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell input-cell';
+          cell.onclick = function() { handleCellClick(this, row, col); };
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          coasterGrid.appendChild(cell);
+        }
+      }
+    }
+    
+    function handleCellClick(cell, row, col) {
+      currentCell = cell;
+      
+      // Clear previous search inputs and results
+      coasterSearchBox.value = '';
+      searchList.innerHTML = '';
+      searchList.classList.add('hide-search-list');
+      selectedCoaster = null;
+      selectButton.disabled = true;
+      
+      // Show the search modal
+      searchModal.style.display = 'block';
+      
+      // Focus on the search box
+      setTimeout(() => coasterSearchBox.focus(), 100);
+    }
+    
+    function closeSearchModal() {
+      searchModal.style.display = 'none';
+      currentCell = null;
+    }
+    
+    function findCoasters() {
+      let query = coasterSearchBox.value.trim().toLowerCase();
+      if(query.length > 0) {
+        searchList.classList.remove('hide-search-list');
+        clearTimeout(debounce);
+        debounce = setTimeout(function() {
+          // Search locally in our loaded coaster data
+          const results = allCoasters.filter(coaster => 
+            coaster.name.toLowerCase().includes(query) ||
+            coaster.park.toLowerCase().includes(query)
+          ).slice(0, 20); // Limit to 20 results to prevent performance issues
+          
+          displaySearchResults(results);
+        }, 300);
+      } else {
+        searchList.classList.add('hide-search-list');
+        selectedCoaster = null;
+        selectButton.disabled = true;
+      }
+    }
+    
+    function displaySearchResults(results) {
+      searchList.innerHTML = '';
+      
+      if (results.length > 0) {
+        results.forEach(coaster => {
+          const searchItem = document.createElement('div');
+          searchItem.classList.add('search-item');
+          
+          // Get location information
+          let location = '';
+          if (coaster.location) {
+            if (coaster.location.city) location += coaster.location.city;
+            if (coaster.location.state) location += location ? `, ${coaster.location.state}` : coaster.location.state;
+            if (coaster.location.country && !location.includes(coaster.location.country)) 
+              location += location ? `, ${coaster.location.country}` : coaster.location.country;
+          }
+          
+          // Display search result
+          searchItem.innerHTML = `
+            <div><strong>${coaster.name}</strong></div>
+            <div class="search-item-details">${coaster.park}${location ? ` - ${location}` : ''}</div>
+          `;
+          
+          searchItem.addEventListener('click', () => {
+            // Remove selected class from all items
+            document.querySelectorAll('.search-item').forEach(item => {
+              item.classList.remove('selected-coaster');
+            });
+            
+            // Add selected class to this item
+            searchItem.classList.add('selected-coaster');
+            
+            // Store selected coaster data
+            selectedCoaster = coaster;
+            
+            // Enable select button
+            selectButton.disabled = false;
+          });
+          
+          searchList.appendChild(searchItem);
+        });
+      } else {
+        searchList.innerHTML = '<div class="search-item">No coasters found</div>';
+      }
+    }
+    
+    function checkAnswers() {
+      // Reset any previous checks
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.classList.remove('correct', 'incorrect');
+      });
+      
+      let allCorrect = true;
+      let filledCells = 0;
+      
+      // Check each filled cell
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        if (cell.dataset.coasterId) {
+          filledCells++;
+          const row = parseInt(cell.dataset.row);
+          const col = parseInt(cell.dataset.col);
+          
+          // Get selected coaster details
+          const coasterId = parseInt(cell.dataset.coasterId);
+          
+          // Find if this is a correct match for this cell
+          const matchingSolution = solution.find(s => 
+            s.row === row && s.col === col && s.coaster.id === coasterId
+          );
+          
+          if (matchingSolution) {
+            cell.classList.add('correct');
+          } else {
+            cell.classList.add('incorrect');
+            allCorrect = false;
+          }
+        }
+      });
+      
+      // Display results message
+      resultsMessage.style.display = 'block';
+      resultsMessage.textContent = allCorrect && filledCells > 0 ? 
+        `Congratulations! ${filledCells} out of 9 cells are correctly filled.` : 
+        `Some answers are incorrect. Keep trying!`;
+      resultsMessage.className = allCorrect ? 'check-results success' : 'check-results failure';
+    }
+    
+    function showSolution() {
+      // Ask for confirmation
+      if (!confirm("Are you sure you want to see the solution?")) {
+        return;
+      }
+      
+      // Reset any previous checks
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.classList.remove('correct', 'incorrect');
+        
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        
+        // Find solution for this cell
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
+        
+        if (cellSolution) {
+          // Display solution
+          cell.innerHTML = `
+            <div>${cellSolution.coaster.name}</div>
+            <div class="park-name">${cellSolution.coaster.park}</div>
+          `;
+          cell.classList.add('filled-cell', 'correct');
+          cell.dataset.coasterId = cellSolution.coaster.id;
+        } else {
+          cell.innerHTML = '';
+          cell.dataset.coasterId = '';
+        }
+      });
+      
+      // Display results message
+      resultsMessage.style.display = 'block';
+      resultsMessage.textContent = "Solution displayed!";
+      resultsMessage.className = 'check-results success';
+    }
+    
+    // Event listeners
+    coasterSearchBox.addEventListener('input', findCoasters);
+    
+    selectButton.addEventListener('click', () => {
+      if (currentCell && selectedCoaster) {
+        // Display coaster name and park
+        currentCell.innerHTML = `
+          <div>${selectedCoaster.name}</div>
+          <div class="park-name">${selectedCoaster.park}</div>
+        `;
+        currentCell.classList.add('filled-cell');
+        
+        // Store coaster data
+        currentCell.dataset.coasterId = selectedCoaster.id;
+        
+        // Update game grid
+        const row = parseInt(currentCell.dataset.row);
+        const col = parseInt(currentCell.dataset.col);
+        gameGrid[row][col] = selectedCoaster;
+        
+        closeSearchModal();
+      }
+    });
+    
+    // Close modal if clicking outside of it
+    window.addEventListener('click', (event) => {
+      if (event.target === searchModal) {
+        closeSearchModal();
+      }
+    });
+    
+    // Close search results if clicking outside
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.search-container')) {
+        searchList.classList.add('hide-search-list');
+      }
+    });
+    
+    // Allow pressing Enter to search
+    coasterSearchBox.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter' && selectedCoaster) {
+        selectButton.click();
+      }
+    });
+    
+    // Start the game by loading coaster data
+    window.onload = loadCoasterData;
+  </script>
+</body>
+</html>
