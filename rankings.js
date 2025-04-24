@@ -52,6 +52,19 @@ function sortTable(columnIndex, isStat = false) {
   });
 }
 
+// show the loader
+document.getElementById("loader").style.display = "block";
+      
+var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
+
+function init() {
+  Papa.parse(public_spreadsheet_url, {
+    download: true,
+    header: true,
+    complete: makeTable
+  })
+}
+
 window.addEventListener('DOMContentLoaded', init)
       
 function makeTable(results) {
