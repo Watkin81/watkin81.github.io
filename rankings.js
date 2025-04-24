@@ -5,45 +5,51 @@ let sortDirections = {
 
 function sortTable(columnIndex, isStat = false) {
   const table = document.getElementById('coasterTable');
-  const rows = Array.from(table.getElementsByTagName('tr')).slice(1); // Skip header row
+  const tbody = table.getElementsByTagName('tbody')[0];
+  const rows = Array.from(tbody.getElementsByTagName('tr'));
   
- 
+  // Update sort direction
   const direction = isStat ? 
     (sortDirections.stat = -sortDirections.stat) : 
     (sortDirections.rank = -sortDirections.rank);
+  
+  // Update sort arrow indicators
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => header.querySelector('.sort-arrow').style.display = 'none');
+  
+  const currentHeader = headers[columnIndex];
+  const arrow = currentHeader.querySelector('.sort-arrow');
+  arrow.style.display = 'inline';
+  arrow.textContent = (isStat ? sortDirections.stat : sortDirections.rank) > 0 ? '▲' : '▼';
 
   rows.sort((a, b) => {
     const aValue = a.getElementsByTagName('td')[columnIndex].textContent.trim();
     const bValue = b.getElementsByTagName('td')[columnIndex].textContent.trim();
+    
+    // Special handling for N/A values - always send them to the bottom
+    const isANA = aValue === 'N/A';
+    const isBNA = bValue === 'N/A';
+    
+    if (isANA && isBNA) return 0;
+    if (isANA) return 1; // Always put N/A at the bottom
+    if (isBNA) return -1;
     
     // Handle numeric sorting
     const numA = parseFloat(aValue);
     const numB = parseFloat(bValue);
     
     if (!isNaN(numA) && !isNaN(numB)) {
-      return (numA - numB) * (isStat ? sortDirections.stat : sortDirections.rank);
+      return (numA - numB) * direction;
     }
     
-
-    return aValue.localeCompare(bValue) * (isStat ? sortDirections.stat : sortDirections.rank);
+    // Text sorting
+    return aValue.localeCompare(bValue) * direction;
   });
 
-
-  const tbody = table.getElementsByTagName('tbody')[0] || table;
-  rows.forEach(row => tbody.appendChild(row));
-}
-
-// show the loader (default on, turns off once the table loads fully)
-document.getElementById("loader").style.display = "block";
-      
-var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1t3_wkdWKvjc4ShfH19wA3XxdOACtt6-elpsVk1Y9krs/pub?output=csv';
-
-function init() {
-  Papa.parse(public_spreadsheet_url, {
-    download: true,
-    header: true,
-    complete: makeTable
-  })
+  // Reappend rows in the new sorted order
+  rows.forEach(row => {
+    tbody.appendChild(row);
+  });
 }
 
 window.addEventListener('DOMContentLoaded', init)
