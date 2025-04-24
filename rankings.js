@@ -240,6 +240,7 @@ function applyURLParams() {
     urlParams.delete("s");
   }
 
+  var queryParams = new URLSearchParams(window.location.search);
   var queryString = queryParams.toString();
             
   if (queryString !== "") {
@@ -302,6 +303,13 @@ function updateStatColumn(statKey) {
   // Update the header with the correct title
   var statHeader = document.getElementById("statHeader");
   statHeader.textContent = statTitles[statKey] || "Opening Year";
+  
+  // Add the sort arrow back to the header
+  var arrow = document.createElement("span");
+  arrow.className = "sort-arrow";
+  arrow.textContent = "▼";
+  arrow.style.display = "inline";
+  statHeader.appendChild(arrow);
 
   // Use the global tableData instead of undefined data
   for (var i = 1; i < tr.length; i++) {
