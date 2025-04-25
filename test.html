@@ -554,46 +554,17 @@
         const shuffledOptions = [...criteriaOptions].sort(() => 0.5 - Math.random());
         
         // Select different criteria types for each row and column
-        // We need 3 criteria for rows and 3 for columns
-        let rowCriteriaTypes = [];
-        let colCriteriaTypes = [];
+        let rowCriteriaTypes = shuffledOptions.slice(0, 3);
+        let colCriteriaTypes = shuffledOptions.slice(3, 6);
         
-        // Try to get unique criteria types for rows and columns
-        // to reduce the chance of conflicts
-        if (shuffledOptions.length >= 6) {
-          rowCriteriaTypes = shuffledOptions.slice(0, 3);
-          colCriteriaTypes = shuffledOptions.slice(3, 6);
-        } else {
-          // If we don't have 6 unique criteria types, we'll need to reuse some
-          const availableCriteria = [...shuffledOptions];
-          
-          // Select criteria for rows
-          for (let i = 0; i < 3; i++) {
-            if (availableCriteria.length > 0) {
-              const criteriaIndex = Math.floor(Math.random() * availableCriteria.length);
-              rowCriteriaTypes.push(availableCriteria[criteriaIndex]);
-              availableCriteria.splice(criteriaIndex, 1);
-            } else {
-              // Reuse a criteria type
-              rowCriteriaTypes.push(shuffledOptions[i % shuffledOptions.length]);
-            }
+        // If we don't have enough criteria types, reuse some
+        if (shuffledOptions.length < 6) {
+          for (let i = rowCriteriaTypes.length; i < 3; i++) {
+            rowCriteriaTypes.push(shuffledOptions[i % shuffledOptions.length]);
           }
           
-          // Select criteria for columns
-          // Try to avoid type collisions with rows when possible
-          for (let i = 0; i < 3; i++) {
-            // Try to find criteria not used in rows
-            const unusedCriteria = shuffledOptions.filter(
-              criteria => !rowCriteriaTypes.includes(criteria)
-            );
-            
-            if (unusedCriteria.length > 0) {
-              const criteriaIndex = Math.floor(Math.random() * unusedCriteria.length);
-              colCriteriaTypes.push(unusedCriteria[criteriaIndex]);
-            } else {
-              // If all criteria types are used in rows, pick any
-              colCriteriaTypes.push(shuffledOptions[i % shuffledOptions.length]);
-            }
+          for (let i = colCriteriaTypes.length; i < 3; i++) {
+            colCriteriaTypes.push(shuffledOptions[(i + 3) % shuffledOptions.length]);
           }
         }
         
@@ -624,8 +595,8 @@
         }
         
         // Check if all cells have at least one matching coaster
-        let validCount = 0;
         let cellSolutions = [];
+        let validCellCount = 0;
         
         for (let row = 0; row < 3; row++) {
           for (let col = 0; col < 3; col++) {
@@ -635,7 +606,7 @@
             );
             
             if (matchingCoasters.length > 0) {
-              validCount++;
+              validCellCount++;
               cellSolutions.push({
                 row,
                 col,
@@ -646,17 +617,55 @@
           }
         }
         
-        if (validCount === 9) {
+        // Only consider the puzzle valid if all 9 cells have at least one valid coaster
+        if (validCellCount === 9) {
           success = true;
           solution = cellSolutions;
+          console.log("Valid puzzle generated after", attempts, "attempts");
+          break; // Exit the loop if we found a valid solution
         }
       }
       
+      // If we couldn't generate a valid puzzle after max attempts, create a fallback
       if (!success) {
-        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Using best attempt.`);
+        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Using fallback.`);
+        
+        // Create simple criteria that are likely to have matches
+        rowCriteria = [
+          { type: "coaster type", value: "Steel", matcher: criteriaOptions.find(c => c.type === "coaster type").matcher },
+          { type: "coaster type", value: "Wooden", matcher: criteriaOptions.find(c => c.type === "coaster type").matcher },
+          { type: "manufacturer", value: "Bolliger & Mabillard", matcher: criteriaOptions.find(c => c.type === "manufacturer").matcher }
+        ];
+        
+        colCriteria = [
+          { type: "inversions", value: "0", matcher: criteriaOptions.find(c => c.type === "inversions").matcher },
+          { type: "inversions", value: "1-2", matcher: criteriaOptions.find(c => c.type === "inversions").matcher },
+          { type: "inversions", value: "3-5", matcher: criteriaOptions.find(c => c.type === "inversions").matcher }
+        ];
+        
+        // Regenerate solution with these more lenient criteria
+        solution = [];
+        
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            const matchingCoasters = allCoasters.filter(coaster => 
+              rowCriteria[row].matcher(coaster, rowCriteria[row].value) && 
+              colCriteria[col].matcher(coaster, colCriteria[col].value)
+            );
+            
+            if (matchingCoasters.length > 0) {
+              solution.push({
+                row,
+                col,
+                possibleCoasters: matchingCoasters,
+                selectedCoaster: matchingCoasters[Math.floor(Math.random() * matchingCoasters.length)]
+              });
+            }
+          }
+        }
       }
       
-      return success;
+      return solution.length > 0;
     }
     
     function isCoasterValidForCell(coaster, row, col) {
@@ -808,3 +817,70 @@
         searchList.innerHTML = '<div class="search-item">No coasters found</div>';
       }
     }
+  // Select the coaster for the current cell
+selectButton.addEventListener('click', function() {
+  if (currentCell && selectedCoaster) {
+    // Get row and column from current cell
+    const row = parseInt(currentCell.dataset.row);
+    const col = parseInt(currentCell.dataset.col);
+    
+    // Update game grid
+    gameGrid[row][col] = selectedCoaster;
+    
+    // Update display
+    currentCell.innerHTML = `
+      <div>${selectedCoaster.name}</div>
+      <div class="park-name">${selectedCoaster.park}</div>
+    `;
+    currentCell.classList.add('filled-cell');
+    currentCell.dataset.coasterId = selectedCoaster.id;
+    
+    // Close the modal
+    closeSearchModal();
+  }
+});
+
+// Add event listeners to search box
+coasterSearchBox.addEventListener('input', findCoasters);
+coasterSearchBox.addEventListener('focus', findCoasters);
+
+// End game and check results
+function endGame() {
+  const cells = document.querySelectorAll('.cell.input-cell');
+  let correctCount = 0;
+  
+  for (let i = 0; i < cells.length; i++) {
+    const cell = cells[i];
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const coasterId = cell.dataset.coasterId;
+    
+    if (coasterId) {
+      const coaster = allCoasters.find(c => c.id === coasterId);
+      if (coaster && isCoasterValidForCell(coaster, row, col)) {
+        cell.classList.add('correct');
+        correctCount++;
+      } else {
+        cell.classList.add('incorrect');
+      }
+    }
+  }
+  
+  // Display results
+  resultsMessage.style.display = 'block';
+  if (correctCount === 9) {
+    resultsMessage.className = 'check-results success';
+    resultsMessage.textContent = 'Congratulations! You completed the grid correctly!';
+  } else {
+    resultsMessage.className = 'check-results failure';
+    resultsMessage.textContent = `You got ${correctCount} out of 9 cells correct.`;
+  }
+  
+  // Disable cell clicks once game has ended
+  cells.forEach(cell => {
+    cell.onclick = null;
+  });
+}
+
+// Start loading coaster data when page loads
+window.addEventListener('DOMContentLoaded', loadCoasterData);
