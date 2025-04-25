@@ -236,8 +236,7 @@
 
   <div class="game-controls">
     <button class="game-button" id="newGameBtn">New Game</button>
-    <button class="game-button" id="checkAnswersBtn">Check Answers</button>
-    <button class="game-button" id="solutionBtn">Show Solution</button>
+    <button class="game-button" id="endGameBtn">End Game</button>
   </div>
 
   <div id="loadingContainer" class="loading">
@@ -286,8 +285,7 @@
     const selectButton = document.getElementById('selectButton');
     const coasterGrid = document.getElementById('coasterGrid');
     const newGameBtn = document.getElementById('newGameBtn');
-    const checkAnswersBtn = document.getElementById('checkAnswersBtn');
-    const solutionBtn = document.getElementById('solutionBtn');
+    const endGameBtn = document.getElementById('endGameBtn');
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
     
@@ -350,8 +348,7 @@
     // Initialize game
     function initGame() {
       newGameBtn.addEventListener('click', createNewGame);
-      checkAnswersBtn.addEventListener('click', checkAnswers);
-      solutionBtn.addEventListener('click', showSolution);
+      endGameBtn.addEventListener('click', endGame);
       
       createNewGame();
     }
@@ -369,7 +366,7 @@
       renderGrid();
     }
     
-    // Define better criteria that are more likely to match coasters
+    // Define criteria options
     const criteriaOptions = [
       {
         type: "manufacturer",
@@ -426,7 +423,7 @@
     ];
     
     function generatePuzzle() {
-      let maxAttempts = 20;
+      let maxAttempts = 30;
       let attempts = 0;
       let success = false;
       
@@ -434,21 +431,86 @@
         attempts++;
         solution = [];
         
-        // Select two different criteria types for rows and columns
+        // Shuffle criteria options
         const shuffledOptions = [...criteriaOptions].sort(() => 0.5 - Math.random());
-        const rowCriteriaType = shuffledOptions[0];
-        const colCriteriaType = shuffledOptions[1] || shuffledOptions[2]; // Ensure different types
         
-        // Select specific values for each row and column
-        rowCriteria = rowCriteriaType.values
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 3)
-          .map(value => ({ type: rowCriteriaType.type, value, matcher: rowCriteriaType.matcher }));
+        // Select different criteria types for each row and column
+        // We need 3 criteria for rows and 3 for columns, ensuring no duplicate criteria types at intersections
+        let selectedCriteriaTypes = [];
+        let rowCriteriaTypes = [];
+        let colCriteriaTypes = [];
+        
+        // First attempt: try to get 3 unique criteria types for rows and 3 for columns
+        // This gives us the best chance of avoiding conflicts
+        if (shuffledOptions.length >= 6) {
+          rowCriteriaTypes = shuffledOptions.slice(0, 3);
+          colCriteriaTypes = shuffledOptions.slice(3, 6);
+        } else {
+          // If we don't have 6 unique criteria types, we'll need to reuse some
+          // But ensure no row and column have the same criteria type
+          const availableCriteria = [...shuffledOptions];
           
-        colCriteria = colCriteriaType.values
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 3)
-          .map(value => ({ type: colCriteriaType.type, value, matcher: colCriteriaType.matcher }));
+          // Select criteria for rows
+          for (let i = 0; i < 3; i++) {
+            if (availableCriteria.length > 0) {
+              const criteriaIndex = Math.floor(Math.random() * availableCriteria.length);
+              rowCriteriaTypes.push(availableCriteria[criteriaIndex]);
+              availableCriteria.splice(criteriaIndex, 1);
+            } else {
+              // Reuse a criteria type, but not one already used for columns
+              const unusedCriteria = shuffledOptions.filter(
+                criteria => !colCriteriaTypes.includes(criteria)
+              );
+              if (unusedCriteria.length > 0) {
+                rowCriteriaTypes.push(unusedCriteria[0]);
+              } else {
+                rowCriteriaTypes.push(shuffledOptions[0]);
+              }
+            }
+          }
+          
+          // Select criteria for columns, avoiding types used in rows when possible
+          for (let i = 0; i < 3; i++) {
+            // Try to find criteria not used in rows
+            const unusedCriteria = shuffledOptions.filter(
+              criteria => !rowCriteriaTypes.includes(criteria)
+            );
+            
+            if (unusedCriteria.length > 0) {
+              const criteriaIndex = Math.floor(Math.random() * unusedCriteria.length);
+              colCriteriaTypes.push(unusedCriteria[criteriaIndex]);
+            } else {
+              // If all criteria types are used in rows, pick any (but this may cause conflicts)
+              colCriteriaTypes.push(shuffledOptions[i % shuffledOptions.length]);
+            }
+          }
+        }
+        
+        // Initialize row and column criteria arrays
+        rowCriteria = [];
+        colCriteria = [];
+        
+        // For each row, select a value from its criteria type
+        for (let i = 0; i < 3; i++) {
+          const criteriaType = rowCriteriaTypes[i];
+          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
+          rowCriteria.push({ 
+            type: criteriaType.type, 
+            value, 
+            matcher: criteriaType.matcher 
+          });
+        }
+        
+        // For each column, select a value from its criteria type
+        for (let i = 0; i < 3; i++) {
+          const criteriaType = colCriteriaTypes[i];
+          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
+          colCriteria.push({ 
+            type: criteriaType.type, 
+            value, 
+            matcher: criteriaType.matcher 
+          });
+        }
         
         // Check if all cells have at least one matching coaster
         let validCount = 0;
@@ -478,7 +540,7 @@
       }
       
       if (!success) {
-        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts.`);
+        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Using best attempt.`);
       }
       
       return success;
@@ -498,14 +560,17 @@
       // Add blank corner cell
       const cornerCell = document.createElement('div');
       cornerCell.className = 'cell header';
-      cornerCell.innerHTML = `<small>Rows: ${rowCriteria[0].type}<br>Cols: ${colCriteria[0].type}</small>`;
+      cornerCell.innerHTML = '<small>Criteria types vary</small>';
       coasterGrid.appendChild(cornerCell);
       
       // Add column headers
       for (let col = 0; col < 3; col++) {
         const colHeader = document.createElement('div');
         colHeader.className = 'cell header';
-        colHeader.textContent = colCriteria[col].value;
+        colHeader.innerHTML = `
+          <div>${colCriteria[col].value}</div>
+          <div class="criteria-info">${colCriteria[col].type}</div>
+        `;
         coasterGrid.appendChild(colHeader);
       }
       
@@ -514,7 +579,10 @@
         // Add row header
         const rowHeader = document.createElement('div');
         rowHeader.className = 'cell header';
-        rowHeader.textContent = rowCriteria[row].value;
+        rowHeader.innerHTML = `
+          <div>${rowCriteria[row].value}</div>
+          <div class="criteria-info">${rowCriteria[row].type}</div>
+        `;
         coasterGrid.appendChild(rowHeader);
         
         // Add cells
@@ -618,63 +686,57 @@
       }
     }
     
-    function checkAnswers() {
-      // Reset previous checks
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.classList.remove('correct', 'incorrect');
-      });
+    function endGame() {
+      if (!confirm("Are you ready to end the game and see results?")) {
+        return;
+      }
       
-      let correctCount = 0;
-      let filledCount = 0;
+      // First check which cells are correct
+      let correctCells = [];
+      let emptyCells = [];
       
-      // Check each filled cell
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        
         if (cell.dataset.coasterId) {
-          filledCount++;
-          const row = parseInt(cell.dataset.row);
-          const col = parseInt(cell.dataset.col);
+          // Cell is filled, check if it's correct
           const coasterId = parseInt(cell.dataset.coasterId);
-          
-          // Find the coaster object from ID
           const selectedCoaster = allCoasters.find(c => c.id === coasterId);
           
           if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
             cell.classList.add('correct');
-            correctCount++;
+            correctCells.push({row, col});
           } else {
             cell.classList.add('incorrect');
+            // Find solution for this cell
+            const cellSolution = solution.find(s => s.row === row && s.col === col);
+            if (cellSolution) {
+              const solutionCoaster = cellSolution.selectedCoaster;
+              
+              // Display solution
+              cell.innerHTML = `
+                <div>${solutionCoaster.name}</div>
+                <div class="park-name">${solutionCoaster.park}</div>
+              `;
+              cell.classList.remove('incorrect');
+              cell.classList.add('filled-cell', 'correct');
+              cell.dataset.coasterId = solutionCoaster.id;
+            }
           }
+        } else {
+          // Cell is empty
+          emptyCells.push({row, col});
         }
       });
       
-      // Display results
-      resultsMessage.style.display = 'block';
-      if (correctCount === filledCount && filledCount > 0) {
-        resultsMessage.textContent = `Great job! ${correctCount} out of 9 cells are correctly filled.`;
-        resultsMessage.className = 'check-results success';
-      } else {
-        resultsMessage.textContent = `${correctCount} out of ${filledCount} filled cells are correct. Keep trying!`;
-        resultsMessage.className = 'check-results failure';
-      }
-    }
-    
-    function showSolution() {
-      if (!confirm("Are you sure you want to see the solution?")) {
-        return;
-      }
-      
-      // Reset cells
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.classList.remove('correct', 'incorrect');
+      // Fill empty cells with solutions
+      emptyCells.forEach(({row, col}) => {
+        const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
         
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        
-        // Find solution for this cell
-        const cellSolutions = solution.filter(s => s.row === row && s.col === col);
-        
-        if (cellSolutions.length > 0) {
-          const solutionCoaster = cellSolutions[0].selectedCoaster;
+        if (cellSolution) {
+          const solutionCoaster = cellSolution.selectedCoaster;
           
           // Display solution
           cell.innerHTML = `
@@ -683,16 +745,19 @@
           `;
           cell.classList.add('filled-cell', 'correct');
           cell.dataset.coasterId = solutionCoaster.id;
-        } else {
-          cell.innerHTML = '<div class="park-name">No match found</div>';
-          cell.classList.add('incorrect');
         }
       });
       
       // Display results
       resultsMessage.style.display = 'block';
-      resultsMessage.textContent = "Solution displayed!";
+      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
+      
+      // Disable cell clicks after game is ended
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.onclick = null;
+        cell.classList.remove('input-cell');
+      });
     }
     
     // Event listeners
