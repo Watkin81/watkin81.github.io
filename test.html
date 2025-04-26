@@ -491,42 +491,38 @@
     }
 
     function validateAllSolutions() {
-      console.log("Validating all solutions...");
-      let allValid = true;
+  console.log("Validating all solutions...");
+  let allValid = true;
 
-      for (const cellSolution of solution) {
-        const { row, col, selectedCoaster } = cellSolution;
-        const rowCriterion = rowCriteria[row];
-        const colCriterion = colCriteria[col];
+  for (const cellSolution of solution) {
+    const { row, col, selectedCoaster } = cellSolution;
+    const rowCriterion = rowCriteria[row];
+    const colCriterion = colCriteria[col];
 
-        const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
-        const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
+    console.log(`\nValidating cell (${row}, ${col}) - Coaster: ${selectedCoaster.name}`);
+    console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
+    console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
+    console.log(`Coaster details: height=${selectedCoaster.height}, length=${selectedCoaster.length}, speed=${selectedCoaster.speed}`);
 
-        if (!rowMatch || !colMatch) {
-          console.error(`Invalid solution at (${row}, ${col}): ${selectedCoaster.name}`);
-          console.log(`Row criterion (${rowCriterion.type} - ${rowCriterion.value}): ${rowMatch}`);
-          console.log(`Column criterion (${colCriterion.type} - ${colCriterion.value}): ${colMatch}`);
+    const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
+    const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
 
-          console.log("Coaster details:", {
-            height: selectedCoaster.height,
-            speed: selectedCoaster.speed,
-            year: selectedCoaster.year,
-            length: selectedCoaster.length,
-            inversions: selectedCoaster.inversions
-          });
+    console.log(`Row match result: ${rowMatch}, Column match result: ${colMatch}`);
 
-          allValid = false;
-        }
-      }
-
-      if (allValid) {
-        console.log("All solutions are valid!");
-      } else {
-        console.error("Found invalid solutions!");
-      }
-
-      return allValid;
+    if (!rowMatch || !colMatch) {
+      console.error(`Invalid solution at (${row}, ${col}): ${selectedCoaster.name}`);
+      allValid = false;
     }
+  }
+
+  if (allValid) {
+    console.log("All solutions are valid!");
+  } else {
+    console.error("Found invalid solutions!");
+  }
+
+  return allValid;
+}
 
     // Initialize game
     function initGame() {
@@ -970,32 +966,42 @@
     }
 
     function isCoasterValidForCell(coaster, row, col) {
-      // More robust validation with error handling
-      try {
-        if (!coaster || row === undefined || col === undefined) {
-          return false;
-        }
-
-        if (row < 0 || row >= rowCriteria.length || col < 0 || col >= colCriteria.length) {
-          return false;
-        }
-
-        const rowCriterion = rowCriteria[row];
-        const colCriterion = colCriteria[col];
-
-        if (!rowCriterion || !colCriterion) {
-          return false;
-        }
-
-        const rowCheck = rowCriterion.matcher(coaster, rowCriterion.value);
-        const colCheck = colCriterion.matcher(coaster, colCriterion.value);
-
-        return rowCheck && colCheck;
-      } catch (error) {
-        console.error("Error validating coaster:", error);
-        return false;
-      }
+  // More robust validation with error handling
+  try {
+    if (!coaster || row === undefined || col === undefined) {
+      console.log("Invalid parameters for validation check");
+      return false;
     }
+
+    if (row < 0 || row >= rowCriteria.length || col < 0 || col >= colCriteria.length) {
+      console.log(`Invalid row (${row}) or column (${col}) indices`);
+      return false;
+    }
+
+    const rowCriterion = rowCriteria[row];
+    const colCriterion = colCriteria[col];
+
+    if (!rowCriterion || !colCriterion) {
+      console.log("Missing criteria for row or column");
+      return false;
+    }
+
+    console.log(`\nChecking if coaster "${coaster.name}" is valid for cell (${row}, ${col})`);
+    console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
+    console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
+    console.log(`Coaster details: height=${coaster.height}, length=${coaster.length}, speed=${coaster.speed}`);
+
+    const rowCheck = rowCriterion.matcher(coaster, rowCriterion.value);
+    const colCheck = colCriterion.matcher(coaster, colCriterion.value);
+
+    console.log(`Row match result: ${rowCheck}, Column match result: ${colCheck}`);
+    
+    return rowCheck && colCheck;
+  } catch (error) {
+    console.error("Error validating coaster:", error);
+    return false;
+  }
+}
 
     function renderGrid() {
       // Clear existing grid
