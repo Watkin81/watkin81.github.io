@@ -223,6 +223,23 @@
       margin-top: 5px;
       color: #666;
     }
+
+    .rcdb-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 8px;
+      background-color: #1890ff;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 11px;
+      transition: background-color 0.2s;
+    }
+    
+    .rcdb-link:hover {
+      background-color: #40a9ff;
+      text-decoration: none;
+    }
     
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -1064,6 +1081,14 @@ const colCriteriaOptions = [
       if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
         cell.classList.add('correct');
         correctCells.push({row, col});
+        
+        // Add RCDB link to correct cells
+        const rcdbLink = document.createElement('a');
+        rcdbLink.href = `https://rcdb.com/${selectedCoaster.id}.htm`;
+        rcdbLink.target = '_blank';
+        rcdbLink.className = 'rcdb-link';
+        rcdbLink.textContent = 'View on RCDB';
+        cell.appendChild(rcdbLink);
       } else {
         cell.classList.add('incorrect');
         // Find solution for this cell
@@ -1078,6 +1103,15 @@ const colCriteriaOptions = [
               <div>${solutionCoaster.name}</div>
               <div class="park-name">${solutionCoaster.park}</div>
             `;
+            
+            // Add RCDB link
+            const rcdbLink = document.createElement('a');
+            rcdbLink.href = `https://rcdb.com/${solutionCoaster.id}.htm`;
+            rcdbLink.target = '_blank';
+            rcdbLink.className = 'rcdb-link';
+            rcdbLink.textContent = 'View on RCDB';
+            cell.appendChild(rcdbLink);
+            
             cell.classList.remove('incorrect');
             cell.classList.add('filled-cell', 'correct');
             cell.dataset.coasterId = solutionCoaster.id;
@@ -1090,6 +1124,15 @@ const colCriteriaOptions = [
                 <div>${alternativeSolution.name}</div>
                 <div class="park-name">${alternativeSolution.park}</div>
               `;
+              
+              // Add RCDB link
+              const rcdbLink = document.createElement('a');
+              rcdbLink.href = `https://rcdb.com/${alternativeSolution.id}.htm`;
+              rcdbLink.target = '_blank';
+              rcdbLink.className = 'rcdb-link';
+              rcdbLink.textContent = 'View on RCDB';
+              cell.appendChild(rcdbLink);
+              
               cell.classList.remove('incorrect');
               cell.classList.add('filled-cell', 'correct');
               cell.dataset.coasterId = alternativeSolution.id;
@@ -1121,6 +1164,15 @@ const colCriteriaOptions = [
           <div>${solutionCoaster.name}</div>
           <div class="park-name">${solutionCoaster.park}</div>
         `;
+        
+        // Add RCDB link
+        const rcdbLink = document.createElement('a');
+        rcdbLink.href = `https://rcdb.com/${solutionCoaster.id}.htm`;
+        rcdbLink.target = '_blank';
+        rcdbLink.className = 'rcdb-link';
+        rcdbLink.textContent = 'View on RCDB';
+        cell.appendChild(rcdbLink);
+        
         cell.classList.add('filled-cell', 'correct');
         cell.dataset.coasterId = solutionCoaster.id;
       } else {
@@ -1132,6 +1184,15 @@ const colCriteriaOptions = [
             <div>${alternativeSolution.name}</div>
             <div class="park-name">${alternativeSolution.park}</div>
           `;
+          
+          // Add RCDB link
+          const rcdbLink = document.createElement('a');
+          rcdbLink.href = `https://rcdb.com/${alternativeSolution.id}.htm`;
+          rcdbLink.target = '_blank';
+          rcdbLink.className = 'rcdb-link';
+          rcdbLink.textContent = 'View on RCDB';
+          cell.appendChild(rcdbLink);
+          
           cell.classList.add('filled-cell', 'correct');
           cell.dataset.coasterId = alternativeSolution.id;
         }
