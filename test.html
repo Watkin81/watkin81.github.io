@@ -1224,7 +1224,7 @@
           const results = allCoasters.filter(coaster =>
             coaster.name.toLowerCase().includes(query) ||
             coaster.park.toLowerCase().includes(query)
-          ).slice(0, 20); // Limit to 20 results to prevent performance issues
+          ).slice(0, 100);
 
           displaySearchResults(results);
         }, 300);
