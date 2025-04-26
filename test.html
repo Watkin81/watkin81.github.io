@@ -571,31 +571,33 @@
     }
 
     function updateUnitDisplay() {
-  // Update column headers with appropriate unit display
-  document.querySelectorAll('.cell.header').forEach((cell, index) => {
-    // Skip the first cell (corner cell) and row headers (every 4th cell starting from 5th)
-    if (index === 0 || (index - 4) % 4 === 0) {
-      return;
-    }
-    
-    // Calculate column index (for column headers at positions 1, 2, 3)
-    const col = (index - 1) % 4;
-    if (col >= 0 && col < colCriteria.length) {
-      const criterion = colCriteria[col];
-      
-      // Only update if this criterion has different metric/imperial displays
-      if (criterion.type === "height" || criterion.type === "length" || criterion.type === "speed") {
-        const value = useMetricUnits && criterion.metricValues ? 
-          criterion.metricValues[criterion.values.indexOf(criterion.value)] : criterion.value;
-        
-        cell.innerHTML = `
-          <div>${value}</div>
+      // Update column headers with appropriate unit display
+      document.querySelectorAll('.cell.header').forEach((cell, index) => {
+        // Skip the first cell (corner cell) and row headers (every 4th cell starting from 5th)
+        if (index === 0 || (index - 4) % 4 === 0) {
+          return;
+        }
+
+        // Calculate column index (for column headers at positions 1, 2, 3)
+        const col = (index - 1) % 4;
+        if (col >= 0 && col < colCriteria.length) {
+          const criterion = colCriteria[col];
+
+          // Only update if this criterion has different metric/imperial displays
+          if (criterion.type === "height" || criterion.type === "length" || criterion.type === "speed") {
+            // Get the equivalent value in the current unit system
+            const valueIndex = criterion.values.indexOf(criterion.value);
+            const displayValue = useMetricUnits && criterion.metricValues ?
+              criterion.metricValues[valueIndex] : criterion.values[valueIndex];
+
+            cell.innerHTML = `
+          <div>${displayValue}</div>
           <div class="criteria-info">${criterion.type}${useMetricUnits ? ' (metric)' : ' (imperial)'}</div>
         `;
-      }
+          }
+        }
+      });
     }
-  });
-}
 
     function validateAllSolutions() {
       console.log("Validating all solutions...");
@@ -633,21 +635,36 @@
 
     // Initialize game
     function initGame() {
-    // Add unit toggle to the page
-    document.querySelector('.game-controls').insertAdjacentHTML('afterend', unitToggleHTML);
-  
-    // Add event listener for the unit toggle
-    document.getElementById('unitToggle').addEventListener('change', function () {
-      useMetricUnits = this.checked;
-      document.getElementById('unitLabel').textContent = useMetricUnits ? 'Metric Units' : 'Imperial Units';
-      updateUnitDisplay(); // Update the display without creating a new game
-    });
-  
-    newGameBtn.addEventListener('click', createNewGame);
-    endGameBtn.addEventListener('click', endGame);
-  
-    createNewGame();
-  }
+      // Add unit toggle to the page
+      document.querySelector('.game-controls').insertAdjacentHTML('afterend', unitToggleHTML);
+
+      // Add event listener for the unit toggle
+      document.getElementById('unitToggle').addEventListener('change', function () {
+        useMetricUnits = this.checked;
+        document.getElementById('unitLabel').textContent = useMetricUnits ? 'Metric Units' : 'Imperial Units';
+
+        // Update all display elements that depend on units
+        updateUnitDisplay();
+
+        // Also update cells that are already filled to show correct units
+        document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
+          if (cell.dataset.coasterId) {
+            const coasterId = parseInt(cell.dataset.coasterId);
+            const coaster = allCoasters.find(c => c.id === coasterId);
+            if (coaster) {
+              // Keep the same showStats state
+              const isShowingStats = cell.querySelector('.stats-info') !== null;
+              updateCellDisplay(cell, coaster, isShowingStats);
+            }
+          }
+        });
+      });
+
+      newGameBtn.addEventListener('click', createNewGame);
+      endGameBtn.addEventListener('click', endGame);
+
+      createNewGame();
+    }
 
     function createNewGame() {
       // Clear any existing game state
@@ -1265,127 +1282,166 @@
     }
 
     function updateCellDisplay(cell, coaster, showStats = false) {
-  // Clear previous content
-  cell.innerHTML = '';
+      // Clear previous content
+      cell.innerHTML = '';
 
-  // Create background div for the image
-  const bgDiv = document.createElement('div');
-  bgDiv.className = 'cell-bg';
+      // Create background div for the image
+      const bgDiv = document.createElement('div');
+      bgDiv.className = 'cell-bg';
 
-  // Set background image if available
-  if (coaster.mainPicture) {
-    bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
-  }
+      // Set background image if available
+      if (coaster.mainPicture) {
+        bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
+      }
 
-  // Create content div
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'cell-content';
+      // Create content div
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'cell-content';
 
-  // Only show stats if we're checking answers (showStats = true)
-  let statsHTML = '';
-  if (showStats) {
-    // Format the statistics based on the selected unit system
-    let heightDisplay = coaster.height > 0 ?
-      useMetricUnits ? `${coaster.height.toFixed(1)}m` : `${(coaster.height * 3.28084).toFixed(1)}ft` : '';
-    let speedDisplay = coaster.speed > 0 ?
-      useMetricUnits ? `${coaster.speed.toFixed(1)}km/h` : `${(coaster.speed * 0.621371).toFixed(1)}mph` : '';
-    
-    statsHTML = heightDisplay || speedDisplay ? 
-      `<div class="stats-info">${[heightDisplay, speedDisplay].filter(Boolean).join(', ')}</div>` : '';
-  }
+      // Only show criteria stats if we're checking answers (showStats = true)
+      let statsHTML = '';
+      if (showStats) {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
 
-  contentDiv.innerHTML = `
+        // Get the criteria for this cell
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
+
+        // Format the row criterion value
+        let rowValue = rowCriterion.value;
+
+        // Format the column criterion value based on coaster properties and unit system
+        let colValue;
+        if (colCriterion.type === "height") {
+          colValue = useMetricUnits ?
+            `${coaster.height.toFixed(1)}m` :
+            `${(coaster.height * 3.28084).toFixed(1)}ft`;
+        } else if (colCriterion.type === "length") {
+          colValue = useMetricUnits ?
+            `${coaster.length.toFixed(1)}m` :
+            `${(coaster.length * 3.28084).toFixed(1)}ft`;
+        } else if (colCriterion.type === "speed") {
+          colValue = useMetricUnits ?
+            `${coaster.speed.toFixed(1)}km/h` :
+            `${(coaster.speed * 0.621371).toFixed(1)}mph`;
+        } else if (colCriterion.type === "year") {
+          colValue = coaster.year;
+        } else if (colCriterion.type === "inversions") {
+          colValue = coaster.inversions;
+        }
+
+        statsHTML = `
+      <div class="stats-info">
+        ${rowCriterion.type}: ${rowValue}<br>
+        ${colCriterion.type}: ${colValue}
+      </div>`;
+      }
+
+      contentDiv.innerHTML = `
     <div>${coaster.name}</div>
     <div class="park-name">${coaster.park}</div>
     ${statsHTML}
   `;
 
-  // Add elements to the cell
-  cell.appendChild(bgDiv);
-  cell.appendChild(contentDiv);
+      // Add elements to the cell
+      cell.appendChild(bgDiv);
+      cell.appendChild(contentDiv);
 
-  // Add RCDB link
-  const rcdbLink = document.createElement('a');
-  rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
-  rcdbLink.target = '_blank';
-  rcdbLink.className = 'rcdb-link';
-  rcdbLink.textContent = 'View on RCDB';
-  contentDiv.appendChild(rcdbLink);
+      // Add RCDB link
+      const rcdbLink = document.createElement('a');
+      rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+      rcdbLink.target = '_blank';
+      rcdbLink.className = 'rcdb-link';
+      rcdbLink.textContent = 'View on RCDB';
+      contentDiv.appendChild(rcdbLink);
 
-  // Update cell classes and data
-  cell.classList.add('filled-cell');
-  cell.dataset.coasterId = coaster.id;
-}
+      // Update cell classes and data
+      cell.classList.add('filled-cell');
+      cell.dataset.coasterId = coaster.id;
+    }
 
     function endGame() {
-  if (!confirm("Are you ready to end the game and see results?")) {
-    return;
-  }
-
-  // First check which cells are correct
-  let correctCells = [];
-  let emptyCells = [];
-
-  document.querySelectorAll('.cell.input-cell').forEach(cell => {
-    const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.col);
-
-    if (cell.dataset.coasterId) {
-      // Cell is filled, check if it's correct
-      const coasterId = parseInt(cell.dataset.coasterId);
-      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
-
-      if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
-        cell.classList.add('correct');
-        // Update with stats showing
-        updateCellDisplay(cell, selectedCoaster, true);
-        correctCells.push({ row, col });
-      } else {
-        cell.classList.add('incorrect');
-        // Update with stats showing
-        updateCellDisplay(cell, selectedCoaster, true);
+      if (!confirm("Are you ready to end the game and see results?")) {
+        return;
       }
-    } else {
-      // Cell is empty
-      emptyCells.push({ row, col });
-    }
-  });
 
-  // Fill empty cells with solutions
-  emptyCells.forEach(({ row, col }) => {
-    const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-    const cellSolution = solution.find(s => s.row === row && s.col === col);
+      // First check which cells are correct
+      let correctCells = [];
+      let emptyCells = [];
 
-    if (cellSolution && cellSolution.selectedCoaster) {
-      const solutionCoaster = cellSolution.selectedCoaster;
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
 
-      // Double-check that this solution is actually valid
-      if (isCoasterValidForCell(solutionCoaster, row, col)) {
-        // Display solution with unguessed class instead of correct
-        updateCellDisplay(cell, solutionCoaster, true);
-        cell.classList.add('unguessed');
-      } else {
-        // The solution is invalid! Find a valid alternative
-        const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
-        if (validCoasters.length > 0) {
-          const alternativeSolution = validCoasters[0];
-          updateCellDisplay(cell, alternativeSolution, true);
-          cell.classList.add('unguessed');
+        if (cell.dataset.coasterId) {
+          // Cell is filled, check if it's correct
+          const coasterId = parseInt(cell.dataset.coasterId);
+          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+
+          if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
+            cell.classList.add('correct');
+            // Update with criteria stats showing
+            updateCellDisplay(cell, selectedCoaster, true);
+            correctCells.push({ row, col });
+          } else {
+            cell.classList.add('incorrect');
+            // Update with criteria stats showing
+            updateCellDisplay(cell, selectedCoaster, true);
+          }
+        } else {
+          // Cell is empty
+          emptyCells.push({ row, col });
         }
-      }
+      });
+
+      // Fill empty cells with solutions
+      emptyCells.forEach(({ row, col }) => {
+        const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+        if (cellSolution && cellSolution.selectedCoaster) {
+          const solutionCoaster = cellSolution.selectedCoaster;
+
+          // Double-check that this solution is actually valid
+          if (isCoasterValidForCell(solutionCoaster, row, col)) {
+            // Display solution with unguessed class instead of correct
+            updateCellDisplay(cell, solutionCoaster, true);
+            cell.classList.add('unguessed');
+          } else {
+            // The solution is invalid! Find a valid alternative
+            const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
+            if (validCoasters.length > 0) {
+              const alternativeSolution = validCoasters[0];
+              updateCellDisplay(cell, alternativeSolution, true);
+              cell.classList.add('unguessed');
+            }
+          }
+        }
+      });
+
+      // Display results
+      resultsMessage.style.display = 'block';
+      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+      resultsMessage.className = 'check-results success';
+
+      // Disable cell clicks after game is ended
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.onclick = null;
+        cell.classList.remove('input-cell');
+      });
     }
-  });
 
-  // Display results
-  resultsMessage.style.display = 'block';
-  resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
-  resultsMessage.className = 'check-results success';
+    // Display results
+    resultsMessage.style.display = 'block';
+    resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+    resultsMessage.className = 'check-results success';
 
-  // Disable cell clicks after game is ended
-  document.querySelectorAll('.cell.input-cell').forEach(cell => {
-    cell.onclick = null;
-    cell.classList.remove('input-cell');
-  });
+    // Disable cell clicks after game is ended
+    document.querySelectorAll('.cell.input-cell').forEach(cell => {
+      cell.onclick = null;
+      cell.classList.remove('input-cell');
+    });
 }
 
     // Event listeners
@@ -1395,12 +1451,12 @@
       if (currentCell && selectedCoaster) {
         // Update cell with coaster info and background image, but don't show stats yet
         updateCellDisplay(currentCell, selectedCoaster, false);
-    
+
         // Update game grid
         const row = parseInt(currentCell.dataset.row);
         const col = parseInt(currentCell.dataset.col);
         gameGrid[row][col] = selectedCoaster;
-    
+
         closeSearchModal();
       }
     });
