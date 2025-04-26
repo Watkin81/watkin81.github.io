@@ -372,7 +372,7 @@
   
   // Try to generate a valid puzzle
   let puzzleGenerated = false;
-  let maxTries = 5;
+  let maxTries = 10; // Increased from 5 to 10
   let tries = 0;
   
   while (!puzzleGenerated && tries < maxTries) {
@@ -387,6 +387,20 @@
   
   // Generate grid UI
   renderGrid();
+  
+  // Verify all solutions match their criteria as a final sanity check
+  let allValid = true;
+  for (const cellSolution of solution) {
+    const { row, col, selectedCoaster } = cellSolution;
+    if (!isCoasterValidForCell(selectedCoaster, row, col)) {
+      console.error("Invalid solution detected:", cellSolution);
+      allValid = false;
+    }
+  }
+  
+  if (!allValid) {
+    console.error("Game started with invalid solutions! Please debug.");
+  }
 }
     
     // Row criteria options
@@ -598,7 +612,7 @@ const colCriteriaOptions = [
 ];
     
     function generatePuzzle() {
-  let maxAttempts = 50; // Increased attempts
+  let maxAttempts = 100; // Increased attempts
   let attempts = 0;
   let success = false;
   
@@ -641,9 +655,11 @@ const colCriteriaOptions = [
     }
     
     // Check if all cells have at least one matching coaster
-    let cellValidCount = 0;
+    let validCellCount = 0;
     let cellSolutions = Array(3).fill().map(() => Array(3).fill(null));
+    let usedCoasterIds = new Set(); // Track used coasters to ensure unique solutions
     
+    // First pass: count valid cells and find matching coasters
     for (let row = 0; row < 3; row++) {
       for (let col = 0; col < 3; col++) {
         const matchingCoasters = allCoasters.filter(coaster => 
@@ -652,25 +668,75 @@ const colCriteriaOptions = [
         );
         
         if (matchingCoasters.length > 0) {
-          cellValidCount++;
+          validCellCount++;
           cellSolutions[row][col] = {
             row,
             col,
-            possibleCoasters: matchingCoasters,
-            selectedCoaster: matchingCoasters[Math.floor(Math.random() * matchingCoasters.length)]
+            possibleCoasters: matchingCoasters
           };
         }
       }
     }
     
-    if (cellValidCount === 9) {
-      // All cells have valid options, flatten the solution
+    // If all cells have valid options, assign unique coasters where possible
+    if (validCellCount === 9) {
+      // Sort cells by number of possible coasters (least options first)
+      const cellsToFill = [];
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
-          solution.push(cellSolutions[row][col]);
+          cellsToFill.push({
+            row,
+            col,
+            possibleCount: cellSolutions[row][col].possibleCoasters.length
+          });
         }
       }
-      success = true;
+      
+      // Sort by number of possible coasters (ascending)
+      cellsToFill.sort((a, b) => a.possibleCount - b.possibleCount);
+      
+      // Try to assign unique coasters to each cell
+      let allCellsFilled = true;
+      
+      for (const cell of cellsToFill) {
+        const { row, col } = cell;
+        // Filter out already used coasters
+        const availableCoasters = cellSolutions[row][col].possibleCoasters.filter(
+          coaster => !usedCoasterIds.has(coaster.id)
+        );
+        
+        if (availableCoasters.length > 0) {
+          // Select a random coaster from available options
+          const selectedCoaster = availableCoasters[Math.floor(Math.random() * availableCoasters.length)];
+          cellSolutions[row][col].selectedCoaster = selectedCoaster;
+          usedCoasterIds.add(selectedCoaster.id);
+        } else if (cellSolutions[row][col].possibleCoasters.length > 0) {
+          // If no unique coaster is available, just use any valid one
+          const selectedCoaster = cellSolutions[row][col].possibleCoasters[
+            Math.floor(Math.random() * cellSolutions[row][col].possibleCoasters.length)
+          ];
+          cellSolutions[row][col].selectedCoaster = selectedCoaster;
+        } else {
+          allCellsFilled = false;
+          break;
+        }
+      }
+      
+      if (allCellsFilled) {
+        // All cells have valid solutions, flatten the solution array
+        solution = [];
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            solution.push({
+              row,
+              col,
+              selectedCoaster: cellSolutions[row][col].selectedCoaster,
+              possibleCoasters: cellSolutions[row][col].possibleCoasters
+            });
+          }
+        }
+        success = true;
+      }
     }
   }
   
@@ -679,15 +745,70 @@ const colCriteriaOptions = [
     return false; // Signal that we need to try again
   }
   
+  // Validate the solution before accepting it
+  const validationResult = validateSolution();
+  if (!validationResult.valid) {
+    console.warn("Generated puzzle has validation issues:", validationResult.message);
+    return false;
+  }
+  
   return true; // Successfully generated a puzzle
+}
+
+    function validateSolution() {
+  // Check that each solution cell has a selected coaster
+  for (const cell of solution) {
+    if (!cell.selectedCoaster) {
+      return { valid: false, message: "Missing selected coaster for a cell" };
+    }
+    
+    // Verify the coaster matches both row and column criteria
+    const { row, col, selectedCoaster } = cell;
+    if (!rowCriteria[row].matcher(selectedCoaster, rowCriteria[row].value)) {
+      return { 
+        valid: false, 
+        message: `Coaster ${selectedCoaster.name} doesn't match row criteria: ${rowCriteria[row].type} - ${rowCriteria[row].value}` 
+      };
+    }
+    
+    if (!colCriteria[col].matcher(selectedCoaster, colCriteria[col].value)) {
+      return { 
+        valid: false, 
+        message: `Coaster ${selectedCoaster.name} doesn't match column criteria: ${colCriteria[col].type} - ${colCriteria[col].value}` 
+      };
+    }
+  }
+  
+  return { valid: true };
 }
     
     function isCoasterValidForCell(coaster, row, col) {
-      const rowCheck = rowCriteria[row].matcher(coaster, rowCriteria[row].value);
-      const colCheck = colCriteria[col].matcher(coaster, colCriteria[col].value);
-      
-      return rowCheck && colCheck;
+  // More robust validation with error handling
+  try {
+    if (!coaster || row === undefined || col === undefined) {
+      return false;
     }
+    
+    if (row < 0 || row >= rowCriteria.length || col < 0 || col >= colCriteria.length) {
+      return false;
+    }
+    
+    const rowCriterion = rowCriteria[row];
+    const colCriterion = colCriteria[col];
+    
+    if (!rowCriterion || !colCriterion) {
+      return false;
+    }
+    
+    const rowCheck = rowCriterion.matcher(coaster, rowCriterion.value);
+    const colCheck = colCriterion.matcher(coaster, colCriterion.value);
+    
+    return rowCheck && colCheck;
+  } catch (error) {
+    console.error("Error validating coaster:", error);
+    return false;
+  }
+}
     
     function renderGrid() {
       // Clear existing grid
@@ -823,79 +944,112 @@ const colCriteriaOptions = [
     }
     
     function endGame() {
-      if (!confirm("Are you ready to end the game and see results?")) {
-        return;
-      }
+  if (!confirm("Are you ready to end the game and see results?")) {
+    return;
+  }
+  
+  // First check which cells are correct
+  let correctCells = [];
+  let emptyCells = [];
+  
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    
+    if (cell.dataset.coasterId) {
+      // Cell is filled, check if it's correct
+      const coasterId = parseInt(cell.dataset.coasterId);
+      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
       
-      // First check which cells are correct
-      let correctCells = [];
-      let emptyCells = [];
-      
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        
-        if (cell.dataset.coasterId) {
-          // Cell is filled, check if it's correct
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+      if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
+        cell.classList.add('correct');
+        correctCells.push({row, col});
+      } else {
+        cell.classList.add('incorrect');
+        // Find solution for this cell
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
+        if (cellSolution && cellSolution.selectedCoaster) {
+          const solutionCoaster = cellSolution.selectedCoaster;
           
-          if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
-            cell.classList.add('correct');
-            correctCells.push({row, col});
+          // Double-check that this solution is actually valid
+          if (isCoasterValidForCell(solutionCoaster, row, col)) {
+            // Display solution
+            cell.innerHTML = `
+              <div>${solutionCoaster.name}</div>
+              <div class="park-name">${solutionCoaster.park}</div>
+            `;
+            cell.classList.remove('incorrect');
+            cell.classList.add('filled-cell', 'correct');
+            cell.dataset.coasterId = solutionCoaster.id;
           } else {
-            cell.classList.add('incorrect');
-            // Find solution for this cell
-            const cellSolution = solution.find(s => s.row === row && s.col === col);
-            if (cellSolution) {
-              const solutionCoaster = cellSolution.selectedCoaster;
-              
-              // Display solution
+            // The solution is invalid! Find a valid alternative
+            const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
+            if (validCoasters.length > 0) {
+              const alternativeSolution = validCoasters[0];
               cell.innerHTML = `
-                <div>${solutionCoaster.name}</div>
-                <div class="park-name">${solutionCoaster.park}</div>
+                <div>${alternativeSolution.name}</div>
+                <div class="park-name">${alternativeSolution.park}</div>
               `;
               cell.classList.remove('incorrect');
               cell.classList.add('filled-cell', 'correct');
-              cell.dataset.coasterId = solutionCoaster.id;
+              cell.dataset.coasterId = alternativeSolution.id;
+              
+              // Update the solution
+              cellSolution.selectedCoaster = alternativeSolution;
             }
           }
-        } else {
-          // Cell is empty
-          emptyCells.push({row, col});
         }
-      });
+      }
+    } else {
+      // Cell is empty
+      emptyCells.push({row, col});
+    }
+  });
+  
+  // Fill empty cells with solutions
+  emptyCells.forEach(({row, col}) => {
+    const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
+    
+    if (cellSolution && cellSolution.selectedCoaster) {
+      const solutionCoaster = cellSolution.selectedCoaster;
       
-      // Fill empty cells with solutions
-      emptyCells.forEach(({row, col}) => {
-        const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-        
-        if (cellSolution) {
-          const solutionCoaster = cellSolution.selectedCoaster;
-          
-          // Display solution
+      // Double-check that this solution is actually valid
+      if (isCoasterValidForCell(solutionCoaster, row, col)) {
+        // Display solution
+        cell.innerHTML = `
+          <div>${solutionCoaster.name}</div>
+          <div class="park-name">${solutionCoaster.park}</div>
+        `;
+        cell.classList.add('filled-cell', 'correct');
+        cell.dataset.coasterId = solutionCoaster.id;
+      } else {
+        // The solution is invalid! Find a valid alternative
+        const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
+        if (validCoasters.length > 0) {
+          const alternativeSolution = validCoasters[0];
           cell.innerHTML = `
-            <div>${solutionCoaster.name}</div>
-            <div class="park-name"
-            <div class="park-name">${solutionCoaster.park}</div>
+            <div>${alternativeSolution.name}</div>
+            <div class="park-name">${alternativeSolution.park}</div>
           `;
           cell.classList.add('filled-cell', 'correct');
-          cell.dataset.coasterId = solutionCoaster.id;
+          cell.dataset.coasterId = alternativeSolution.id;
         }
-      });
-      
-      // Display results
-      resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-      
-      // Disable cell clicks after game is ended
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
+      }
     }
+  });
+  
+  // Display results
+  resultsMessage.style.display = 'block';
+  resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+  
+  // Disable cell clicks after game is ended
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('input-cell');
+  });
+}
     
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
