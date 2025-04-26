@@ -252,73 +252,73 @@
     }
 
     .unit-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px 0;
-  }
-  
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-    margin-right: 10px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-  }
-  
-  input:checked + .slider {
-    background-color: #2196F3;
-  }
-  
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(26px);
-  }
-  
-  .slider.round {
-    border-radius: 34px;
-  }
-  
-  .slider.round:before {
-    border-radius: 50%;
-  }
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
 
-  .stats-info {
-    font-size: 11px;
-    color: #666;
-    margin-top: 3px;
-  }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      margin-right: 10px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
+    .stats-info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 3px;
+    }
 
     @keyframes spin {
       0% {
@@ -370,6 +370,16 @@
   </div>
 
   <script>
+    const unitToggleHTML = `
+      <div class="unit-toggle">
+        <label class="switch">
+          <input type="checkbox" id="unitToggle">
+          <span class="slider round"></span>
+        </label>
+        <span id="unitLabel">Imperial Units</span>
+      </div>
+    `;
+
     // Game variables
     let useMetricUnits = false;
     let currentCell = null;
@@ -392,16 +402,6 @@
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
 
-    const unitToggleHTML = `
-      <div class="unit-toggle">
-        <label class="switch">
-          <input type="checkbox" id="unitToggle">
-          <span class="slider round"></span>
-        </label>
-        <span id="unitLabel">Imperial Units</span>
-      </div>
-    `;
-    
     const updatedCellStyles = `
   .grid-container {
     display: grid;
@@ -571,56 +571,56 @@
     }
 
     function validateAllSolutions() {
-  console.log("Validating all solutions...");
-  let allValid = true;
+      console.log("Validating all solutions...");
+      let allValid = true;
 
-  for (const cellSolution of solution) {
-    const { row, col, selectedCoaster } = cellSolution;
-    const rowCriterion = rowCriteria[row];
-    const colCriterion = colCriteria[col];
+      for (const cellSolution of solution) {
+        const { row, col, selectedCoaster } = cellSolution;
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
 
-    console.log(`\nValidating cell (${row}, ${col}) - Coaster: ${selectedCoaster.name}`);
-    console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
-    console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
-    console.log(`Coaster details: height=${selectedCoaster.height}, length=${selectedCoaster.length}, speed=${selectedCoaster.speed}`);
+        console.log(`\nValidating cell (${row}, ${col}) - Coaster: ${selectedCoaster.name}`);
+        console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
+        console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
+        console.log(`Coaster details: height=${selectedCoaster.height}, length=${selectedCoaster.length}, speed=${selectedCoaster.speed}`);
 
-    const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
-    const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
+        const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
+        const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
 
-    console.log(`Row match result: ${rowMatch}, Column match result: ${colMatch}`);
+        console.log(`Row match result: ${rowMatch}, Column match result: ${colMatch}`);
 
-    if (!rowMatch || !colMatch) {
-      console.error(`Invalid solution at (${row}, ${col}): ${selectedCoaster.name}`);
-      allValid = false;
+        if (!rowMatch || !colMatch) {
+          console.error(`Invalid solution at (${row}, ${col}): ${selectedCoaster.name}`);
+          allValid = false;
+        }
+      }
+
+      if (allValid) {
+        console.log("All solutions are valid!");
+      } else {
+        console.error("Found invalid solutions!");
+      }
+
+      return allValid;
     }
-  }
-
-  if (allValid) {
-    console.log("All solutions are valid!");
-  } else {
-    console.error("Found invalid solutions!");
-  }
-
-  return allValid;
-}
 
     // Initialize game
     function initGame() {
-    // Add unit toggle to the page
-    document.querySelector('.game-controls').insertAdjacentHTML('afterend', unitToggleHTML);
-    
-    // Add event listener for the unit toggle
-    document.getElementById('unitToggle').addEventListener('change', function() {
-      useMetricUnits = this.checked;
-      document.getElementById('unitLabel').textContent = useMetricUnits ? 'Metric Units' : 'Imperial Units';
-      createNewGame(); // Regenerate the grid with new unit display
-    });
-    
-    newGameBtn.addEventListener('click', createNewGame);
-    endGameBtn.addEventListener('click', endGame);
-  
-    createNewGame();
-  }
+      // Add unit toggle to the page
+      document.querySelector('.game-controls').insertAdjacentHTML('afterend', unitToggleHTML);
+
+      // Add event listener for the unit toggle
+      document.getElementById('unitToggle').addEventListener('change', function () {
+        useMetricUnits = this.checked;
+        document.getElementById('unitLabel').textContent = useMetricUnits ? 'Metric Units' : 'Imperial Units';
+        createNewGame(); // Regenerate the grid with new unit display
+      });
+
+      newGameBtn.addEventListener('click', createNewGame);
+      endGameBtn.addEventListener('click', endGame);
+
+      createNewGame();
+    }
 
     function createNewGame() {
       // Clear any existing game state
@@ -792,105 +792,105 @@
 
     // Column criteria options
     const colCriteriaOptions = [
-  {
-    type: "height",
-    values: ["< 100ft", "100 - 149.9ft", "150 - 199.9ft", "> 200ft"],
-    metricValues: ["< 30m", "30 - 45.9m", "46 - 60.9m", "> 61m"],
-    matcher: function (coaster, value) {
-      // Height data is in meters, convert to feet for comparison
-      const heightMeters = typeof coaster.height === 'number' ? coaster.height :
-        parseFloat(coaster.height) || 0;
-      const heightFeet = heightMeters * 3.28084;
+      {
+        type: "height",
+        values: ["< 100ft", "100 - 149.9ft", "150 - 199.9ft", "> 200ft"],
+        metricValues: ["< 30m", "30 - 45.9m", "46 - 60.9m", "> 61m"],
+        matcher: function (coaster, value) {
+          // Height data is in meters, convert to feet for comparison
+          const heightMeters = typeof coaster.height === 'number' ? coaster.height :
+            parseFloat(coaster.height) || 0;
+          const heightFeet = heightMeters * 3.28084;
 
-      if (value === "< 100ft" || value === "< 30m") return heightFeet > 0 && heightFeet < 100;
-      if (value === "100 - 149.9ft" || value === "30 - 45.9m") return heightFeet >= 100 && heightFeet < 150;
-      if (value === "150 - 199.9ft" || value === "46 - 60.9m") return heightFeet >= 150 && heightFeet < 200;
-      if (value === "> 200ft" || value === "> 61m") return heightFeet >= 200;
+          if (value === "< 100ft" || value === "< 30m") return heightFeet > 0 && heightFeet < 100;
+          if (value === "100 - 149.9ft" || value === "30 - 45.9m") return heightFeet >= 100 && heightFeet < 150;
+          if (value === "150 - 199.9ft" || value === "46 - 60.9m") return heightFeet >= 150 && heightFeet < 200;
+          if (value === "> 200ft" || value === "> 61m") return heightFeet >= 200;
 
-      return false;
-    }
-  },
-  {
-    type: "inversions",
-    values: ["0", "1 - 3", "4 - 6", "7+"],
-    metricValues: ["0", "1 - 3", "4 - 6", "7+"], // Same in both systems
-    matcher: function (coaster, value) {
-      // Ensure inversions is properly parsed to an integer
-      const inversions = typeof coaster.inversions === 'number' ? coaster.inversions :
-        parseInt(coaster.inversions) || 0;
+          return false;
+        }
+      },
+      {
+        type: "inversions",
+        values: ["0", "1 - 3", "4 - 6", "7+"],
+        metricValues: ["0", "1 - 3", "4 - 6", "7+"], // Same in both systems
+        matcher: function (coaster, value) {
+          // Ensure inversions is properly parsed to an integer
+          const inversions = typeof coaster.inversions === 'number' ? coaster.inversions :
+            parseInt(coaster.inversions) || 0;
 
-      if (value === "0") return inversions === 0;
-      if (value === "1 - 3") return inversions >= 1 && inversions <= 3;
-      if (value === "4 - 6") return inversions >= 4 && inversions <= 6;
-      if (value === "7+") return inversions >= 7;
+          if (value === "0") return inversions === 0;
+          if (value === "1 - 3") return inversions >= 1 && inversions <= 3;
+          if (value === "4 - 6") return inversions >= 4 && inversions <= 6;
+          if (value === "7+") return inversions >= 7;
 
-      return false;
-    }
-  },
-  {
-    type: "year",
-    values: ["< 1980", "1980 - 1999", "2000 - 2009", "2010 - 2019", "≥ 2020"],
-    metricValues: ["< 1980", "1980 - 1999", "2000 - 2009", "2010 - 2019", "≥ 2020"], // Same in both systems
-    matcher: function (coaster, value) {
-      // Ensure year is properly parsed to an integer
-      let year = 0;
-      if (typeof coaster.year === 'number') {
-        year = coaster.year;
-      } else if (typeof coaster.year === 'string') {
-        year = parseInt(coaster.year) || 0;
-      } else if (coaster.status && coaster.status.opened) {
-        const openedDate = coaster.status.opened.split('-');
-        if (openedDate.length > 0) {
-          year = parseInt(openedDate[0]) || 0;
+          return false;
+        }
+      },
+      {
+        type: "year",
+        values: ["< 1980", "1980 - 1999", "2000 - 2009", "2010 - 2019", "≥ 2020"],
+        metricValues: ["< 1980", "1980 - 1999", "2000 - 2009", "2010 - 2019", "≥ 2020"], // Same in both systems
+        matcher: function (coaster, value) {
+          // Ensure year is properly parsed to an integer
+          let year = 0;
+          if (typeof coaster.year === 'number') {
+            year = coaster.year;
+          } else if (typeof coaster.year === 'string') {
+            year = parseInt(coaster.year) || 0;
+          } else if (coaster.status && coaster.status.opened) {
+            const openedDate = coaster.status.opened.split('-');
+            if (openedDate.length > 0) {
+              year = parseInt(openedDate[0]) || 0;
+            }
+          }
+
+          if (value === "< 1980") return year > 0 && year < 1980;
+          if (value === "1980 - 1999") return year >= 1980 && year <= 1999;
+          if (value === "2000 - 2009") return year >= 2000 && year <= 2009;
+          if (value === "2010 - 2019") return year >= 2010 && year <= 2019;
+          if (value === "≥ 2020") return year >= 2020;
+
+          return false;
+        }
+      },
+      {
+        type: "length",
+        values: ["< 2000ft", "2000 - 3000ft", "3000 - 4000ft", "> 4000ft"],
+        metricValues: ["< 610m", "610 - 915m", "915 - 1220m", "> 1220m"],
+        matcher: function (coaster, value) {
+          // Length data is in meters, convert to feet for comparison
+          const lengthMeters = typeof coaster.length === 'number' ? coaster.length :
+            parseFloat(coaster.length) || 0;
+          const lengthFeet = lengthMeters * 3.28084;
+
+          if (value === "< 2000ft" || value === "< 610m") return lengthFeet > 0 && lengthFeet < 2000;
+          if (value === "2000 - 3000ft" || value === "610 - 915m") return lengthFeet >= 2000 && lengthFeet <= 3000;
+          if (value === "3000 - 4000ft" || value === "915 - 1220m") return lengthFeet > 3000 && lengthFeet <= 4000;
+          if (value === "> 4000ft" || value === "> 1220m") return lengthFeet > 4000;
+
+          return false;
+        }
+      },
+      {
+        type: "speed",
+        values: ["< 45mph", "45 - 59.9mph", "60 - 74.9mph", "> 75mph"],
+        metricValues: ["< 72km/h", "72 - 96km/h", "97 - 120km/h", "> 120km/h"],
+        matcher: function (coaster, value) {
+          // Speed data is in km/h, convert to mph for comparison
+          const speedKmh = typeof coaster.speed === 'number' ? coaster.speed :
+            parseFloat(coaster.speed) || 0;
+          const speedMph = speedKmh * 0.621371;
+
+          if (value === "< 45mph" || value === "< 72km/h") return speedMph > 0 && speedMph < 45;
+          if (value === "45 - 59.9mph" || value === "72 - 96km/h") return speedMph >= 45 && speedMph < 60;
+          if (value === "60 - 74.9mph" || value === "97 - 120km/h") return speedMph >= 60 && speedMph < 75;
+          if (value === "> 75mph" || value === "> 120km/h") return speedMph >= 75;
+
+          return false;
         }
       }
-
-      if (value === "< 1980") return year > 0 && year < 1980;
-      if (value === "1980 - 1999") return year >= 1980 && year <= 1999;
-      if (value === "2000 - 2009") return year >= 2000 && year <= 2009;
-      if (value === "2010 - 2019") return year >= 2010 && year <= 2019;
-      if (value === "≥ 2020") return year >= 2020;
-
-      return false;
-    }
-  },
-  {
-    type: "length",
-    values: ["< 2000ft", "2000 - 3000ft", "3000 - 4000ft", "> 4000ft"],
-    metricValues: ["< 610m", "610 - 915m", "915 - 1220m", "> 1220m"],
-    matcher: function (coaster, value) {
-      // Length data is in meters, convert to feet for comparison
-      const lengthMeters = typeof coaster.length === 'number' ? coaster.length :
-        parseFloat(coaster.length) || 0;
-      const lengthFeet = lengthMeters * 3.28084;
-
-      if (value === "< 2000ft" || value === "< 610m") return lengthFeet > 0 && lengthFeet < 2000;
-      if (value === "2000 - 3000ft" || value === "610 - 915m") return lengthFeet >= 2000 && lengthFeet <= 3000;
-      if (value === "3000 - 4000ft" || value === "915 - 1220m") return lengthFeet > 3000 && lengthFeet <= 4000;
-      if (value === "> 4000ft" || value === "> 1220m") return lengthFeet > 4000;
-
-      return false;
-    }
-  },
-  {
-    type: "speed",
-    values: ["< 45mph", "45 - 59.9mph", "60 - 74.9mph", "> 75mph"],
-    metricValues: ["< 72km/h", "72 - 96km/h", "97 - 120km/h", "> 120km/h"],
-    matcher: function (coaster, value) {
-      // Speed data is in km/h, convert to mph for comparison
-      const speedKmh = typeof coaster.speed === 'number' ? coaster.speed :
-        parseFloat(coaster.speed) || 0;
-      const speedMph = speedKmh * 0.621371;
-
-      if (value === "< 45mph" || value === "< 72km/h") return speedMph > 0 && speedMph < 45;
-      if (value === "45 - 59.9mph" || value === "72 - 96km/h") return speedMph >= 45 && speedMph < 60;
-      if (value === "60 - 74.9mph" || value === "97 - 120km/h") return speedMph >= 60 && speedMph < 75;
-      if (value === "> 75mph" || value === "> 120km/h") return speedMph >= 75;
-
-      return false;
-    }
-  }
-];
+    ];
 
     function generatePuzzle() {
       let maxAttempts = 100; // Increased attempts
@@ -1065,42 +1065,42 @@
     }
 
     function isCoasterValidForCell(coaster, row, col) {
-  // More robust validation with error handling
-  try {
-    if (!coaster || row === undefined || col === undefined) {
-      console.log("Invalid parameters for validation check");
-      return false;
+      // More robust validation with error handling
+      try {
+        if (!coaster || row === undefined || col === undefined) {
+          console.log("Invalid parameters for validation check");
+          return false;
+        }
+
+        if (row < 0 || row >= rowCriteria.length || col < 0 || col >= colCriteria.length) {
+          console.log(`Invalid row (${row}) or column (${col}) indices`);
+          return false;
+        }
+
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
+
+        if (!rowCriterion || !colCriterion) {
+          console.log("Missing criteria for row or column");
+          return false;
+        }
+
+        console.log(`\nChecking if coaster "${coaster.name}" is valid for cell (${row}, ${col})`);
+        console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
+        console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
+        console.log(`Coaster details: height=${coaster.height}, length=${coaster.length}, speed=${coaster.speed}`);
+
+        const rowCheck = rowCriterion.matcher(coaster, rowCriterion.value);
+        const colCheck = colCriterion.matcher(coaster, colCriterion.value);
+
+        console.log(`Row match result: ${rowCheck}, Column match result: ${colCheck}`);
+
+        return rowCheck && colCheck;
+      } catch (error) {
+        console.error("Error validating coaster:", error);
+        return false;
+      }
     }
-
-    if (row < 0 || row >= rowCriteria.length || col < 0 || col >= colCriteria.length) {
-      console.log(`Invalid row (${row}) or column (${col}) indices`);
-      return false;
-    }
-
-    const rowCriterion = rowCriteria[row];
-    const colCriterion = colCriteria[col];
-
-    if (!rowCriterion || !colCriterion) {
-      console.log("Missing criteria for row or column");
-      return false;
-    }
-
-    console.log(`\nChecking if coaster "${coaster.name}" is valid for cell (${row}, ${col})`);
-    console.log(`Row criterion: ${rowCriterion.type} = ${rowCriterion.value}`);
-    console.log(`Column criterion: ${colCriterion.type} = ${colCriterion.value}`);
-    console.log(`Coaster details: height=${coaster.height}, length=${coaster.length}, speed=${coaster.speed}`);
-
-    const rowCheck = rowCriterion.matcher(coaster, rowCriterion.value);
-    const colCheck = colCriterion.matcher(coaster, colCriterion.value);
-
-    console.log(`Row match result: ${rowCheck}, Column match result: ${colCheck}`);
-    
-    return rowCheck && colCheck;
-  } catch (error) {
-    console.error("Error validating coaster:", error);
-    return false;
-  }
-}
 
     function renderGrid() {
       // Clear existing grid
@@ -1118,9 +1118,8 @@
         colHeader.className = 'cell header';
         colHeader.innerHTML = `
           <div>${colCriteria[col].value}</div>
-          <div class="criteria-info">${colCriteria[col].type}${
-            colCriteria[col].type === "height" || colCriteria[col].type === "length" || colCriteria[col].type === "speed" 
-            ? useMetricUnits ? ' (metric)' : ' (imperial)' 
+          <div class="criteria-info">${colCriteria[col].type}${colCriteria[col].type === "height" || colCriteria[col].type === "length" || colCriteria[col].type === "speed"
+            ? useMetricUnits ? ' (metric)' : ' (imperial)'
             : ''
           }</div>
         `;
@@ -1240,50 +1239,50 @@
     }
 
     function updateCellDisplay(cell, coaster) {
-  // Clear previous content
-  cell.innerHTML = '';
+      // Clear previous content
+      cell.innerHTML = '';
 
-  // Create background div for the image
-  const bgDiv = document.createElement('div');
-  bgDiv.className = 'cell-bg';
+      // Create background div for the image
+      const bgDiv = document.createElement('div');
+      bgDiv.className = 'cell-bg';
 
-  // Set background image if available
-  if (coaster.mainPicture) {
-    bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
-  }
+      // Set background image if available
+      if (coaster.mainPicture) {
+        bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
+      }
 
-  // Create content div
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'cell-content';
-  
-  // Format the statistics based on the selected unit system
-  let heightDisplay = coaster.height > 0 ? 
-    useMetricUnits ? `${coaster.height.toFixed(1)}m` : `${(coaster.height * 3.28084).toFixed(1)}ft` : '';
-  let speedDisplay = coaster.speed > 0 ? 
-    useMetricUnits ? `${coaster.speed.toFixed(1)}km/h` : `${(coaster.speed * 0.621371).toFixed(1)}mph` : '';
+      // Create content div
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'cell-content';
 
-  contentDiv.innerHTML = `
+      // Format the statistics based on the selected unit system
+      let heightDisplay = coaster.height > 0 ?
+        useMetricUnits ? `${coaster.height.toFixed(1)}m` : `${(coaster.height * 3.28084).toFixed(1)}ft` : '';
+      let speedDisplay = coaster.speed > 0 ?
+        useMetricUnits ? `${coaster.speed.toFixed(1)}km/h` : `${(coaster.speed * 0.621371).toFixed(1)}mph` : '';
+
+      contentDiv.innerHTML = `
     <div>${coaster.name}</div>
     <div class="park-name">${coaster.park}</div>
     ${heightDisplay || speedDisplay ? `<div class="stats-info">${[heightDisplay, speedDisplay].filter(Boolean).join(', ')}</div>` : ''}
   `;
 
-  // Add elements to the cell
-  cell.appendChild(bgDiv);
-  cell.appendChild(contentDiv);
+      // Add elements to the cell
+      cell.appendChild(bgDiv);
+      cell.appendChild(contentDiv);
 
-  // Add RCDB link
-  const rcdbLink = document.createElement('a');
-  rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
-  rcdbLink.target = '_blank';
-  rcdbLink.className = 'rcdb-link';
-  rcdbLink.textContent = 'View on RCDB';
-  contentDiv.appendChild(rcdbLink);
+      // Add RCDB link
+      const rcdbLink = document.createElement('a');
+      rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+      rcdbLink.target = '_blank';
+      rcdbLink.className = 'rcdb-link';
+      rcdbLink.textContent = 'View on RCDB';
+      contentDiv.appendChild(rcdbLink);
 
-  // Update cell classes and data
-  cell.classList.add('filled-cell');
-  cell.dataset.coasterId = coaster.id;
-}
+      // Update cell classes and data
+      cell.classList.add('filled-cell');
+      cell.dataset.coasterId = coaster.id;
+    }
 
     function endGame() {
       if (!confirm("Are you ready to end the game and see results?")) {
