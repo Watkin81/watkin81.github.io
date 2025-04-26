@@ -389,134 +389,209 @@
   renderGrid();
 }
     
-    const rowCriteriaOptions = [
+    // Row criteria options
+const rowCriteriaOptions = [
   {
     type: "manufacturer",
-    values: ["Bolliger & Mabillard", "Intamin", "Rocky Mountain Construction", "Vekoma", "Arrow Dynamics", "Gerstlauer", "Premier Rides"],
+    values: [
+      "Arrow Dynamics", 
+      "Bolliger & Mabillard", 
+      "Custom Coasters International", 
+      "Dinn Corporation", 
+      "Gerstlauer Amusement Rides GmbH", 
+      "Great Coasters International", 
+      "Intamin", 
+      "Morgan Manufacturing", 
+      "Philadelphia Toboggan Coasters, Inc.", 
+      "Pinfari", 
+      "Premier Rides", 
+      "Rocky Mountain Construction", 
+      "Schwarzkopf", 
+      "S&S Worldwide", 
+      "Togo", 
+      "Vekoma", 
+      "Zamperla", 
+      "Zierer"
+    ],
     matcher: function(coaster, value) {
       return coaster.manufacturer && coaster.manufacturer.includes(value);
     }
   },
   {
     type: "coaster type",
-    values: ["Steel", "Wooden", "Hybrid"],
+    values: ["Steel", "Wood"],
     matcher: function(coaster, value) {
       if (!coaster.type) return false;
       const type = coaster.type.toLowerCase();
       if (value === "Steel") return type.includes("steel");
-      if (value === "Wooden") return type.includes("wood");
-      if (value === "Hybrid") return type.includes("hybrid") || (type.includes("wood") && type.includes("steel"));
+      if (value === "Wood") return type.includes("wood");
       return false;
     }
   },
   {
     type: "design",
-    values: ["Inverted", "Dive", "Wing", "Flying", "Stand-Up", "Floorless"],
+    values: ["Sit Down", "Inverted or Suspended", "Wing or Flying"],
     matcher: function(coaster, value) {
-      return coaster.design && coaster.design.toLowerCase().includes(value.toLowerCase());
-    }
-  },
-  {
-    type: "country",
-    values: ["USA", "Germany", "Japan", "Canada", "UK"],
-    matcher: function(coaster, value) {
-      if (!coaster.country) return false;
-      const country = coaster.country.toLowerCase();
-      if (value === "USA") return country.includes("united states") || country === "usa" || country === "us";
-      if (value === "UK") return country.includes("united kingdom") || country === "uk" || country.includes("england");
-      return country.toLowerCase().includes(value.toLowerCase());
+      if (!coaster.design) return false;
+      const design = coaster.design.toLowerCase();
+      
+      if (value === "Sit Down") {
+        return design.includes("sit") || 
+               (!design.includes("inverted") && 
+                !design.includes("suspended") && 
+                !design.includes("wing") && 
+                !design.includes("flying"));
+      }
+      
+      if (value === "Inverted or Suspended") {
+        return design.includes("inverted") || design.includes("suspended");
+      }
+      
+      if (value === "Wing or Flying") {
+        return design.includes("wing") || design.includes("flying");
+      }
+      
+      return false;
     }
   },
   {
     type: "category",
-    values: ["Single Rail", "Racing", "Dueling", "Indoor", "Water"],
+    values: ["Hybrid", "Launch", "Indoor", "Shuttle", "Spinning Cars", "Twin"],
     matcher: function(coaster, value) {
-      return coaster.category && coaster.category.toLowerCase().includes(value.toLowerCase());
+      if (!coaster.category) return false;
+      const category = coaster.category.toLowerCase();
+      
+      if (value === "Hybrid") {
+        return category.includes("hybrid");
+      }
+      
+      if (value === "Launch") {
+        return category.includes("launch");
+      }
+      
+      if (value === "Indoor") {
+        return category.includes("indoor");
+      }
+      
+      if (value === "Shuttle") {
+        return category.includes("shuttle");
+      }
+      
+      if (value === "Spinning Cars") {
+        return category.includes("spinning") || category.includes("spin");
+      }
+      
+      if (value === "Twin") {
+        return category.includes("twin") || category.includes("racing") || category.includes("dueling");
+      }
+      
+      return false;
+    }
+  },
+  {
+    type: "country",
+    values: ["China", "United States", "Germany", "France", "Japan", "United Kingdom"],
+    matcher: function(coaster, value) {
+      if (!coaster.country) return false;
+      const country = coaster.country.toLowerCase();
+      
+      if (value === "United States") {
+        return country.includes("united states") || country === "usa" || country === "us";
+      }
+      
+      if (value === "United Kingdom") {
+        return country.includes("united kingdom") || country === "uk" || country.includes("england");
+      }
+      
+      return country.toLowerCase().includes(value.toLowerCase());
     }
   },
   {
     type: "name",
-    values: ["Starts with A-J", "Starts with K-R", "Starts with S-Z"],
+    values: ["A - F", "G - R", "S - Z"],
     matcher: function(coaster, value) {
       if (!coaster.name) return false;
       const firstLetter = coaster.name.charAt(0).toUpperCase();
-      if (value === "Starts with A-J") return firstLetter >= 'A' && firstLetter <= 'J';
-      if (value === "Starts with K-R") return firstLetter >= 'K' && firstLetter <= 'R';
-      if (value === "Starts with S-Z") return firstLetter >= 'S' && firstLetter <= 'Z';
+      
+      if (value === "A - F") return firstLetter >= 'A' && firstLetter <= 'F';
+      if (value === "G - R") return firstLetter >= 'G' && firstLetter <= 'R';
+      if (value === "S - Z") return firstLetter >= 'S' && firstLetter <= 'Z';
+      
       return false;
     }
   }
 ];
 
+// Column criteria options
 const colCriteriaOptions = [
   {
     type: "height",
-    values: ["< 100ft", "100-150ft", "150-200ft", "> 200ft"],
+    values: ["< 100ft", "100 - 149.9ft", "150 - 199.9ft", "> 200ft"],
     matcher: function(coaster, value) {
       const height = parseFloat(coaster.height) || 0;
+      
       if (value === "< 100ft") return height > 0 && height < 100;
-      if (value === "100-150ft") return height >= 100 && height <= 150;
-      if (value === "150-200ft") return height > 150 && height <= 200;
-      if (value === "> 200ft") return height > 200;
+      if (value === "100 - 149.9ft") return height >= 100 && height < 150;
+      if (value === "150 - 199.9ft") return height >= 150 && height < 200;
+      if (value === "> 200ft") return height >= 200;
+      
       return false;
     }
   },
   {
     type: "inversions",
-    values: ["0", "1-3", "4-6", "7+"],
+    values: ["0", "1 - 3", "4 - 6", "7+"],
     matcher: function(coaster, value) {
       const inversions = parseInt(coaster.inversions) || 0;
+      
       if (value === "0") return inversions === 0;
-      if (value === "1-3") return inversions >= 1 && inversions <= 3;
-      if (value === "4-6") return inversions >= 4 && inversions <= 6;
+      if (value === "1 - 3") return inversions >= 1 && inversions <= 3;
+      if (value === "4 - 6") return inversions >= 4 && inversions <= 6;
       if (value === "7+") return inversions >= 7;
+      
       return false;
     }
   },
   {
     type: "year",
-    values: ["Pre-2000", "2000-2010", "2010-2015", "2016+"],
+    values: ["< 1980", "1980 - 1999", "2000 - 2009", "2010 - 2019", "≥ 2020"],
     matcher: function(coaster, value) {
       const year = parseInt(coaster.year) || 0;
-      if (value === "Pre-2000") return year > 0 && year < 2000;
-      if (value === "2000-2010") return year >= 2000 && year <= 2010;
-      if (value === "2010-2015") return year >= 2010 && year <= 2015;
-      if (value === "2016+") return year >= 2016;
+      
+      if (value === "< 1980") return year > 0 && year < 1980;
+      if (value === "1980 - 1999") return year >= 1980 && year <= 1999;
+      if (value === "2000 - 2009") return year >= 2000 && year <= 2009;
+      if (value === "2010 - 2019") return year >= 2010 && year <= 2019;
+      if (value === "≥ 2020") return year >= 2020;
+      
       return false;
     }
   },
   {
     type: "length",
-    values: ["< 2000ft", "2000-2500ft", "2500-3000ft", "> 3000ft"],
+    values: ["< 2000ft", "2000 - 3000ft", "3000 - 4000ft", "> 4000ft"],
     matcher: function(coaster, value) {
       const length = parseFloat(coaster.length) || 0;
+      
       if (value === "< 2000ft") return length > 0 && length < 2000;
-      if (value === "2000-2500ft") return length >= 2000 && length <= 2500;
-      if (value === "2500-3000ft") return length > 2500 && length <= 3000;
-      if (value === "> 3000ft") return length > 3000;
-      return false;
-    }
-  },
-  {
-    type: "angle",
-    values: ["< 60°", "60-89°", "≥ 90°"],
-    matcher: function(coaster, value) {
-      const angle = parseFloat(coaster.angle) || 0;
-      if (value === "< 60°") return angle > 0 && angle < 60;
-      if (value === "60-89°") return angle >= 60 && angle < 90;
-      if (value === "≥ 90°") return angle >= 90;
+      if (value === "2000 - 3000ft") return length >= 2000 && length <= 3000;
+      if (value === "3000 - 4000ft") return length > 3000 && length <= 4000;
+      if (value === "> 4000ft") return length > 4000;
+      
       return false;
     }
   },
   {
     type: "speed",
-    values: ["< 50mph", "50-60mph", "60-70mph", "> 70mph"],
+    values: ["< 45mph", "45 - 59.9mph", "60 - 74.9mph", "> 75mph"],
     matcher: function(coaster, value) {
       const speed = parseFloat(coaster.speed) || 0;
-      if (value === "< 50mph") return speed > 0 && speed < 50;
-      if (value === "50-60mph") return speed >= 50 && speed <= 60;
-      if (value === "60-70mph") return speed > 60 && speed <= 70;
-      if (value === "> 70mph") return speed > 70;
+      
+      if (value === "< 45mph") return speed > 0 && speed < 45;
+      if (value === "45 - 59.9mph") return speed >= 45 && speed < 60;
+      if (value === "60 - 74.9mph") return speed >= 60 && speed < 75;
+      if (value === "> 75mph") return speed >= 75;
+      
       return false;
     }
   }
