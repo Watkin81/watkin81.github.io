@@ -305,6 +305,59 @@
     const endGameBtn = document.getElementById('endGameBtn');
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
+
+    const updatedCellStyles = `
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 8px; 
+    margin: 20px auto; 
+    width: 90vw; 
+    max-width: 800px; /* Increased from 600px */
+  }
+  .cell {
+    border: 1px solid #ccc; 
+    padding: 15px; /* Increased from 10px */
+    min-height: 100px; /* Increased from 60px */
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    position: relative;
+  }
+  .cell-content {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 8px;
+    border-radius: 4px;
+    width: 90%;
+  }
+  .cell-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.85;
+    z-index: 1;
+  }
+  .filled-cell .cell-content {
+    background-color: rgba(230, 247, 255, 0.85);
+  }
+  .correct .cell-content {
+    background-color: rgba(183, 235, 143, 0.85);
+  }
+  .incorrect .cell-content {
+    background-color: rgba(255, 204, 199, 0.85);
+  }
+`;
     
     // Load coaster data
     async function loadCoasterData() {
@@ -357,7 +410,8 @@
           speed: speed,
           angle: angle,
           country: coaster.location?.country || '',
-          category: coaster.details?.category || ''
+          category: coaster.details?.category || '',
+          mainPicture: coaster.mainPicture || '' // Preserve the image URL
         };
       });
       
@@ -1059,6 +1113,44 @@ const colCriteriaOptions = [
         searchList.innerHTML = '<div class="search-item">No coasters found</div>';
       }
     }
+
+  function updateCellDisplay(cell, coaster) {
+  // Clear previous content
+  cell.innerHTML = '';
+  
+  // Create background div for the image
+  const bgDiv = document.createElement('div');
+  bgDiv.className = 'cell-bg';
+  
+  // Set background image if available
+  if (coaster.mainPicture) {
+    bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
+  }
+  
+  // Create content div
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'cell-content';
+  contentDiv.innerHTML = `
+    <div>${coaster.name}</div>
+    <div class="park-name">${coaster.park}</div>
+  `;
+  
+  // Add elements to the cell
+  cell.appendChild(bgDiv);
+  cell.appendChild(contentDiv);
+  
+  // Add RCDB link
+  const rcdbLink = document.createElement('a');
+  rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+  rcdbLink.target = '_blank';
+  rcdbLink.className = 'rcdb-link';
+  rcdbLink.textContent = 'View on RCDB';
+  contentDiv.appendChild(rcdbLink);
+  
+  // Update cell classes and data
+  cell.classList.add('filled-cell');
+  cell.dataset.coasterId = coaster.id;
+}
     
     function endGame() {
   if (!confirm("Are you ready to end the game and see results?")) {
@@ -1081,14 +1173,6 @@ const colCriteriaOptions = [
       if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
         cell.classList.add('correct');
         correctCells.push({row, col});
-        
-        // Add RCDB link to correct cells
-        const rcdbLink = document.createElement('a');
-        rcdbLink.href = `https://rcdb.com/${selectedCoaster.id}.htm`;
-        rcdbLink.target = '_blank';
-        rcdbLink.className = 'rcdb-link';
-        rcdbLink.textContent = 'View on RCDB';
-        cell.appendChild(rcdbLink);
       } else {
         cell.classList.add('incorrect');
         // Find solution for this cell
@@ -1099,43 +1183,17 @@ const colCriteriaOptions = [
           // Double-check that this solution is actually valid
           if (isCoasterValidForCell(solutionCoaster, row, col)) {
             // Display solution
-            cell.innerHTML = `
-              <div>${solutionCoaster.name}</div>
-              <div class="park-name">${solutionCoaster.park}</div>
-            `;
-            
-            // Add RCDB link
-            const rcdbLink = document.createElement('a');
-            rcdbLink.href = `https://rcdb.com/${solutionCoaster.id}.htm`;
-            rcdbLink.target = '_blank';
-            rcdbLink.className = 'rcdb-link';
-            rcdbLink.textContent = 'View on RCDB';
-            cell.appendChild(rcdbLink);
-            
+            updateCellDisplay(cell, solutionCoaster);
             cell.classList.remove('incorrect');
-            cell.classList.add('filled-cell', 'correct');
-            cell.dataset.coasterId = solutionCoaster.id;
+            cell.classList.add('correct');
           } else {
             // The solution is invalid! Find a valid alternative
             const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
             if (validCoasters.length > 0) {
               const alternativeSolution = validCoasters[0];
-              cell.innerHTML = `
-                <div>${alternativeSolution.name}</div>
-                <div class="park-name">${alternativeSolution.park}</div>
-              `;
-              
-              // Add RCDB link
-              const rcdbLink = document.createElement('a');
-              rcdbLink.href = `https://rcdb.com/${alternativeSolution.id}.htm`;
-              rcdbLink.target = '_blank';
-              rcdbLink.className = 'rcdb-link';
-              rcdbLink.textContent = 'View on RCDB';
-              cell.appendChild(rcdbLink);
-              
+              updateCellDisplay(cell, alternativeSolution);
               cell.classList.remove('incorrect');
-              cell.classList.add('filled-cell', 'correct');
-              cell.dataset.coasterId = alternativeSolution.id;
+              cell.classList.add('correct');
               
               // Update the solution
               cellSolution.selectedCoaster = alternativeSolution;
@@ -1160,41 +1218,15 @@ const colCriteriaOptions = [
       // Double-check that this solution is actually valid
       if (isCoasterValidForCell(solutionCoaster, row, col)) {
         // Display solution
-        cell.innerHTML = `
-          <div>${solutionCoaster.name}</div>
-          <div class="park-name">${solutionCoaster.park}</div>
-        `;
-        
-        // Add RCDB link
-        const rcdbLink = document.createElement('a');
-        rcdbLink.href = `https://rcdb.com/${solutionCoaster.id}.htm`;
-        rcdbLink.target = '_blank';
-        rcdbLink.className = 'rcdb-link';
-        rcdbLink.textContent = 'View on RCDB';
-        cell.appendChild(rcdbLink);
-        
-        cell.classList.add('filled-cell', 'correct');
-        cell.dataset.coasterId = solutionCoaster.id;
+        updateCellDisplay(cell, solutionCoaster);
+        cell.classList.add('correct');
       } else {
         // The solution is invalid! Find a valid alternative
         const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
         if (validCoasters.length > 0) {
           const alternativeSolution = validCoasters[0];
-          cell.innerHTML = `
-            <div>${alternativeSolution.name}</div>
-            <div class="park-name">${alternativeSolution.park}</div>
-          `;
-          
-          // Add RCDB link
-          const rcdbLink = document.createElement('a');
-          rcdbLink.href = `https://rcdb.com/${alternativeSolution.id}.htm`;
-          rcdbLink.target = '_blank';
-          rcdbLink.className = 'rcdb-link';
-          rcdbLink.textContent = 'View on RCDB';
-          cell.appendChild(rcdbLink);
-          
-          cell.classList.add('filled-cell', 'correct');
-          cell.dataset.coasterId = alternativeSolution.id;
+          updateCellDisplay(cell, alternativeSolution);
+          cell.classList.add('correct');
         }
       }
     }
@@ -1216,25 +1248,18 @@ const colCriteriaOptions = [
     coasterSearchBox.addEventListener('input', findCoasters);
     
     selectButton.addEventListener('click', () => {
-      if (currentCell && selectedCoaster) {
-        // Display coaster name and park
-        currentCell.innerHTML = `
-          <div>${selectedCoaster.name}</div>
-          <div class="park-name">${selectedCoaster.park}</div>
-        `;
-        currentCell.classList.add('filled-cell');
-        
-        // Store coaster data
-        currentCell.dataset.coasterId = selectedCoaster.id;
-        
-        // Update game grid
-        const row = parseInt(currentCell.dataset.row);
-        const col = parseInt(currentCell.dataset.col);
-        gameGrid[row][col] = selectedCoaster;
-        
-        closeSearchModal();
-      }
-    });
+  if (currentCell && selectedCoaster) {
+    // Update cell with coaster info and background image
+    updateCellDisplay(currentCell, selectedCoaster);
+    
+    // Update game grid
+    const row = parseInt(currentCell.dataset.row);
+    const col = parseInt(currentCell.dataset.col);
+    gameGrid[row][col] = selectedCoaster;
+    
+    closeSearchModal();
+  }
+});
     
     // Close modal if clicking outside of it
     window.addEventListener('click', (event) => {
@@ -1256,6 +1281,16 @@ const colCriteriaOptions = [
         selectButton.click();
       }
     });
+
+    function applyUpdatedStyles() {
+  // Add the updated styles to the document
+  const styleElement = document.createElement('style');
+  styleElement.textContent = updatedCellStyles;
+  document.head.appendChild(styleElement);
+}
+
+// Call this function when the page loads
+window.addEventListener('DOMContentLoaded', applyUpdatedStyles);
     
     // Start the game by loading coaster data
     window.onload = loadCoasterData;
