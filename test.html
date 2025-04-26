@@ -341,16 +341,6 @@
     <button class="game-button" id="endGameBtn">End Game</button>
   </div>
 
-  const unitToggleHTML = `
-    <div class="unit-toggle">
-      <label class="switch">
-        <input type="checkbox" id="unitToggle">
-        <span class="slider round"></span>
-      </label>
-      <span id="unitLabel">Imperial Units</span>
-    </div>
-  `;
-
   <div id="loadingContainer" class="loading">
     <div class="loading-spinner"></div>
     <div>Loading coaster data...</div>
@@ -402,6 +392,16 @@
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
 
+    const unitToggleHTML = `
+      <div class="unit-toggle">
+        <label class="switch">
+          <input type="checkbox" id="unitToggle">
+          <span class="slider round"></span>
+        </label>
+        <span id="unitLabel">Imperial Units</span>
+      </div>
+    `;
+    
     const updatedCellStyles = `
   .grid-container {
     display: grid;
