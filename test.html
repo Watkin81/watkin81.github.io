@@ -915,10 +915,9 @@
 
         // For each row, select a value from its criteria type
         for (let i = 0; i < 3; i++) {
-          const criteriaType = selectedColCriteria[i];
-          const valuesArray = useMetricUnits && criteriaType.metricValues ? criteriaType.metricValues : criteriaType.values;
-          const value = valuesArray[Math.floor(Math.random() * valuesArray.length)];
-          colCriteria.push({
+          const criteriaType = selectedRowCriteria[i];
+          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
+          rowCriteria.push({
             type: criteriaType.type,
             value,
             matcher: criteriaType.matcher
@@ -1417,7 +1416,7 @@
     function applyUpdatedStyles() {
       // Add the updated styles to the document
       const styleElement = document.createElement('style');
-      styleElement.textContent = updatedCellStyles + unitToggleStyles; // Add the unit toggle styles
+      styleElement.textContent = updatedCellStyles;
       document.head.appendChild(styleElement);
     }
 
