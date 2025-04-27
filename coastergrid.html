@@ -1081,17 +1081,18 @@
 
     function createDailyPuzzle() {
       const baseSeed = getDailySeed();
-      let attemptSeed = baseSeed;
+      const offset = 1000000; // Large offset to avoid future real seeds
+      let attempt = 0;
       let puzzle = null;
-      let attempts = 0;
-      const maxAttempts = 20;
+      const maxAttempts = 10;
     
-      while (!puzzle && attempts < maxAttempts) {
+      while (!puzzle && attempt < maxAttempts) {
+        const attemptSeed = baseSeed + (attempt * offset);
         puzzle = generateDailyPuzzle(attemptSeed);
+    
         if (!puzzle) {
           console.warn(`Daily puzzle generation failed with seed ${attemptSeed}, retrying...`);
-          attemptSeed++; // Try next seed if failed
-          attempts++;
+          attempt++;
         }
       }
     
