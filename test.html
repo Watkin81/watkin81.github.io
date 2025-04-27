@@ -196,6 +196,7 @@
       padding: 10px;
       border-radius: 4px;
       display: none;
+      color: black;
     }
 
     .success {
@@ -350,6 +351,35 @@
       background-color: #40a9ff;
     }
 
+    #settingsButton, #infoButton, #homeButton {
+      position: fixed;
+      top: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 5;
+      font-size: 1.5em;
+    }
+    #settingsButton { right: 10px; }
+    #infoButton { right: 70px; }
+    #homeButton { left: 10px; }
+    
+    .popupPanel {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 10;
+      font-family: sans-serif;
+    }
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -363,9 +393,28 @@
 </head>
 
 <body>
+  <!-- Buttons (Top Right/Left) -->
+  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i class="fa-solid fa-house-chimney"></i></button>
+  <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
+  <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
+  
+  <!-- Settings Panel -->
+  <div id="settingsPanel" class="popupPanel">
+    <h3>Game Settings</h3>
+    <p>More options coming soon...</p>
+    <button onclick="toggleSettingsPanel()">Close</button>
+  </div>
+  
+  <!-- Info Panel -->
+  <div id="infoPanel" class="popupPanel">
+    <h3>How to Play</h3>
+    <p>Instructions will go here...</p>
+    <button onclick="toggleInfoPanel()">Close</button>
+  </div>
+  
   <h1>Coaster Grid</h1>
   <p>Fill the grid with roller coasters that match the criteria for both the row and column.</p>
-
+  
   <div class="mode-selector">
     <button class="mode-button active" id="dailyModeBtn">Daily Puzzle</button>
     <button class="mode-button" id="randomModeBtn">Random Puzzle</button>
@@ -1816,80 +1865,58 @@
       document.head.appendChild(styleElement);
     }
 
-    function createEmojiResults() {
-      // Remove any existing emoji result container
-      const existingContainer = document.querySelector('.emoji-result-container');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
-
-      // Determine the state of each cell
-      let emojiGrid = '';
-
-      for (let row = 0; row < 3; row++) {
-        let rowEmojis = '';
-        for (let col = 0; col < 3; col++) {
-          const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-
-          if (cell.classList.contains('correct')) {
-            rowEmojis += '🟩'; // Green for correct
-          } else if (cell.classList.contains('incorrect')) {
-            rowEmojis += '🟥'; // Red for incorrect
-          } else if (cell.classList.contains('unguessed')) {
-            rowEmojis += '⬜'; // White for unguessed/empty
-          } else {
-            rowEmojis += '⬛'; // Default to white
-          }
-        }
-        emojiGrid += rowEmojis + '\n';
-      }
-
-      // Add game name and date
+    function getPuzzleNumber() {
+      const startDate = new Date("2025-04-27");
       const today = new Date();
-      const dateString = today.toLocaleDateString();
-      const resultText = `Coaster Grid\n${dateString}\n${emojiGrid}`;
+      const diffTime = today - startDate;
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    }
 
-      // Create a container for the result and copy button
-      const resultContainer = document.createElement('div');
-      resultContainer.className = 'emoji-result-container'; // Add class for easy removal
-      resultContainer.style.margin = '20px auto';
-      resultContainer.style.padding = '15px';
-      resultContainer.style.backgroundColor = '#f5f5f5';
-      resultContainer.style.borderRadius = '8px';
-      resultContainer.style.maxWidth = '300px';
-      resultContainer.style.textAlign = 'center';
+    function createEmojiResults() {
+  const container = document.querySelector('.emoji-result-container');
+  if (container) container.remove();
 
-      // Add the results in a pre-formatted text area
-      const resultTextArea = document.createElement('textarea');
-      resultTextArea.value = resultText;
-      resultTextArea.readOnly = true;
-      resultTextArea.rows = 5;
-      resultTextArea.style.width = '100%';
-      resultTextArea.style.marginBottom = '10px';
-      resultTextArea.style.resize = 'none';
-      resultTextArea.style.fontFamily = 'monospace';
+  const today = new Date();
+  const dateString = today.toLocaleDateString("en-US");
+  const puzzleNumber = getPuzzleNumber();
 
-      // Add a copy button
-      const copyButton = document.createElement('button');
-      copyButton.textContent = 'Copy Results';
-      copyButton.className = 'game-button';
-      copyButton.onclick = function () {
-        resultTextArea.select();
-        document.execCommand('copy');
-        copyButton.textContent = 'Copied!';
-        setTimeout(() => {
-          copyButton.textContent = 'Copy Results';
-        }, 2000);
-      };
+  let emojiGrid = '';
+  for (let row = 0; row < 3; row++) {
+    let rowEmojis = '';
+    for (let col = 0; col < 3; col++) {
+      const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+      if (cell.classList.contains('correct')) {
+        rowEmojis += '🟩';
+      } else if (cell.classList.contains('incorrect')) {
+        rowEmojis += '🟥';
+      } else if (cell.classList.contains('unguessed')) {
+        rowEmojis += '⬜';
+      } else {
+        rowEmojis += '⬛';
+      }
+    }
+    emojiGrid += rowEmojis + '\n';
+  }
 
-      // Add elements to the container
-      resultContainer.appendChild(resultTextArea);
-      resultContainer.appendChild(copyButton);
+  const resultText = `Coaster Grid ${puzzleNumber}\n${dateString}\n${emojiGrid}`;
 
-      // Add container after the results message
-      resultsMessage.after(resultContainer);
+  const resultContainer = document.createElement('div');
+  resultContainer.className = 'emoji-result-container';
+  resultContainer.innerHTML = `
+    <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
+    <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy</button>
+  `;
 
-      return resultText;
+  document.body.appendChild(resultContainer);
+}
+
+    function toggleSettingsPanel() {
+      const panel = document.getElementById('settingsPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+    function toggleInfoPanel() {
+      const panel = document.getElementById('infoPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
 
     // Call this function when the page loads
