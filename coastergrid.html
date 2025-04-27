@@ -535,19 +535,23 @@
     let currentCell = null;
     let debounce = null;
     let selectedCoaster = null;
-    let gameGrid = [];
-    let solution = [];
-    let rowCriteria = [];
-    let colCriteria = [];
+
+    let randomGameGrid = [];
+    let randomSolution = [];
+    let randomRowCriteria = [];
+    let randomColCriteria = [];
+
+    let dailyGameGrid = [];
+    let dailySolution = [];
     let dailyRowCriteria = [];
     let dailyColCriteria = [];
+
     let allCoasters = [];
-    let usedCoasterIds = new Set();
+    let randomUsedCoasterIds = new Set();
+    let dailyUsedCoasterIds = new Set();
     let currentMode = 'daily'; // 'daily' or 'random' modes
     let dailyPuzzleDate = null;
     let gameState = null;
-    let dailyGameGrid = [];
-    let dailySolution = [];
     let puzzle = null;
 
     // Global variables to track units and values
@@ -827,7 +831,7 @@
       fixMatcherFunctions();
 
       // Set up event listeners
-      newGameBtn.addEventListener('click', createNewGame);
+      newGameBtn.addEventListener('click', createRandomPuzzle);
       endGameBtn.addEventListener('click', endGame);
 
       // Mode selector listeners
@@ -842,7 +846,7 @@
         newGameBtn.style.display = 'none';
         createDailyPuzzle();
       } else {
-        createNewGame();
+        createRandomPuzzle();
       }
     }
 
@@ -864,7 +868,7 @@
       if (mode === 'daily') {
         createDailyPuzzle();
       } else {
-        createNewGame();
+        createRandomPuzzle();
       }
       updatePuzzleNumberDisplay();
     }
@@ -963,46 +967,32 @@
       });
     }
 
-    function createNewGame(isDaily = false) {
-      // Clear any existing game state
-      solution = [];
-      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+    function createRandomPuzzle() {
+      randomGameGrid = Array(3).fill().map(() => Array(3).fill(null));
+      randomSolution = [];
+      randomRowCriteria = [];
+      randomColCriteria = [];
       usedCoasterIds = new Set();
       resultsMessage.style.display = 'none';
 
-      // Reset cell classes
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.innerHTML = '';
-        cell.className = 'cell input-cell';
-        delete cell.dataset.coasterId;
-      });
+      let maxAttempts = 20;
+      let success = false;
+      let attempts = 0;
 
-      // Try to generate a valid puzzle
-      let puzzleGenerated = false;
-      let maxTries = 10;
-      let tries = 0;
-
-      while (!puzzleGenerated && tries < maxTries) {
-        puzzleGenerated = generatePuzzle();
-        tries++;
+      while (!success && attempts < maxAttempts) {
+        success = generateRandomPuzzle();
+        attempts++;
       }
 
-      if (!puzzleGenerated) {
-        alert("Could not generate a valid puzzle. Please try again.");
+      if (!success) {
+        alert('Failed to generate a random puzzle. Try again.');
         return;
       }
 
-      // Generate grid UI
-      renderGrid();
-
-      // Validate all solutions after grid creation
-      validateAllSolutions();
-
-      // For daily puzzles, save initial state
-      if (isDaily) {
-        saveGameState();
-      }
+      localStorage.removeItem('coasterGridRandomSave');
+      renderGrid('random');
     }
+
 
     function createSeededRandom(seed) {
       let state = seed;
@@ -1015,23 +1005,23 @@
     function generateDailyPuzzle(seed, maxAttempts = 50) {
       console.log(`[generateDailyPuzzle] Start generating with seed: ${seed}`);
       const rng = createSeededRandom(seed);
-    
+
       const shuffledRowCriteria = shuffleArray([...rowCriteriaOptions], rng);
       const shuffledColCriteria = shuffleArray([...colCriteriaOptions], rng);
-    
+
       const selectedRowCriteria = shuffledRowCriteria.slice(0, 3).map(c => {
         const value = c.values[Math.floor(rng() * c.values.length)];
         return { type: c.type, value, matcher: c.matcher };
       });
-    
+
       const selectedColCriteria = shuffledColCriteria.slice(0, 3).map(c => {
         const value = c.values[Math.floor(rng() * c.values.length)];
         return { type: c.type, value, matcher: c.matcher };
       });
-    
+
       const usedCoasters = new Set();
       const coasterGrid = [];
-    
+
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           const matchingCoasters = allCoasters.filter(coaster =>
@@ -1039,18 +1029,18 @@
             selectedColCriteria[col].matcher(coaster, selectedColCriteria[col].value) &&
             !usedCoasters.has(coaster.id)
           );
-    
+
           if (matchingCoasters.length === 0) {
             console.warn(`[generateDailyPuzzle] Failed to find coaster for row ${row}, col ${col}, criteria: row(${selectedRowCriteria[row].type}=${selectedRowCriteria[row].value}), col(${selectedColCriteria[col].type}=${selectedColCriteria[col].value})`);
             return null; // FAIL if any cell can't be filled
           }
-    
+
           const selected = matchingCoasters[Math.floor(rng() * matchingCoasters.length)];
           coasterGrid.push(selected.id);
           usedCoasters.add(selected.id);
         }
       }
-    
+
       return {
         seed,
         rowCriteria: selectedRowCriteria,
@@ -1062,7 +1052,7 @@
     function restoreDailyProgressToGrid() {
       const saved = JSON.parse(localStorage.getItem('dailyProgress'));
       if (!saved) return;
-    
+
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           const coasterId = saved[row][col];
@@ -1081,26 +1071,26 @@
 
     function renderDailyPuzzle(puzzle) {
       coasterGrid.innerHTML = '';
-    
+
       const corner = document.createElement('div');
       corner.className = 'cell header';
       coasterGrid.appendChild(corner);
-    
+
       puzzle.colCriteria.forEach(col => {
         const header = document.createElement('div');
         header.className = 'cell header';
         header.innerHTML = `<div>${col.value}</div><div class='criteria-info'>${col.type}</div>`;
         coasterGrid.appendChild(header);
       });
-    
+
       dailyGameGrid = [];
-    
+
       for (let row = 0; row < 3; row++) {
         const rowHeader = document.createElement('div');
         rowHeader.className = 'cell header';
         rowHeader.innerHTML = `<div>${puzzle.rowCriteria[row].value}</div><div class='criteria-info'>${puzzle.rowCriteria[row].type}</div>`;
         coasterGrid.appendChild(rowHeader);
-    
+
         const rowArray = [];
         for (let col = 0; col < 3; col++) {
           const cell = document.createElement('div');
@@ -1115,7 +1105,7 @@
         }
         dailyGameGrid.push(rowArray);
       }
-    
+
       dailySolution = [];
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
@@ -1130,80 +1120,71 @@
 
     function createDailyPuzzle() {
       const seed = getDailySeed();
-      console.log(`[DailyPuzzle] Today's date seed: ${seed}`);
-      
       let puzzle = null;
       let attempts = 0;
-    
+
       while (!puzzle && attempts < 50) {
-        console.log(`[DailyPuzzle] Attempt #${attempts + 1} with seed: ${seed + attempts}`);
         puzzle = generateDailyPuzzle(seed + attempts);
         attempts++;
       }
-      dailyRowCriteria = puzzle.rowCriteria;
-      dailyColCriteria = puzzle.colCriteria;
-    
-      if (puzzle) {
-        console.log(`[DailyPuzzle] Successfully generated daily puzzle with final seed: ${puzzle.seed}`);
-        console.log(`[DailyPuzzle] Row Criteria:`, puzzle.rowCriteria.map(c => `${c.type}: ${c.value}`));
-        console.log(`[DailyPuzzle] Column Criteria:`, puzzle.colCriteria.map(c => `${c.type}: ${c.value}`));
-        console.log(`[DailyPuzzle] Coaster IDs:`, puzzle.coasterIds);
-        renderDailyPuzzle(puzzle);
-        loadDailyProgress();
-        restoreDailyProgressToGrid();
-      } else {
-        console.error("[DailyPuzzle] Failed to generate today's puzzle after 50 attempts.");
-        alert("Failed to generate today's puzzle. Please try again tomorrow!");
+
+      if (!puzzle) {
+        alert('Failed to generate daily puzzle. Try again tomorrow.');
+        return;
       }
 
-      solution = [];
+      localStorage.removeItem('coasterGridDailySave');
+      dailyRowCriteria = puzzle.rowCriteria;
+      dailyColCriteria = puzzle.colCriteria;
+      dailySolution = [];
+
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           const coasterId = puzzle.coasterIds[row * 3 + col];
           const coaster = allCoasters.find(c => c.id === coasterId);
           if (coaster) {
-            solution.push({
-              row: row,
-              col: col,
-              selectedCoaster: coaster,
-              possibleCoasters: [coaster] // Only one valid answer in daily mode
-            });
+            dailySolution.push({ row, col, selectedCoaster: coaster, possibleCoasters: [coaster] });
           }
         }
       }
+
+      renderGrid('daily');
     }
+
 
     // Save game state to localStorage
     function saveGameState() {
-      if (currentMode !== 'daily') return;
-
-      const state = {
-        date: dailyPuzzleDate,
-        mode: currentMode,
-        solution: solution,
-        rowCriteria: rowCriteria,
-        colCriteria: colCriteria,
-        gameGrid: gameGrid,
-        usedCoasterIds: Array.from(usedCoasterIds),
-        filledCells: getFilledCellsData()
-      };
-
-      localStorage.setItem('coasterGridDailyGame', JSON.stringify(state));
+      if (currentMode === 'daily') {
+        const dailySave = {
+          gameGrid: dailyGameGrid,
+          usedCoasterIds: Array.from(dailyUsedCoasterIds)
+        };
+        localStorage.setItem('coasterGridDailySave', JSON.stringify(dailySave));
+      } else {
+        const randomSave = {
+          gameGrid: randomGameGrid,
+          usedCoasterIds: Array.from(randomUsedCoasterIds),
+          rowCriteria: randomRowCriteria,
+          colCriteria: randomColCriteria
+        };
+        localStorage.setItem('coasterGridRandomSave', JSON.stringify(randomSave));
+      }
     }
+
 
     function saveDailyProgress() {
       const progress = Array.from({ length: 3 }, () => Array(3).fill(null));
-    
+
       document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
         const coasterId = parseInt(cell.dataset.coasterId);
         progress[row][col] = coasterId;
       });
-    
+
       localStorage.setItem('dailyProgress', JSON.stringify(progress));
     }
-    
+
     function loadDailyProgress() {
       const saved = JSON.parse(localStorage.getItem('dailyProgress'));
       if (saved) dailyGameGrid = saved;
@@ -1261,14 +1242,32 @@
 
     // Load game state from localStorage
     function loadGameState() {
-      // Load mode preference
       const savedMode = localStorage.getItem('coasterGridMode');
       if (savedMode) {
         currentMode = savedMode;
-        dailyModeBtn.classList.toggle('active', savedMode === 'daily');
-        randomModeBtn.classList.toggle('active', savedMode === 'random');
+        dailyModeBtn.classList.toggle('active', currentMode === 'daily');
+        randomModeBtn.classList.toggle('active', currentMode === 'random');
+      }
+
+      if (currentMode === 'daily') {
+        const dailySave = JSON.parse(localStorage.getItem('coasterGridDailySave'));
+        if (dailySave) {
+          dailyGameGrid = dailySave.gameGrid;
+          dailyUsedCoasterIds = new Set(dailySave.usedCoasterIds);
+          renderGrid('daily');
+        }
+      } else {
+        const randomSave = JSON.parse(localStorage.getItem('coasterGridRandomSave'));
+        if (randomSave) {
+          randomGameGrid = randomSave.gameGrid;
+          randomUsedCoasterIds = new Set(randomSave.usedCoasterIds);
+          randomRowCriteria = randomSave.rowCriteria;
+          randomColCriteria = randomSave.colCriteria;
+          renderGrid('random');
+        }
       }
     }
+
 
     // Row criteria options
     const rowCriteriaOptions = [
@@ -1714,66 +1713,84 @@
       }
     }
 
-    function renderGrid() {
-      // Clear existing grid
+    function renderGrid(mode) {
       coasterGrid.innerHTML = '';
 
-      // Add blank corner cell
+      const { activeRowCriteria, activeColCriteria } = (mode === 'daily')
+        ? { activeRowCriteria: dailyRowCriteria, activeColCriteria: dailyColCriteria }
+        : { activeRowCriteria: randomRowCriteria, activeColCriteria: randomColCriteria };
+
+      // Add corner cell
       const cornerCell = document.createElement('div');
       cornerCell.className = 'cell header';
       cornerCell.innerHTML = '<small>🎢</small>';
       coasterGrid.appendChild(cornerCell);
 
       // Add column headers
-      for (let col = 0; col < 3; col++) {
-        const colHeader = document.createElement('div');
-        colHeader.className = 'cell header';
-        colHeader.innerHTML = `
-      <div>${colCriteria[col].value}</div>
-      <div class="criteria-info">${colCriteria[col].type}</div>
-    `;
-        coasterGrid.appendChild(colHeader);
-      }
+      activeColCriteria.forEach(col => {
+        const header = document.createElement('div');
+        header.className = 'cell header';
+        header.innerHTML = `<div>${col.value}</div><div class="criteria-info">${col.type}</div>`;
+        coasterGrid.appendChild(header);
+      });
 
-      // Add rows (headers + cells)
+      // Add rows and cells
       for (let row = 0; row < 3; row++) {
-        // Add row header
         const rowHeader = document.createElement('div');
         rowHeader.className = 'cell header';
-        rowHeader.innerHTML = `
-      <div>${rowCriteria[row].value}</div>
-      <div class="criteria-info">${rowCriteria[row].type}</div>
-    `;
+        rowHeader.innerHTML = `<div>${activeRowCriteria[row].value}</div><div class="criteria-info">${activeRowCriteria[row].type}</div>`;
         coasterGrid.appendChild(rowHeader);
 
-        // Add cells
         for (let col = 0; col < 3; col++) {
           const cell = document.createElement('div');
           cell.className = 'cell input-cell';
-          cell.onclick = function () { handleCellClick(this, row, col); };
           cell.dataset.row = row;
           cell.dataset.col = col;
+          cell.onclick = function () { handleCellClick(this, row, col); };
           coasterGrid.appendChild(cell);
         }
       }
     }
 
+
     function handleCellClick(cell, row, col) {
       currentCell = cell;
 
-      // Clear previous search inputs and results
       coasterSearchBox.value = '';
       searchList.innerHTML = '';
       searchList.classList.add('hide-search-list');
       selectedCoaster = null;
       selectButton.disabled = true;
 
-      // Show the search modal
       searchModal.style.display = 'block';
 
-      // Focus on the search box
       setTimeout(() => coasterSearchBox.focus(), 100);
     }
+
+    function findCoasters() {
+      let query = coasterSearchBox.value.trim().toLowerCase();
+      if (query.length === 0) {
+        searchList.classList.add('hide-search-list');
+        selectedCoaster = null;
+        selectButton.disabled = true;
+        return;
+      }
+
+      searchList.classList.remove('hide-search-list');
+      clearTimeout(debounce);
+
+      debounce = setTimeout(function () {
+        const usedCoasters = (currentMode === 'daily') ? dailyUsedCoasterIds : randomUsedCoasterIds;
+
+        const results = allCoasters.filter(coaster =>
+          (coaster.name.toLowerCase().includes(query) || coaster.park.toLowerCase().includes(query)) &&
+          !usedCoasters.has(coaster.id)
+        );
+
+        displaySearchResults(results);
+      }, 500);
+    }
+
 
     function closeSearchModal() {
       searchModal.style.display = 'none';
@@ -2016,53 +2033,51 @@
       cell.dataset.coasterId = coaster.id;
     }
 
-    function endGame(fromSave = false) {
-  if (!fromSave && !confirm("Are you ready to end the game and see results?")) {
-    return;
-  }
+    function endGame() {
+      if (!confirm("Are you ready to end the game and see results?")) return;
 
-  const activeSolution = (currentMode === 'daily') ? dailySolution : solution;
-  const activeRowCriteria = (currentMode === 'daily') ? dailyRowCriteria : rowCriteria;
-  const activeColCriteria = (currentMode === 'daily') ? dailyColCriteria : colCriteria;
+      const { activeGrid, activeSolution, activeRowCriteria, activeColCriteria } = getActiveState();
 
-  let correctCells = [];
-  let emptyCells = [];
+      let correctCount = 0;
+      let totalCells = 0;
 
-  document.querySelectorAll('.cell.input-cell').forEach(cell => {
-    const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.col);
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
 
-    const rowCriterion = activeRowCriteria[row];
-    const colCriterion = activeColCriteria[col];
+        if (cell.dataset.coasterId) {
+          const coasterId = parseInt(cell.dataset.coasterId);
+          const coaster = allCoasters.find(c => c.id === coasterId);
 
-    if (cell.dataset.coasterId) {
-      const coasterId = parseInt(cell.dataset.coasterId);
-      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+          if (coaster) {
+            const rowCriterion = activeRowCriteria[row];
+            const colCriterion = activeColCriteria[col];
 
-      if (selectedCoaster && rowCriterion.matcher(selectedCoaster, rowCriterion.value) && colCriterion.matcher(selectedCoaster, colCriterion.value)) {
-        cell.classList.add('correct');
-        updateCellDisplay(cell, selectedCoaster, true);
-        correctCells.push({ row, col });
-      } else {
-        cell.classList.add('incorrect');
-        updateCellDisplay(cell, selectedCoaster, true);
-      }
-    } else {
-      emptyCells.push({ row, col });
+            const isRowMatch = rowCriterion.matcher(coaster, rowCriterion.value);
+            const isColMatch = colCriterion.matcher(coaster, colCriterion.value);
+
+            if (isRowMatch && isColMatch) {
+              cell.classList.add('correct');
+              correctCount++;
+            } else {
+              cell.classList.add('incorrect');
+            }
+
+            updateCellDisplay(cell, coaster, true);
+          }
+          totalCells++;
+        }
+      });
+
+      const message = correctCount === totalCells
+        ? `🎉 Perfect! You got all ${correctCount} correct!`
+        : `✅ You got ${correctCount} out of ${totalCells} correct.`;
+
+      resultsMessage.innerHTML = message;
+      resultsMessage.className = "check-results " + (correctCount === totalCells ? "success" : "failure");
+      resultsMessage.style.display = 'block';
     }
-  });
 
-  if (!fromSave) {
-    if (emptyCells.length > 0) {
-      alert("Some cells are empty. Fill in all cells before ending the game!");
-      return;
-    }
-
-    setTimeout(() => {
-      alert(`Game over! You got ${correctCells.length}/9 correct.`);
-    }, 100);
-  }
-}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
@@ -2071,11 +2086,12 @@
       const coaster = selectedCoaster;
       if (!coaster) return;
       if (!currentCell) return;
-    
+
       updateCellDisplay(currentCell, coaster);
-      usedCoasterIds.add(coaster.id);
+      const usedCoasters = (currentMode === 'daily') ? dailyUsedCoasterIds : randomUsedCoasterIds;
+      usedCoasters.add(selectedCoaster.id);
       closeSearchModal();
-    
+
       if (currentMode === 'daily') {
         saveDailyProgress();
       }
