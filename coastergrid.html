@@ -475,7 +475,7 @@
   </div>
 
   <h1>Coaster Grid</h1>
-<p>I will do site decoration and formatting later lol</p>
+  <p>I will do site decoration and formatting later lol</p>
 
   <div class="mode-selector">
     <button class="mode-button active" id="dailyModeBtn">Daily Puzzle</button>
@@ -853,27 +853,27 @@
 
     function getDailySeed() {
       const now = new Date();
-    
+
       // Calculate current UTC time in milliseconds
       const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-    
+
       // Determine if we are currently in Daylight Saving Time (DST)
       const currentYear = now.getUTCFullYear();
       const jan = new Date(Date.UTC(currentYear, 0, 1)); // Jan 1
       const jul = new Date(Date.UTC(currentYear, 6, 1)); // July 1
       const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
       const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
-    
+
       // Eastern Time offset: -5 in winter (EST), -4 in summer (EDT)
       const easternOffsetHours = isDST ? -4 : -5;
-    
+
       // Convert UTC to Eastern Time
       const easternTime = new Date(utcTime + (easternOffsetHours * 3600000));
-    
+
       const year = easternTime.getUTCFullYear();
       const month = easternTime.getUTCMonth() + 1; // Month is 0-indexed
       const day = easternTime.getUTCDate();
-    
+
       // Format: 20250427
       return parseInt(`${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`);
     }
@@ -998,49 +998,91 @@
     }
 
     function createSeededRandom(seed) {
-      let m = 0x80000000; // 2^31
-      let a = 1103515245;
-      let c = 12345;
-      let state = seed ? seed : Math.floor(Math.random() * (m - 1));
-    
+      let state = seed;
       return function () {
-        state = (a * state + c) % m;
-        return state / (m - 1);
+        state = (state * 1664525 + 1013904223) % 4294967296;
+        return state / 4294967296;
       };
     }
 
-    function createDailyPuzzle() {
-      const today = new Date().toDateString();
-      dailyPuzzleDate = today;
-      newGameBtn.style.display = 'none';
-    
-      const baseSeed = getDailySeed();
-      console.log("Today's base seed:", baseSeed);
-    
-      const originalRandom = Math.random;
-      let seedOffset = 0;
-      let maxAttempts = 5;
-      let success = false;
-    
-      while (!success && seedOffset < maxAttempts) {
-        const seededRandom = createSeededRandom(baseSeed + seedOffset);
-        Math.random = seededRandom;
-        try {
-          createNewGame(true);
-          success = true;
-        } catch (e) {
-          console.error(`Failed to generate daily puzzle with seed ${baseSeed + seedOffset}:`, e);
-          seedOffset++;
-        } finally {
-          Math.random = originalRandom;
+    function generateDailyPuzzle(seed) {
+      const rng = createSeededRandom(seed);
+
+      const shuffledRowCriteria = [...rowCriteriaOptions].sort(() => rng() - 0.5);
+      const shuffledColCriteria = [...colCriteriaOptions].sort(() => rng() - 0.5);
+
+      const selectedRowCriteria = shuffledRowCriteria.slice(0, 3).map(c => {
+        const value = c.values[Math.floor(rng() * c.values.length)];
+        return { type: c.type, value };
+      });
+
+      const selectedColCriteria = shuffledColCriteria.slice(0, 3).map(c => {
+        const value = c.values[Math.floor(rng() * c.values.length)];
+        return { type: c.type, value };
+      });
+
+      const coasters = [];
+      const usedCoasterIds = new Set();
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const matchingCoasters = allCoasters.filter(coaster =>
+            selectedRowCriteria[row].matcher(coaster, selectedRowCriteria[row].value) &&
+            selectedColCriteria[col].matcher(coaster, selectedColCriteria[col].value) &&
+            !usedCoasterIds.has(coaster.id)
+          );
+
+          if (matchingCoasters.length === 0) {
+            console.error(`No matching coaster found for cell (${row},${col})`);
+            return null;
+          }
+
+          const selectedCoaster = matchingCoasters[Math.floor(rng() * matchingCoasters.length)];
+          coasters.push(selectedCoaster.id);
+          usedCoasterIds.add(selectedCoaster.id);
         }
       }
-    
-      if (!success) {
-        console.error("Could not generate daily puzzle after several attempts.");
-        alert("Failed to generate today's puzzle. Please try again later.");
+
+      return { seed, rowCriteria: selectedRowCriteria, colCriteria: selectedColCriteria, coasterIds: coasters };
+    }
+
+    function renderDailyPuzzle(puzzle) {
+      coasterGrid.innerHTML = '';
+
+      // Add corner blank
+      const corner = document.createElement('div');
+      corner.className = 'cell header';
+      coasterGrid.appendChild(corner);
+
+      // Column headers
+      puzzle.colCriteria.forEach(col => {
+        const header = document.createElement('div');
+        header.className = 'cell header';
+        header.innerHTML = `<div>${col.value}</div><div class='criteria-info'>${col.type}</div>`;
+        coasterGrid.appendChild(header);
+      });
+
+      // Rows
+      for (let row = 0; row < 3; row++) {
+        const rowHeader = document.createElement('div');
+        rowHeader.className = 'cell header';
+        rowHeader.innerHTML = `<div>${puzzle.rowCriteria[row].value}</div><div class='criteria-info'>${puzzle.rowCriteria[row].type}</div>`;
+        coasterGrid.appendChild(rowHeader);
+
+        for (let col = 0; col < 3; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell input-cell';
+          cell.dataset.coasterId = puzzle.coasterIds[row * 3 + col];
+          cell.innerHTML = `<small>?</small>`; // Empty until player fills
+          coasterGrid.appendChild(cell);
+        }
       }
-    
+    }
+
+    function createDailyPuzzle() {
+      const seed = getDailySeed();
+      const puzzle = generateDailyPuzzle(seed);
+      if (puzzle) renderDailyPuzzle(puzzle);
       updatePuzzleNumberDisplay();
     }
 
@@ -1765,7 +1807,7 @@
       const startDate = new Date(Date.UTC(2025, 3, 27)); // April 27, 2025 (month 0-based)
       const now = new Date();
       const utcNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-    
+
       // Handle DST manually
       const currentYear = now.getUTCFullYear();
       const jan = new Date(Date.UTC(currentYear, 0, 1));
@@ -1773,19 +1815,19 @@
       const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
       const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
       const easternOffsetHours = isDST ? -4 : -5;
-    
+
       const easternNow = new Date(utcNow.getTime() + (easternOffsetHours * 3600000));
-    
+
       const diffMs = easternNow - startDate;
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1; // +1 to make April 27 = Puzzle #1
-    
+
       return diffDays;
     }
 
     function updatePuzzleNumberDisplay() {
       const display = document.getElementById('puzzleNumberDisplay');
       if (!display) return;
-    
+
       if (currentMode === 'daily') {
         const puzzleNumber = calculatePuzzleNumber();
         display.textContent = `Daily Puzzle #${puzzleNumber}`;
@@ -2016,7 +2058,7 @@
       const today = new Date();
       const dateString = today.toLocaleDateString("en-US");
       const puzzleNumber = calculatePuzzleNumber(); // 🧠 use same function
-    
+
       let emojiGrid = '';
       for (let row = 0; row < 3; row++) {
         let rowEmojis = '';
@@ -2034,16 +2076,16 @@
         }
         emojiGrid += rowEmojis + '\n';
       }
-    
+
       const resultText = `Coaster Grid Daily Puzzle #${puzzleNumber}\n${dateString}\n${emojiGrid}`;
-    
+
       const resultContainer = document.createElement('div');
       resultContainer.className = 'emoji-result-container';
       resultContainer.innerHTML = `
         <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
         <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy Results</button>
       `;
-    
+
       document.body.appendChild(resultContainer);
     }
 
