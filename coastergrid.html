@@ -134,6 +134,10 @@
       background-color: #f0f0f0;
     }
 
+    .search-list .search-item strong {
+      color: black;
+    }
+
     .hide-search-list {
       display: none;
     }
@@ -1072,8 +1076,11 @@
         for (let col = 0; col < 3; col++) {
           const cell = document.createElement('div');
           cell.className = 'cell input-cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
           cell.dataset.coasterId = puzzle.coasterIds[row * 3 + col];
           cell.innerHTML = `<small>?</small>`;
+          cell.onclick = function () { handleCellClick(this, row, col); };
           coasterGrid.appendChild(cell);
         }
       }
