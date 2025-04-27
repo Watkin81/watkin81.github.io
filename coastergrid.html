@@ -834,6 +834,7 @@
 
       // Create initial game based on current mode
       if (currentMode === 'daily') {
+        newGameBtn.style.display = 'none';
         createDailyPuzzle();
       } else {
         createNewGame();
@@ -1109,8 +1110,23 @@
         console.error("[DailyPuzzle] Failed to generate today's puzzle after 50 attempts.");
         alert("Failed to generate today's puzzle. Please try again tomorrow!");
       }
-    }
 
+      solution = [];
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const coasterId = puzzle.coasterIds[row * 3 + col];
+          const coaster = allCoasters.find(c => c.id === coasterId);
+          if (coaster) {
+            solution.push({
+              row: row,
+              col: col,
+              selectedCoaster: coaster,
+              possibleCoasters: [coaster] // Only one valid answer in daily mode
+            });
+          }
+        }
+      }
+    }
 
     // Save game state to localStorage
     function saveGameState() {
