@@ -972,7 +972,7 @@
       randomSolution = [];
       randomRowCriteria = [];
       randomColCriteria = [];
-      usedCoasterIds = new Set();
+      const usedCoasterIds = (currentMode === 'daily') ? dailyUsedCoasterIds : randomUsedCoasterIds;
       resultsMessage.style.display = 'none';
 
       let maxAttempts = 20;
@@ -1207,7 +1207,7 @@
       rowCriteria = savedState.rowCriteria;
       colCriteria = savedState.colCriteria;
       gameGrid = savedState.gameGrid;
-      usedCoasterIds = new Set(savedState.usedCoasterIds);
+      usedCoasterIds = (currentMode === 'daily') ? dailyUsedCoasterIds : randomUsedCoasterIds;
 
       rowCriteria.forEach(rc => {
         const base = rowCriteriaOptions.find(opt => opt.type === rc.type);
