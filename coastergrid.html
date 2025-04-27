@@ -544,6 +544,8 @@
     let currentMode = 'daily'; // 'daily' or 'random' modes
     let dailyPuzzleDate = null;
     let gameState = null;
+    let dailyGameGrid = [];
+    let dailySolution = [];
 
     // Global variables to track units and values
     let metricCriteriaValues = {
@@ -1068,12 +1070,15 @@
         coasterGrid.appendChild(header);
       });
     
+      dailyGameGrid = [];
+    
       for (let row = 0; row < 3; row++) {
         const rowHeader = document.createElement('div');
         rowHeader.className = 'cell header';
         rowHeader.innerHTML = `<div>${puzzle.rowCriteria[row].value}</div><div class='criteria-info'>${puzzle.rowCriteria[row].type}</div>`;
         coasterGrid.appendChild(rowHeader);
     
+        const rowArray = [];
         for (let col = 0; col < 3; col++) {
           const cell = document.createElement('div');
           cell.className = 'cell input-cell';
@@ -1083,6 +1088,19 @@
           cell.innerHTML = `<small>?</small>`;
           cell.onclick = function () { handleCellClick(this, row, col); };
           coasterGrid.appendChild(cell);
+          rowArray.push(null);
+        }
+        dailyGameGrid.push(rowArray);
+      }
+    
+      dailySolution = [];
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const coasterId = puzzle.coasterIds[row * 3 + col];
+          const coaster = allCoasters.find(c => c.id === coasterId);
+          if (coaster) {
+            dailySolution.push({ row, col, selectedCoaster: coaster, possibleCoasters: [coaster] });
+          }
         }
       }
     }
@@ -1144,6 +1162,15 @@
       };
 
       localStorage.setItem('coasterGridDailyGame', JSON.stringify(state));
+    }
+
+    function saveDailyProgress() {
+      localStorage.setItem('dailyProgress', JSON.stringify(dailyGameGrid));
+    }
+    
+    function loadDailyProgress() {
+      const saved = JSON.parse(localStorage.getItem('dailyProgress'));
+      if (saved) dailyGameGrid = saved;
     }
 
     function getFilledCellsData() {
@@ -1957,51 +1984,43 @@
       if (!fromSave && !confirm("Are you ready to end the game and see results?")) {
         return;
       }
-
-      // First check which cells are correct
+    
+      let activeSolution = currentMode === 'daily' ? dailySolution : solution;
       let correctCells = [];
       let emptyCells = [];
-
+    
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-
+    
         if (cell.dataset.coasterId) {
-          // Cell is filled, check if it's correct
           const coasterId = parseInt(cell.dataset.coasterId);
           const selectedCoaster = allCoasters.find(c => c.id === coasterId);
-
+    
           if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
             cell.classList.add('correct');
-            // Update with criteria stats showing
             updateCellDisplay(cell, selectedCoaster, true);
             correctCells.push({ row, col });
           } else {
             cell.classList.add('incorrect');
-            // Update with criteria stats showing
             updateCellDisplay(cell, selectedCoaster, true);
           }
         } else {
-          // Cell is empty
           emptyCells.push({ row, col });
         }
       });
-
-      // Fill empty cells with solutions
+    
       emptyCells.forEach(({ row, col }) => {
         const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-
+        const cellSolution = activeSolution.find(s => s.row === row && s.col === col);
+    
         if (cellSolution && cellSolution.selectedCoaster) {
           const solutionCoaster = cellSolution.selectedCoaster;
-
-          // Double-check that this solution is actually valid
+    
           if (isCoasterValidForCell(solutionCoaster, row, col)) {
-            // Display solution with unguessed class instead of correct
             updateCellDisplay(cell, solutionCoaster, true);
             cell.classList.add('unguessed');
           } else {
-            // The solution is invalid! Find a valid alternative
             const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
             if (validCoasters.length > 0) {
               const alternativeSolution = validCoasters[0];
@@ -2011,24 +2030,20 @@
           }
         }
       });
-
-      // Display results
+    
       resultsMessage.style.display = 'block';
       resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
-
-      // Only create emoji results for daily mode
+    
       if (currentMode === 'daily') {
         createEmojiResults();
       }
-
-      // Disable cell clicks after game is ended
+    
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
       });
-
-      // Save completed state for daily puzzles
+    
       if (currentMode === 'daily') {
         const savedState = JSON.parse(localStorage.getItem('coasterGridDailyGame')) || {};
         savedState.completed = true;
@@ -2036,29 +2051,24 @@
       }
     }
 
+
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
 
     selectButton.addEventListener('click', () => {
-      if (currentCell && selectedCoaster) {
-        // Add coaster to used set
-        usedCoasterIds.add(selectedCoaster.id);
-
-        // Update cell with coaster info and background image, but don't show stats yet
-        updateCellDisplay(currentCell, selectedCoaster, false);
-
-        // Update game grid
-        const row = parseInt(currentCell.dataset.row);
-        const col = parseInt(currentCell.dataset.col);
-        gameGrid[row][col] = selectedCoaster;
-
-        // Save game state if in daily mode
-        if (currentMode === 'daily') {
-          saveGameState();
-        }
-
-        closeSearchModal();
+      const coaster = allCoasters.find(c => c.id == selectedCoasterId);
+      if (!coaster) return;
+    
+      if (currentMode === 'daily') {
+        dailyGameGrid[row][col] = coaster;
+        saveDailyProgress();
+      } else {
+        gameGrid[row][col] = coaster;
+        saveGameState();
       }
+    
+      updateCellDisplay(cell, coaster);
+      closeSearchModal();
     });
 
     // Close modal if clicking outside of it
