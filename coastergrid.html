@@ -850,15 +850,18 @@
     }
 
     function getDailySeed() {
-      const now = new Date();
-      
-      const estOffset = 5 * 60 * 60 * 1000; // EST offset in milliseconds (UTC -5)
-      const estDate = new Date(now.getTime() - estOffset);
-      
-      // Reset time to midnight in EST
-      const estMidnight = new Date(estDate.getFullYear(), estDate.getMonth(), estDate.getDate());
-      
-      return Math.floor(estMidnight.getTime() / 86400000);
+      try {
+        // Get current time in EST (UTC-5)
+        const now = new Date();
+        const estOffset = -5 * 60 * 60 * 1000; // EST is UTC-5 hours
+        const estTime = new Date(now.getTime() + estOffset);
+        
+        // Use EST date (will change at midnight EST)
+        return Math.floor(estTime.getTime() / 86400000);
+      } catch (e) {
+        console.error("Error generating daily seed:", e);
+        return 69; // Fallback seed
+      }
     }
 
     function fixMatcherFunctions() {
@@ -983,29 +986,35 @@
     function createDailyPuzzle() {
       const today = new Date().toDateString();
       dailyPuzzleDate = today;
-    
       newGameBtn.style.display = 'none';
     
       // Get today's UTC-based seed
       const seed = getDailySeed();
       console.log("Today's seed:", seed); // For debugging
-      localStorage.setItem('dailySeed', seed.toString());
       
-      // Simple seeded random number generator
-      function seededRandom(seed) {
-        if (typeof seed !== 'number') seed = 0;
-        let x = Math.sin(seed) * 10000;
-        return x - Math.floor(x);
-      }
-    
+      // Create a seeded random generator
+      const seededRandom = createSeededRandom(seed);
+      
       // Override Math.random temporarily with our seeded version
       const originalRandom = Math.random;
-      Math.random = () => seededRandom(seed++);
+      Math.random = seededRandom;
     
       createNewGame(true);
     
       // Restore original random function
       Math.random = originalRandom;
+
+      try {
+        Math.random = seededRandom;
+        createNewGame(true);
+      } catch (e) {
+        console.error("Error generating daily puzzle:", e);
+        // Fallback to non-seeded random if there's an error
+        Math.random = originalRandom;
+        createNewGame(true);
+      } finally {
+        Math.random = originalRandom;
+      }
     }
 
     // Save game state to localStorage
