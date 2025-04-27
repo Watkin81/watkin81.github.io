@@ -649,66 +649,60 @@
 
     // Initialize game
     function initGame() {
-      // Add unit toggle to the page
-      document.querySelector('.game-controls').insertAdjacentHTML('afterend', unitToggleHTML);
-
-      setupUnitValues();
+      // Remove unit toggle related code
       fixMatcherFunctions();
-
-      // Add event listener for the unit toggle
-      document.getElementById('unitToggle').addEventListener('change', handleUnitToggle);
       
       newGameBtn.addEventListener('click', createNewGame);
       endGameBtn.addEventListener('click', endGame);
-
+    
       createNewGame();
     }
 
     function fixMatcherFunctions() {
   // Update height matcher
   colCriteriaOptions.find(c => c.type === "height").matcher = function(coaster, value) {
-    // Always convert meters to feet for comparison
+    // Convert meters to feet for comparison
     const heightMeters = typeof coaster.height === 'number' ? coaster.height : 
                          parseFloat(coaster.height) || 0;
     const heightFeet = heightMeters * 3.28084;
     
-    // Always compare against imperial thresholds
-    if (value === "< 100ft" || value === "< 30m") return heightFeet > 0 && heightFeet < 100;
-    if (value === "100 - 149.9ft" || value === "30 - 45.9m") return heightFeet >= 100 && heightFeet < 150;
-    if (value === "150 - 199.9ft" || value === "46 - 60.9m") return heightFeet >= 150 && heightFeet < 200;
-    if (value === "> 200ft" || value === "> 61m") return heightFeet >= 200;
+    // Compare against imperial thresholds
+    if (value === "< 100ft") return heightFeet > 0 && heightFeet < 100;
+    if (value === "100 - 149.9ft") return heightFeet >= 100 && heightFeet < 150;
+    if (value === "150 - 199.9ft") return heightFeet >= 150 && heightFeet < 200;
+    if (value === "> 200ft") return heightFeet >= 200;
     
     return false;
   };
   
   // Update length matcher
   colCriteriaOptions.find(c => c.type === "length").matcher = function(coaster, value) {
-    // Always convert meters to feet for comparison
+    // Convert meters to feet for comparison
     const lengthMeters = typeof coaster.length === 'number' ? coaster.length : 
                          parseFloat(coaster.length) || 0;
     const lengthFeet = lengthMeters * 3.28084;
     
-    // Always compare against imperial thresholds
-    if (value === "< 2000ft" || value === "< 610m") return lengthFeet > 0 && lengthFeet < 2000;
-    if (value === "2000 - 3000ft" || value === "610 - 915m") return lengthFeet >= 2000 && lengthFeet <= 3000;
-    if (value === "3000 - 4000ft" || value === "915 - 1220m") return lengthFeet > 3000 && lengthFeet <= 4000;
-    if (value === "> 4000ft" || value === "> 1220m") return lengthFeet > 4000;
+    // Compare against imperial thresholds
+    if (value === "< 2000ft") return lengthFeet > 0 && lengthFeet < 2000;
+    if (value === "2000 - 3000ft") return lengthFeet >= 2000 && lengthFeet <= 3000;
+    if (value === "3000 - 4000ft") return lengthFeet > 3000 && lengthFeet <= 4000;
+    if (value === "> 4000ft") return lengthFeet > 4000;
     
     return false;
   };
   
   // Update speed matcher
   colCriteriaOptions.find(c => c.type === "speed").matcher = function(coaster, value) {
-    // Always convert km/h to mph for comparison
+    // Convert km/h to mph for comparison
     const speedKmh = typeof coaster.speed === 'number' ? coaster.speed : 
                      parseFloat(coaster.speed) || 0;
     const speedMph = speedKmh * 0.621371;
     
-    // Always compare against imperial thresholds
-    if (value === "< 45mph" || value === "< 72km/h") return speedMph > 0 && speedMph < 45;
-    if (value === "45 - 59.9mph" || value === "72 - 96km/h") return speedMph >= 45 && speedMph < 60;
-    if (value === "60 - 74.9mph" || value === "97 - 120km/h") return speedMph >= 60 && speedMph < 75;
-    if (value === "> 75mph" || value === "> 120km/h") return speedMph >= 75;
+    // Compare against imperial thresholds
+    if (value === "< 45mph") return speedMph > 0 && speedMph < 45;
+    if (value === "45 - 59.9mph") return speedMph >= 45 && speedMph < 60;
+    if (value === "60 - 74.9mph") return speedMph >= 60 && speedMph < 75;
+    if (value === "> 75mph") return speedMph >= 75;
     
     return false;
   };
@@ -1222,51 +1216,48 @@
     }
 
     function renderGrid() {
-      // Clear existing grid
-      coasterGrid.innerHTML = '';
+  // Clear existing grid
+  coasterGrid.innerHTML = '';
 
-      // Add blank corner cell
-      const cornerCell = document.createElement('div');
-      cornerCell.className = 'cell header';
-      cornerCell.innerHTML = '<small>🎢</small>';
-      coasterGrid.appendChild(cornerCell);
+  // Add blank corner cell
+  const cornerCell = document.createElement('div');
+  cornerCell.className = 'cell header';
+  cornerCell.innerHTML = '<small>🎢</small>';
+  coasterGrid.appendChild(cornerCell);
 
-      // Add column headers
-      for (let col = 0; col < 3; col++) {
-        const colHeader = document.createElement('div');
-        colHeader.className = 'cell header';
-        colHeader.innerHTML = `
-          <div>${colCriteria[col].value}</div>
-          <div class="criteria-info">${colCriteria[col].type}${colCriteria[col].type === "height" || colCriteria[col].type === "length" || colCriteria[col].type === "speed"
-            ? useMetricUnits ? ' (metric)' : ' (imperial)'
-            : ''
-          }</div>
-        `;
-        coasterGrid.appendChild(colHeader);
-      }
+  // Add column headers
+  for (let col = 0; col < 3; col++) {
+    const colHeader = document.createElement('div');
+    colHeader.className = 'cell header';
+    colHeader.innerHTML = `
+      <div>${colCriteria[col].value}</div>
+      <div class="criteria-info">${colCriteria[col].type}</div>
+    `;
+    coasterGrid.appendChild(colHeader);
+  }
 
-      // Add rows (headers + cells)
-      for (let row = 0; row < 3; row++) {
-        // Add row header
-        const rowHeader = document.createElement('div');
-        rowHeader.className = 'cell header';
-        rowHeader.innerHTML = `
-          <div>${rowCriteria[row].value}</div>
-          <div class="criteria-info">${rowCriteria[row].type}</div>
-        `;
-        coasterGrid.appendChild(rowHeader);
+  // Add rows (headers + cells)
+  for (let row = 0; row < 3; row++) {
+    // Add row header
+    const rowHeader = document.createElement('div');
+    rowHeader.className = 'cell header';
+    rowHeader.innerHTML = `
+      <div>${rowCriteria[row].value}</div>
+      <div class="criteria-info">${rowCriteria[row].type}</div>
+    `;
+    coasterGrid.appendChild(rowHeader);
 
-        // Add cells
-        for (let col = 0; col < 3; col++) {
-          const cell = document.createElement('div');
-          cell.className = 'cell input-cell';
-          cell.onclick = function () { handleCellClick(this, row, col); };
-          cell.dataset.row = row;
-          cell.dataset.col = col;
-          coasterGrid.appendChild(cell);
-        }
-      }
+    // Add cells
+    for (let col = 0; col < 3; col++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell input-cell';
+      cell.onclick = function () { handleCellClick(this, row, col); };
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+      coasterGrid.appendChild(cell);
     }
+  }
+}
 
     function handleCellClick(cell, row, col) {
       currentCell = cell;
@@ -1362,17 +1353,11 @@
   
   switch (type) {
     case "height":
-      return useMetricUnits ? 
-        `${parseFloat(value).toFixed(1)}m` : 
-        `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
+      return `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
     case "length":
-      return useMetricUnits ? 
-        `${parseFloat(value).toFixed(1)}m` : 
-        `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
+      return `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
     case "speed":
-      return useMetricUnits ? 
-        `${parseFloat(value).toFixed(1)}km/h` : 
-        `${(parseFloat(value) * 0.621371).toFixed(1)}mph`;
+      return `${(parseFloat(value) * 0.621371).toFixed(1)}mph`;
     default:
       return value;
   }
