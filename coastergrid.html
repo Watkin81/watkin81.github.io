@@ -454,6 +454,7 @@
   <div id="settingsPanel" class="popupPanel">
     <h3>Game Settings</h3>
     <p>Game settings coming soon!</p>
+    <h2 id="puzzleNumberDisplay" style="margin-top: 0; font-weight: normal; color: lightgray; display: none;"></h2>
     <button onclick="toggleSettingsPanel()">Close</button>
   </div>
 
@@ -847,38 +848,34 @@
       } else {
         createNewGame();
       }
+      updatePuzzleNumberDisplay();
     }
 
     function getDailySeed() {
-      try {
-        const now = new Date();
+      const now = new Date();
     
-        // Get the current time in UTC
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      // Calculate current UTC time in milliseconds
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
     
-        // Get the EST/EDT offset (UTC-5 or UTC-4 depending on DST)
-        const est = new Date(utc + (3600000 * -5)); // Default to EST (UTC-5)
+      // Determine if we are currently in Daylight Saving Time (DST)
+      const currentYear = now.getUTCFullYear();
+      const jan = new Date(Date.UTC(currentYear, 0, 1)); // Jan 1
+      const jul = new Date(Date.UTC(currentYear, 6, 1)); // July 1
+      const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+      const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
     
-        // Check if in DST (March to November)
-        const jan = new Date(now.getFullYear(), 0, 1);
-        const jul = new Date(now.getFullYear(), 6, 1);
-        const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-        const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
+      // Eastern Time offset: -5 in winter (EST), -4 in summer (EDT)
+      const easternOffsetHours = isDST ? -4 : -5;
     
-        const offset = isDST ? -4 : -5;
-        const estOrEdt = new Date(utc + (3600000 * offset));
+      // Convert UTC to Eastern Time
+      const easternTime = new Date(utcTime + (easternOffsetHours * 3600000));
     
-        // Only care about year/month/day
-        const year = estOrEdt.getUTCFullYear();
-        const month = estOrEdt.getUTCMonth() + 1; // Months are 0-11
-        const day = estOrEdt.getUTCDate();
+      const year = easternTime.getUTCFullYear();
+      const month = easternTime.getUTCMonth() + 1; // Month is 0-indexed
+      const day = easternTime.getUTCDate();
     
-        // Create a simple number for seed
-        return parseInt(`${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`);
-      } catch (e) {
-        console.error("Error generating daily seed:", e);
-        return 69;
-      }
+      // Format: 20250427
+      return parseInt(`${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`);
     }
 
     function fixMatcherFunctions() {
@@ -1020,9 +1017,9 @@
       const baseSeed = getDailySeed();
       console.log("Today's base seed:", baseSeed);
     
-      let originalRandom = Math.random;
+      const originalRandom = Math.random;
       let seedOffset = 0;
-      let maxAttempts = 5; // Try up to 5 variations
+      let maxAttempts = 5;
       let success = false;
     
       while (!success && seedOffset < maxAttempts) {
@@ -1043,6 +1040,8 @@
         console.error("Could not generate daily puzzle after several attempts.");
         alert("Failed to generate today's puzzle. Please try again later.");
       }
+    
+      updatePuzzleNumberDisplay();
     }
 
     // Save game state to localStorage
@@ -1762,6 +1761,40 @@
       });
     }
 
+    function calculatePuzzleNumber() {
+      const startDate = new Date(Date.UTC(2025, 3, 27)); // April 27, 2025 (month 0-based)
+      const now = new Date();
+      const utcNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
+    
+      // Handle DST manually
+      const currentYear = now.getUTCFullYear();
+      const jan = new Date(Date.UTC(currentYear, 0, 1));
+      const jul = new Date(Date.UTC(currentYear, 6, 1));
+      const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+      const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
+      const easternOffsetHours = isDST ? -4 : -5;
+    
+      const easternNow = new Date(utcNow.getTime() + (easternOffsetHours * 3600000));
+    
+      const diffMs = easternNow - startDate;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1; // +1 to make April 27 = Puzzle #1
+    
+      return diffDays;
+    }
+
+    function updatePuzzleNumberDisplay() {
+      const display = document.getElementById('puzzleNumberDisplay');
+      if (!display) return;
+    
+      if (currentMode === 'daily') {
+        const puzzleNumber = calculatePuzzleNumber();
+        display.textContent = `Daily Puzzle #${puzzleNumber}`;
+        display.style.display = 'block';
+      } else {
+        display.style.display = 'none';
+      }
+    }
+
     function updateCellDisplay(cell, coaster, showStats = false) {
       // Clear previous content
       cell.innerHTML = '';
@@ -1980,13 +2013,10 @@
     }
 
     function createEmojiResults() {
-      const container = document.querySelector('.emoji-result-container');
-      if (container) container.remove();
-
       const today = new Date();
       const dateString = today.toLocaleDateString("en-US");
-      const puzzleNumber = getPuzzleNumber();
-
+      const puzzleNumber = calculatePuzzleNumber(); // 🧠 use same function
+    
       let emojiGrid = '';
       for (let row = 0; row < 3; row++) {
         let rowEmojis = '';
@@ -2004,16 +2034,16 @@
         }
         emojiGrid += rowEmojis + '\n';
       }
-
-      const resultText = `Coaster Grid ${puzzleNumber}\n${dateString}\n${emojiGrid}`;
-
+    
+      const resultText = `Coaster Grid Daily Puzzle #${puzzleNumber}\n${dateString}\n${emojiGrid}`;
+    
       const resultContainer = document.createElement('div');
       resultContainer.className = 'emoji-result-container';
       resultContainer.innerHTML = `
-    <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
-    <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy</button>
-  `;
-
+        <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
+        <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy Results</button>
+      `;
+    
       document.body.appendChild(resultContainer);
     }
 
