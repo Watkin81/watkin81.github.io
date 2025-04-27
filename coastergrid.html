@@ -1080,10 +1080,28 @@
     }
 
     function createDailyPuzzle() {
-      const seed = getDailySeed();
-      const puzzle = generateDailyPuzzle(seed);
-      if (puzzle) renderDailyPuzzle(puzzle);
-      updatePuzzleNumberDisplay();
+      const baseSeed = getDailySeed();
+      let attemptSeed = baseSeed;
+      let puzzle = null;
+      let attempts = 0;
+      const maxAttempts = 20;
+    
+      while (!puzzle && attempts < maxAttempts) {
+        puzzle = generateDailyPuzzle(attemptSeed);
+        if (!puzzle) {
+          console.warn(`Daily puzzle generation failed with seed ${attemptSeed}, retrying...`);
+          attemptSeed++; // Try next seed if failed
+          attempts++;
+        }
+      }
+    
+      if (puzzle) {
+        renderDailyPuzzle(puzzle);
+        updatePuzzleNumberDisplay();
+      } else {
+        console.error("Could not generate daily puzzle after several attempts.");
+        alert("Failed to generate today's puzzle. Please try again later.");
+      }
     }
 
     // Save game state to localStorage
