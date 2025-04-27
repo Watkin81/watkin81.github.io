@@ -1007,23 +1007,23 @@
 
     function generateDailyPuzzle(seed) {
       const rng = createSeededRandom(seed);
-
+    
       const shuffledRowCriteria = [...rowCriteriaOptions].sort(() => rng() - 0.5);
       const shuffledColCriteria = [...colCriteriaOptions].sort(() => rng() - 0.5);
-
+    
       const selectedRowCriteria = shuffledRowCriteria.slice(0, 3).map(c => {
         const value = c.values[Math.floor(rng() * c.values.length)];
-        return { type: c.type, value };
+        return { type: c.type, value, matcher: c.matcher };
       });
-
+    
       const selectedColCriteria = shuffledColCriteria.slice(0, 3).map(c => {
         const value = c.values[Math.floor(rng() * c.values.length)];
-        return { type: c.type, value };
+        return { type: c.type, value, matcher: c.matcher };
       });
-
+    
       const coasters = [];
       const usedCoasterIds = new Set();
-
+    
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           const matchingCoasters = allCoasters.filter(coaster =>
@@ -1031,18 +1031,18 @@
             selectedColCriteria[col].matcher(coaster, selectedColCriteria[col].value) &&
             !usedCoasterIds.has(coaster.id)
           );
-
+    
           if (matchingCoasters.length === 0) {
             console.error(`No matching coaster found for cell (${row},${col})`);
             return null;
           }
-
+    
           const selectedCoaster = matchingCoasters[Math.floor(rng() * matchingCoasters.length)];
           coasters.push(selectedCoaster.id);
           usedCoasterIds.add(selectedCoaster.id);
         }
       }
-
+    
       return { seed, rowCriteria: selectedRowCriteria, colCriteria: selectedColCriteria, coasterIds: coasters };
     }
 
