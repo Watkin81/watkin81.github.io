@@ -345,13 +345,6 @@
       margin-top: 3px;
     }
 
-    .mode-selector {
-      margin: 20px auto;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-
     .mode-button {
       padding: 10px 20px;
       background-color: #f0f0f0;
@@ -481,11 +474,6 @@
   <h1>Coaster Grid</h1>
   <p>I will do site decoration and formatting later lol</p>
 
-  <div class="mode-selector">
-    <button class="mode-button active" id="dailyModeBtn">Daily Puzzle</button>
-    <button class="mode-button" id="randomModeBtn">Random Puzzle</button>
-  </div>
-
   <div class="game-controls">
     <button class="game-button" id="newGameBtn">New Game</button>
     <button class="game-button" id="endGameBtn">End Game</button>
@@ -536,20 +524,13 @@
     let debounce = null;
     let selectedCoaster = null;
 
-    let randomGameGrid = [];
-    let randomSolution = [];
-    let randomRowCriteria = [];
-    let randomColCriteria = [];
-
     let dailyGameGrid = [];
     let dailySolution = [];
     let dailyRowCriteria = [];
     let dailyColCriteria = [];
 
     let allCoasters = [];
-    let randomUsedCoasterIds = new Set();
     let dailyUsedCoasterIds = new Set();
-    let currentMode = 'daily'; // 'daily' or 'random' modes
     let dailyPuzzleDate = null;
     let gameState = null;
     let puzzle = null;
@@ -579,7 +560,6 @@
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
     const dailyModeBtn = document.getElementById('dailyModeBtn');
-    const randomModeBtn = document.getElementById('randomModeBtn');
 
     const updatedCellStyles = `
   .grid-container {
@@ -834,43 +814,11 @@
       newGameBtn.addEventListener('click', createRandomPuzzle);
       endGameBtn.addEventListener('click', endGame);
 
-      // Mode selector listeners
-      dailyModeBtn.addEventListener('click', () => switchMode('daily'));
-      randomModeBtn.addEventListener('click', () => switchMode('random'));
-
       // Load any saved game state
       loadGameState();
 
-      // Create initial game based on current mode
-      if (currentMode === 'daily') {
-        newGameBtn.style.display = 'none';
-        createDailyPuzzle();
-      } else {
-        createRandomPuzzle();
-      }
-    }
-
-    function switchMode(mode) {
-      if (mode === currentMode) return;
-
-      currentMode = mode;
-
-      // Update UI
-      dailyModeBtn.classList.toggle('active', mode === 'daily');
-      randomModeBtn.classList.toggle('active', mode === 'random');
-
-      newGameBtn.style.display = mode === 'random' ? 'inline-block' : 'none';
-
-      // Save mode preference
-      localStorage.setItem('coasterGridMode', mode);
-
-      // Create new game
-      if (mode === 'daily') {
-        createDailyPuzzle();
-      } else {
-        createRandomPuzzle();
-      }
-      updatePuzzleNumberDisplay();
+      createDailyPuzzle();
+      newGameBtn.style.display = 'none';
     }
 
     function hashStringToNumber(str) {
@@ -966,33 +914,6 @@
         }
       });
     }
-
-    function createRandomPuzzle() {
-      randomGameGrid = Array(3).fill().map(() => Array(3).fill(null));
-      randomSolution = [];
-      randomRowCriteria = [];
-      randomColCriteria = [];
-      const usedCoasterIds = (currentMode === 'daily') ? dailyUsedCoasterIds : randomUsedCoasterIds;
-      resultsMessage.style.display = 'none';
-
-      let maxAttempts = 20;
-      let success = false;
-      let attempts = 0;
-
-      while (!success && attempts < maxAttempts) {
-        success = generateRandomPuzzle();
-        attempts++;
-      }
-
-      if (!success) {
-        alert('Failed to generate a random puzzle. Try again.');
-        return;
-      }
-
-      localStorage.removeItem('coasterGridRandomSave');
-      renderGrid('random');
-    }
-
 
     function createSeededRandom(seed) {
       let state = seed;
@@ -1154,21 +1075,11 @@
 
     // Save game state to localStorage
     function saveGameState() {
-      if (currentMode === 'daily') {
-        const dailySave = {
-          gameGrid: dailyGameGrid,
-          usedCoasterIds: Array.from(dailyUsedCoasterIds)
-        };
-        localStorage.setItem('coasterGridDailySave', JSON.stringify(dailySave));
-      } else {
-        const randomSave = {
-          gameGrid: randomGameGrid,
-          usedCoasterIds: Array.from(randomUsedCoasterIds),
-          rowCriteria: randomRowCriteria,
-          colCriteria: randomColCriteria
-        };
-        localStorage.setItem('coasterGridRandomSave', JSON.stringify(randomSave));
-      }
+      const dailySave = {
+        gameGrid: dailyGameGrid,
+        usedCoasterIds: Array.from(dailyUsedCoasterIds)
+      };
+      localStorage.setItem('coasterGridDailySave', JSON.stringify(dailySave));
     }
 
 
@@ -1242,29 +1153,13 @@
 
     // Load game state from localStorage
     function loadGameState() {
-      const savedMode = localStorage.getItem('coasterGridMode');
-      if (savedMode) {
-        currentMode = savedMode;
-        dailyModeBtn.classList.toggle('active', currentMode === 'daily');
-        randomModeBtn.classList.toggle('active', currentMode === 'random');
-      }
-
-      if (currentMode === 'daily') {
-        const dailySave = JSON.parse(localStorage.getItem('coasterGridDailySave'));
-        if (dailySave) {
-          dailyGameGrid = dailySave.gameGrid;
-          dailyUsedCoasterIds = new Set(dailySave.usedCoasterIds);
-          renderGrid('daily');
-        }
+      const dailySave = JSON.parse(localStorage.getItem('coasterGridDailySave'));
+      if (dailySave) {
+        dailyGameGrid = dailySave.gameGrid;
+        dailyUsedCoasterIds = new Set(dailySave.usedCoasterIds);
+        renderGrid('daily');
       } else {
-        const randomSave = JSON.parse(localStorage.getItem('coasterGridRandomSave'));
-        if (randomSave) {
-          randomGameGrid = randomSave.gameGrid;
-          randomUsedCoasterIds = new Set(randomSave.usedCoasterIds);
-          randomRowCriteria = randomSave.rowCriteria;
-          randomColCriteria = randomSave.colCriteria;
-          renderGrid('random');
-        }
+        createDailyPuzzle();
       }
     }
 
@@ -1504,150 +1399,6 @@
       }
     ];
 
-    function generatePuzzle() {
-      let maxAttempts = 100; // Increased attempts
-      let attempts = 0;
-      let success = false;
-
-      while (!success && attempts < maxAttempts) {
-        attempts++;
-        solution = [];
-
-        // Shuffle criteria options for row and column separately
-        const shuffledRowOptions = [...rowCriteriaOptions].sort(() => 0.5 - Math.random());
-        const shuffledColOptions = [...colCriteriaOptions].sort(() => 0.5 - Math.random());
-
-        // Select 3 random criteria for rows and columns
-        const selectedRowCriteria = shuffledRowOptions.slice(0, 3);
-        const selectedColCriteria = shuffledColOptions.slice(0, 3);
-
-        // Initialize row and column criteria arrays
-        rowCriteria = [];
-        colCriteria = [];
-
-        // For each row, select a value from its criteria type
-        for (let i = 0; i < 3; i++) {
-          const criteriaType = selectedRowCriteria[i];
-          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
-          rowCriteria.push({
-            type: criteriaType.type,
-            value,
-            matcher: criteriaType.matcher
-          });
-        }
-
-        // For each column, select a value from its criteria type
-        for (let i = 0; i < 3; i++) {
-          const criteriaType = selectedColCriteria[i];
-          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
-          colCriteria.push({
-            type: criteriaType.type,
-            value,
-            matcher: criteriaType.matcher
-          });
-        }
-
-        // Check if all cells have at least one matching coaster
-        let validCellCount = 0;
-        let cellSolutions = Array(3).fill().map(() => Array(3).fill(null));
-        let usedCoasterIds = new Set(); // Track used coasters to ensure unique solutions
-
-        // First pass: count valid cells and find matching coasters
-        for (let row = 0; row < 3; row++) {
-          for (let col = 0; col < 3; col++) {
-            const matchingCoasters = allCoasters.filter(coaster =>
-              rowCriteria[row].matcher(coaster, rowCriteria[row].value) &&
-              colCriteria[col].matcher(coaster, colCriteria[col].value)
-            );
-
-            if (matchingCoasters.length > 0) {
-              validCellCount++;
-              cellSolutions[row][col] = {
-                row,
-                col,
-                possibleCoasters: matchingCoasters
-              };
-            }
-          }
-        }
-
-        // If all cells have valid options, assign unique coasters where possible
-        if (validCellCount === 9) {
-          // Sort cells by number of possible coasters (least options first)
-          const cellsToFill = [];
-          for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 3; col++) {
-              cellsToFill.push({
-                row,
-                col,
-                possibleCount: cellSolutions[row][col].possibleCoasters.length
-              });
-            }
-          }
-
-          // Sort by number of possible coasters (ascending)
-          cellsToFill.sort((a, b) => a.possibleCount - b.possibleCount);
-
-          // Try to assign unique coasters to each cell
-          let allCellsFilled = true;
-
-          for (const cell of cellsToFill) {
-            const { row, col } = cell;
-            // Filter out already used coasters
-            const availableCoasters = cellSolutions[row][col].possibleCoasters.filter(
-              coaster => !usedCoasterIds.has(coaster.id)
-            );
-
-            if (availableCoasters.length > 0) {
-              // Select a random coaster from available options
-              const selectedCoaster = availableCoasters[Math.floor(Math.random() * availableCoasters.length)];
-              cellSolutions[row][col].selectedCoaster = selectedCoaster;
-              usedCoasterIds.add(selectedCoaster.id);
-            } else if (cellSolutions[row][col].possibleCoasters.length > 0) {
-              // If no unique coaster is available, just use any valid one
-              const selectedCoaster = cellSolutions[row][col].possibleCoasters[
-                Math.floor(Math.random() * cellSolutions[row][col].possibleCoasters.length)
-              ];
-              cellSolutions[row][col].selectedCoaster = selectedCoaster;
-            } else {
-              allCellsFilled = false;
-              break;
-            }
-          }
-
-          if (allCellsFilled) {
-            // All cells have valid solutions, flatten the solution array
-            solution = [];
-            for (let row = 0; row < 3; row++) {
-              for (let col = 0; col < 3; col++) {
-                solution.push({
-                  row,
-                  col,
-                  selectedCoaster: cellSolutions[row][col].selectedCoaster,
-                  possibleCoasters: cellSolutions[row][col].possibleCoasters
-                });
-              }
-            }
-            success = true;
-          }
-        }
-      }
-
-      if (!success) {
-        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Trying with different criteria...`);
-        return false; // Signal that we need to try again
-      }
-
-      // Validate the solution before accepting it
-      const validationResult = validateSolution();
-      if (!validationResult.valid) {
-        console.warn("Generated puzzle has validation issues:", validationResult.message);
-        return false;
-      }
-
-      return true; // Successfully generated a puzzle
-    }
-
     function validateSolution() {
       // Check that each solution cell has a selected coaster
       for (const cell of solution) {
@@ -1716,9 +1467,8 @@
     function renderGrid(mode) {
       coasterGrid.innerHTML = '';
 
-      const { activeRowCriteria, activeColCriteria } = (mode === 'daily')
-        ? { activeRowCriteria: dailyRowCriteria, activeColCriteria: dailyColCriteria }
-        : { activeRowCriteria: randomRowCriteria, activeColCriteria: randomColCriteria };
+      const activeRowCriteria = dailyRowCriteria;
+      const activeColCriteria = dailyColCriteria;
 
       // Add corner cell
       const cornerCell = document.createElement('div');
