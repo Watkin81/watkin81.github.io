@@ -771,6 +771,14 @@
       });
     }
 
+    function shuffleArray(array, rng) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
     function validateAllSolutions() {
       console.log("Validating all solutions...");
       let allValid = true;
@@ -998,8 +1006,8 @@
       console.log(`[generateDailyPuzzle] Start generating with seed: ${seed}`);
       const rng = createSeededRandom(seed);
     
-      const shuffledRowCriteria = [...rowCriteriaOptions].sort(() => rng() - 0.5);
-      const shuffledColCriteria = [...colCriteriaOptions].sort(() => rng() - 0.5);
+      const shuffledRowCriteria = shuffleArray([...rowCriteriaOptions], rng);
+      const shuffledColCriteria = shuffleArray([...colCriteriaOptions], rng);
     
       const selectedRowCriteria = shuffledRowCriteria.slice(0, 3).map(c => {
         const value = c.values[Math.floor(rng() * c.values.length)];
