@@ -860,7 +860,7 @@
       dailyPuzzleDate = today;
 
       // Get today's seed
-      const seed = getDailySeed();
+      let seed = getDailySeed();
 
       // Check if we have a saved game for today
       const savedDailyGame = JSON.parse(localStorage.getItem('coasterGridDailyGame'));
