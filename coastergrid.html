@@ -2017,85 +2017,52 @@
     }
 
     function endGame(fromSave = false) {
-      if (!fromSave && !confirm("Are you ready to end the game and see results?")) {
-        return;
+  if (!fromSave && !confirm("Are you ready to end the game and see results?")) {
+    return;
+  }
+
+  const activeSolution = (currentMode === 'daily') ? dailySolution : solution;
+  const activeRowCriteria = (currentMode === 'daily') ? dailyRowCriteria : rowCriteria;
+  const activeColCriteria = (currentMode === 'daily') ? dailyColCriteria : colCriteria;
+
+  let correctCells = [];
+  let emptyCells = [];
+
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+
+    const rowCriterion = activeRowCriteria[row];
+    const colCriterion = activeColCriteria[col];
+
+    if (cell.dataset.coasterId) {
+      const coasterId = parseInt(cell.dataset.coasterId);
+      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+
+      if (selectedCoaster && rowCriterion.matcher(selectedCoaster, rowCriterion.value) && colCriterion.matcher(selectedCoaster, colCriterion.value)) {
+        cell.classList.add('correct');
+        updateCellDisplay(cell, selectedCoaster, true);
+        correctCells.push({ row, col });
+      } else {
+        cell.classList.add('incorrect');
+        updateCellDisplay(cell, selectedCoaster, true);
       }
-    
-      const activeSolution = (currentMode === 'daily') ? dailySolution : solution;
-      const activeRowCriteria = (currentMode === 'daily') ? dailyRowCriteria : rowCriteria;
-      const activeColCriteria = (currentMode === 'daily') ? dailyColCriteria : colCriteria;
-      
-      const rowCriterion = activeRowCriteria[row];
-      const colCriterion = activeColCriteria[col];
-    
-      let correctCells = [];
-      let emptyCells = [];
-    
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-    
-        if (cell.dataset.coasterId) {
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
-    
-          const rowCriterion = activeRowCriteria[row];
-          const colCriterion = activeColCriteria[col];
-    
-          if (selectedCoaster && rowCriterion.matcher(selectedCoaster, rowCriterion.value) && colCriterion.matcher(selectedCoaster, colCriterion.value)) {
-            cell.classList.add('correct');
-            updateCellDisplay(cell, selectedCoaster, true);
-            correctCells.push({ row, col });
-          } else {
-            cell.classList.add('incorrect');
-            updateCellDisplay(cell, selectedCoaster, true);
-          }
-        } else {
-          emptyCells.push({ row, col });
-        }
-      });
-    
-      emptyCells.forEach(({ row, col }) => {
-        const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = activeSolution.find(s => s.row === row && s.col === col);
-    
-        if (cellSolution && cellSolution.selectedCoaster) {
-          const solutionCoaster = cellSolution.selectedCoaster;
-    
-          if (isCoasterValidForCell(solutionCoaster, row, col)) {
-            updateCellDisplay(cell, solutionCoaster, true);
-            cell.classList.add('unguessed');
-          } else {
-            const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
-            if (validCoasters.length > 0) {
-              const alternativeSolution = validCoasters[0];
-              updateCellDisplay(cell, alternativeSolution, true);
-              cell.classList.add('unguessed');
-            }
-          }
-        }
-      });
-    
-      resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-    
-      if (currentMode === 'daily') {
-        createEmojiResults();
-      }
-    
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
-    
-      if (currentMode === 'daily') {
-        const savedState = JSON.parse(localStorage.getItem('coasterGridDailyGame')) || {};
-        savedState.completed = true;
-        localStorage.setItem('coasterGridDailyGame', JSON.stringify(savedState));
-      }
+    } else {
+      emptyCells.push({ row, col });
+    }
+  });
+
+  if (!fromSave) {
+    if (emptyCells.length > 0) {
+      alert("Some cells are empty. Fill in all cells before ending the game!");
+      return;
     }
 
+    setTimeout(() => {
+      alert(`Game over! You got ${correctCells.length}/9 correct.`);
+    }, 100);
+  }
+}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
