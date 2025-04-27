@@ -995,6 +995,7 @@
     }
 
     function generateDailyPuzzle(seed, maxAttempts = 50) {
+      console.log(`[generateDailyPuzzle] Start generating with seed: ${seed}`);
       const rng = createSeededRandom(seed);
     
       const shuffledRowCriteria = [...rowCriteriaOptions].sort(() => rng() - 0.5);
@@ -1022,6 +1023,7 @@
           );
     
           if (matchingCoasters.length === 0) {
+            console.warn(`[generateDailyPuzzle] Failed to find coaster for row ${row}, col ${col}, criteria: row(${selectedRowCriteria[row].type}=${selectedRowCriteria[row].value}), col(${selectedColCriteria[col].type}=${selectedColCriteria[col].value})`);
             return null; // FAIL if any cell can't be filled
           }
     
@@ -1071,20 +1073,29 @@
 
     function createDailyPuzzle() {
       const seed = getDailySeed();
+      console.log(`[DailyPuzzle] Today's date seed: ${seed}`);
+      
       let puzzle = null;
       let attempts = 0;
     
       while (!puzzle && attempts < 50) {
+        console.log(`[DailyPuzzle] Attempt #${attempts + 1} with seed: ${seed + attempts}`);
         puzzle = generateDailyPuzzle(seed + attempts);
         attempts++;
       }
     
       if (puzzle) {
+        console.log(`[DailyPuzzle] Successfully generated daily puzzle with final seed: ${puzzle.seed}`);
+        console.log(`[DailyPuzzle] Row Criteria:`, puzzle.rowCriteria.map(c => `${c.type}: ${c.value}`));
+        console.log(`[DailyPuzzle] Column Criteria:`, puzzle.colCriteria.map(c => `${c.type}: ${c.value}`));
+        console.log(`[DailyPuzzle] Coaster IDs:`, puzzle.coasterIds);
         renderDailyPuzzle(puzzle);
       } else {
+        console.error("[DailyPuzzle] Failed to generate today's puzzle after 50 attempts.");
         alert("Failed to generate today's puzzle. Please try again tomorrow!");
       }
     }
+
 
     // Save game state to localStorage
     function saveGameState() {
