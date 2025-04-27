@@ -851,16 +851,33 @@
 
     function getDailySeed() {
       try {
-        // Get current time in EST (UTC-5)
         const now = new Date();
-        const estOffset = -5 * 60 * 60 * 1000; // EST is UTC-5 hours
-        const estTime = new Date(now.getTime() + estOffset);
-        
-        // Use EST date (will change at midnight EST)
-        return Math.floor(estTime.getTime() / 86400000);
+    
+        // Get the current time in UTC
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    
+        // Get the EST/EDT offset (UTC-5 or UTC-4 depending on DST)
+        const est = new Date(utc + (3600000 * -5)); // Default to EST (UTC-5)
+    
+        // Check if in DST (March to November)
+        const jan = new Date(now.getFullYear(), 0, 1);
+        const jul = new Date(now.getFullYear(), 6, 1);
+        const stdTimezoneOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+        const isDST = now.getTimezoneOffset() < stdTimezoneOffset;
+    
+        const offset = isDST ? -4 : -5;
+        const estOrEdt = new Date(utc + (3600000 * offset));
+    
+        // Only care about year/month/day
+        const year = estOrEdt.getUTCFullYear();
+        const month = estOrEdt.getUTCMonth() + 1; // Months are 0-11
+        const day = estOrEdt.getUTCDate();
+    
+        // Create a simple number for seed
+        return parseInt(`${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}`);
       } catch (e) {
         console.error("Error generating daily seed:", e);
-        return 69; // Fallback seed
+        return 69;
       }
     }
 
@@ -988,32 +1005,31 @@
       dailyPuzzleDate = today;
       newGameBtn.style.display = 'none';
     
-      // Get today's UTC-based seed
-      const seed = getDailySeed();
-      console.log("Today's seed:", seed); // For debugging
-      
-      // Create a seeded random generator
-      const seededRandom = createSeededRandom(seed);
-      
-      // Override Math.random temporarily with our seeded version
-      const originalRandom = Math.random;
-      Math.random = seededRandom;
+      const baseSeed = getDailySeed();
+      console.log("Today's base seed:", baseSeed);
     
-      createNewGame(true);
+      let originalRandom = Math.random;
+      let seedOffset = 0;
+      let maxAttempts = 5; // Try up to 5 variations
+      let success = false;
     
-      // Restore original random function
-      Math.random = originalRandom;
-
-      try {
+      while (!success && seedOffset < maxAttempts) {
+        const seededRandom = createSeededRandom(baseSeed + seedOffset);
         Math.random = seededRandom;
-        createNewGame(true);
-      } catch (e) {
-        console.error("Error generating daily puzzle:", e);
-        // Fallback to non-seeded random if there's an error
-        Math.random = originalRandom;
-        createNewGame(true);
-      } finally {
-        Math.random = originalRandom;
+        try {
+          createNewGame(true);
+          success = true;
+        } catch (e) {
+          console.error(`Failed to generate daily puzzle with seed ${baseSeed + seedOffset}:`, e);
+          seedOffset++;
+        } finally {
+          Math.random = originalRandom;
+        }
+      }
+    
+      if (!success) {
+        console.error("Could not generate daily puzzle after several attempts.");
+        alert("Failed to generate today's puzzle. Please try again later.");
       }
     }
 
