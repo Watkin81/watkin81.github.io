@@ -2016,7 +2016,10 @@
         return;
       }
     
-      let activeSolution = currentMode === 'daily' ? dailySolution : solution;
+      const activeSolution = (currentMode === 'daily') ? dailySolution : solution;
+      const activeRowCriteria = (currentMode === 'daily') ? puzzle.rowCriteria : rowCriteria;
+      const activeColCriteria = (currentMode === 'daily') ? puzzle.colCriteria : colCriteria;
+    
       let correctCells = [];
       let emptyCells = [];
     
@@ -2028,7 +2031,10 @@
           const coasterId = parseInt(cell.dataset.coasterId);
           const selectedCoaster = allCoasters.find(c => c.id === coasterId);
     
-          if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
+          const rowCriterion = activeRowCriteria[row];
+          const colCriterion = activeColCriteria[col];
+    
+          if (selectedCoaster && rowCriterion.matcher(selectedCoaster, rowCriterion.value) && colCriterion.matcher(selectedCoaster, colCriterion.value)) {
             cell.classList.add('correct');
             updateCellDisplay(cell, selectedCoaster, true);
             correctCells.push({ row, col });
