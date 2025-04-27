@@ -720,6 +720,8 @@
       dailyModeBtn.classList.toggle('active', mode === 'daily');
       randomModeBtn.classList.toggle('active', mode === 'random');
 
+      newGameBtn.style.display = mode === 'random' ? 'inline-block' : 'none';
+
       // Save mode preference
       localStorage.setItem('coasterGridMode', mode);
 
@@ -859,6 +861,8 @@
       const today = new Date().toDateString();
       dailyPuzzleDate = today;
 
+      newGameBtn.style.display = 'none';
+      
       // Get today's seed
       let seed = getDailySeed();
 
