@@ -9,17 +9,20 @@
   <link rel="stylesheet" type="text/css" href="mainpage.css">
   <link rel="icon" type="image/x-icon" href="/images/FaviconGame2.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
+
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      background: #f5f5f5;
+      background: #1e1b2e;
+      color: white;
       margin: 0;
       padding: 20px;
     }
 
     .grid-container {
+      grid-template-columns: repeat(4, 100px);
+      grid-template-rows: repeat(4, 100px);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(4, 1fr);
@@ -188,6 +191,11 @@
       cursor: pointer;
     }
 
+    #endGameBtn {
+      background-color: orange;
+      color: white;
+    }
+
     .game-button:hover {
       background-color: #40a9ff;
     }
@@ -198,6 +206,7 @@
     }
 
     .check-results {
+      color: black !important;
       margin-top: 20px;
       padding: 10px;
       border-radius: 4px;
@@ -236,6 +245,8 @@
     }
 
     .criteria-info {
+      font-size: 16px;
+      font-weight: bold;
       font-size: 12px;
       margin-top: 5px;
       color: #666;
@@ -357,7 +368,9 @@
       background-color: #40a9ff;
     }
 
-    #settingsButton, #infoButton, #homeButton {
+    #settingsButton,
+    #infoButton,
+    #homeButton {
       position: fixed;
       top: 10px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -369,24 +382,33 @@
       z-index: 5;
       font-size: 1.5em;
     }
-    #settingsButton { right: 10px; }
-    #infoButton { right: 70px; }
-    #homeButton { left: 10px; }
+
+    #settingsButton {
+      right: 10px;
+    }
+
+    #infoButton {
+      right: 70px;
+    }
+
+    #homeButton {
+      left: 10px;
+    }
 
     #settingsButton:hover,
     #infoButton:hover,
     #homeButton:hover {
-        background-color: white;
-        color: black;
+      background-color: white;
+      color: black;
     }
 
-     #settingsButton:active,
-      #infoButton:active,
-      #homeButton:active {
-          background-color: white;
-          color: black;
-      }
-    
+    #settingsButton:active,
+    #infoButton:active,
+    #homeButton:active {
+      background-color: white;
+      color: black;
+    }
+
     .popupPanel {
       display: none;
       position: fixed;
@@ -414,30 +436,35 @@
 
 <body>
   <!-- Buttons (Top Right/Left) -->
-  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i class="fa-solid fa-house-chimney"></i></button>
+  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i
+      class="fa-solid fa-house-chimney"></i></button>
   <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
   <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
-  
+
   <!-- Settings Panel -->
   <div id="settingsPanel" class="popupPanel">
     <h3>Game Settings</h3>
     <p>Game settings coming soon!</p>
     <button onclick="toggleSettingsPanel()">Close</button>
   </div>
-  
+
   <!-- Info Panel -->
   <div id="infoPanel" class="popupPanel">
     <h3>How to Play</h3>
-    <p>Fill the grid with roller coasters that match the criteria for both the row and column! A coaster can be used only one time. There is a new puzzle every day, or you can play in random mode for unlimited puzzles!</p>
+    <p>Fill the grid with roller coasters that match the criteria for both the row and column! A coaster can be used
+      only one time. There is a new puzzle every day, or you can play in random mode for unlimited puzzles!</p>
     <h3>About the Project</h3>
     <p>This game was coded fully in html, css, and javascript as a personal project.</p>
-    <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/" target="_blank" rel="noopener noreferrer">Roller Coaster Instagram</a>!</p>
-    <p>The code for the project can be found on the <a href="https://github.com/Watkin81/watkin81.github.io/blob/main/coastergrid.html" target="_blank" rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
+    <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/"
+        target="_blank" rel="noopener noreferrer">Roller Coaster Instagram</a>!</p>
+    <p>The code for the project can be found on the <a
+        href="https://github.com/Watkin81/watkin81.github.io/blob/main/coastergrid.html" target="_blank"
+        rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
     <button onclick="toggleInfoPanel()">Close</button>
   </div>
-  
+
   <h1>Coaster Grid</h1>
-  
+
   <div class="mode-selector">
     <button class="mode-button active" id="dailyModeBtn">Daily Puzzle</button>
     <button class="mode-button" id="randomModeBtn">Random Puzzle</button>
@@ -531,6 +558,8 @@
 
     const updatedCellStyles = `
   .grid-container {
+  grid-template-columns: repeat(4, 100px);
+  grid-template-rows: repeat(4, 100px);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
@@ -934,7 +963,7 @@
       dailyPuzzleDate = today;
 
       newGameBtn.style.display = 'none';
-      
+
       // Get today's seed
       let seed = getDailySeed();
 
@@ -1896,42 +1925,42 @@
     }
 
     function createEmojiResults() {
-  const container = document.querySelector('.emoji-result-container');
-  if (container) container.remove();
+      const container = document.querySelector('.emoji-result-container');
+      if (container) container.remove();
 
-  const today = new Date();
-  const dateString = today.toLocaleDateString("en-US");
-  const puzzleNumber = getPuzzleNumber();
+      const today = new Date();
+      const dateString = today.toLocaleDateString("en-US");
+      const puzzleNumber = getPuzzleNumber();
 
-  let emojiGrid = '';
-  for (let row = 0; row < 3; row++) {
-    let rowEmojis = '';
-    for (let col = 0; col < 3; col++) {
-      const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-      if (cell.classList.contains('correct')) {
-        rowEmojis += '🟩';
-      } else if (cell.classList.contains('incorrect')) {
-        rowEmojis += '🟥';
-      } else if (cell.classList.contains('unguessed')) {
-        rowEmojis += '⬜';
-      } else {
-        rowEmojis += '⬛';
+      let emojiGrid = '';
+      for (let row = 0; row < 3; row++) {
+        let rowEmojis = '';
+        for (let col = 0; col < 3; col++) {
+          const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+          if (cell.classList.contains('correct')) {
+            rowEmojis += '🟩';
+          } else if (cell.classList.contains('incorrect')) {
+            rowEmojis += '🟥';
+          } else if (cell.classList.contains('unguessed')) {
+            rowEmojis += '⬜';
+          } else {
+            rowEmojis += '⬛';
+          }
+        }
+        emojiGrid += rowEmojis + '\n';
       }
-    }
-    emojiGrid += rowEmojis + '\n';
-  }
 
-  const resultText = `Coaster Grid ${puzzleNumber}\n${dateString}\n${emojiGrid}`;
+      const resultText = `Coaster Grid ${puzzleNumber}\n${dateString}\n${emojiGrid}`;
 
-  const resultContainer = document.createElement('div');
-  resultContainer.className = 'emoji-result-container';
-  resultContainer.innerHTML = `
+      const resultContainer = document.createElement('div');
+      resultContainer.className = 'emoji-result-container';
+      resultContainer.innerHTML = `
     <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
     <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy</button>
   `;
 
-  document.body.appendChild(resultContainer);
-}
+      document.body.appendChild(resultContainer);
+    }
 
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
