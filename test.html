@@ -926,6 +926,15 @@
       gameGrid = savedState.gameGrid;
       usedCoasterIds = new Set(savedState.usedCoasterIds);
 
+      rowCriteria.forEach(rc => {
+        const base = rowCriteriaOptions.find(opt => opt.type === rc.type);
+        if (base) rc.matcher = base.matcher;
+      });
+      colCriteria.forEach(cc => {
+        const base = colCriteriaOptions.find(opt => opt.type === cc.type);
+        if (base) cc.matcher = base.matcher;
+      });
+
       // Render grid with saved criteria
       renderGrid();
 
