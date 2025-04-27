@@ -1056,6 +1056,26 @@
       };
     }
 
+    function restoreDailyProgressToGrid() {
+      const saved = JSON.parse(localStorage.getItem('dailyProgress'));
+      if (!saved) return;
+    
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const coasterId = saved[row][col];
+          if (coasterId) {
+            const coaster = allCoasters.find(c => c.id === coasterId);
+            if (coaster) {
+              const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+              if (cell) {
+                updateCellDisplay(cell, coaster);
+              }
+            }
+          }
+        }
+      }
+    }
+
     function renderDailyPuzzle(puzzle) {
       coasterGrid.innerHTML = '';
     
@@ -1124,6 +1144,8 @@
         console.log(`[DailyPuzzle] Column Criteria:`, puzzle.colCriteria.map(c => `${c.type}: ${c.value}`));
         console.log(`[DailyPuzzle] Coaster IDs:`, puzzle.coasterIds);
         renderDailyPuzzle(puzzle);
+        loadDailyProgress();
+        restoreDailyProgressToGrid();
       } else {
         console.error("[DailyPuzzle] Failed to generate today's puzzle after 50 attempts.");
         alert("Failed to generate today's puzzle. Please try again tomorrow!");
@@ -1165,7 +1187,16 @@
     }
 
     function saveDailyProgress() {
-      localStorage.setItem('dailyProgress', JSON.stringify(dailyGameGrid));
+      const progress = Array.from({ length: 3 }, () => Array(3).fill(null));
+    
+      document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const coasterId = parseInt(cell.dataset.coasterId);
+        progress[row][col] = coasterId;
+      });
+    
+      localStorage.setItem('dailyProgress', JSON.stringify(progress));
     }
     
     function loadDailyProgress() {
@@ -2056,19 +2087,17 @@
     coasterSearchBox.addEventListener('input', findCoasters);
 
     selectButton.addEventListener('click', () => {
-      const coaster = allCoasters.find(c => c.id == selectedCoasterId);
+      const coaster = selectedCoaster;
       if (!coaster) return;
+      if (!currentCell) return;
+    
+      updateCellDisplay(currentCell, coaster);
+      usedCoasterIds.add(coaster.id);
+      closeSearchModal();
     
       if (currentMode === 'daily') {
-        dailyGameGrid[row][col] = coaster;
         saveDailyProgress();
-      } else {
-        gameGrid[row][col] = coaster;
-        saveGameState();
       }
-    
-      updateCellDisplay(cell, coaster);
-      closeSearchModal();
     });
 
     // Close modal if clicking outside of it
