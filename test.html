@@ -1561,7 +1561,7 @@
             (coaster.name.toLowerCase().includes(query) ||
               coaster.park.toLowerCase().includes(query)) &&
             !usedCoasterIds.has(coaster.id) // Exclude already used coasters
-          ); // Removed the .slice(0, 100) to show all matching results
+          );
 
           displaySearchResults(results);
         }, 300);
