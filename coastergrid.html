@@ -1154,6 +1154,8 @@
               success = true;
             }
           }
+
+            console.log(`Puzzle generation ${success ? 'succeeded' : 'failed'} after ${attempts} attempt(s).`);
         
           if (!success) {
             console.warn(`Failed to generate valid puzzle after ${maxAttempts} attempts`);
@@ -1181,6 +1183,8 @@
 
             // No saved game or wrong day: Create a new one
             console.log('Generating new daily game...');
+            const seed = getDailySeed();
+            console.log(`Using seed: ${seed}`);
 
             solution = [];
             gameGrid = Array(3).fill().map(() => Array(3).fill(null));
@@ -1641,6 +1645,7 @@
                 const col = parseInt(currentCell.dataset.col);
                 gameGrid[row][col] = selectedCoaster;
 
+                saveGameState();
                 closeSearchModal();
             }
         });
@@ -1755,7 +1760,8 @@
             grid: gameGrid.map(row => row.map(coaster => coaster ? coaster.id : null)),
             used: Array.from(usedCoasterIds),
             rowCriteria: rowCriteria,
-            colCriteria: colCriteria
+            colCriteria: colCriteria,
+            gameEnded: document.querySelector('.cell.correct') !== null || document.querySelector('.cell.incorrect') !== null
           };
           localStorage.setItem('coasterGridDaily', JSON.stringify(state));
         }
@@ -1773,17 +1779,13 @@
         }
 
         function loadGameFromState(state) {
-          // Restore grid
           gameGrid = state.grid.map(row => row.map(id => id ? allCoasters.find(c => c.id === id) : null));
           usedCoasterIds = new Set(state.used);
-        
-          // Restore criteria
           rowCriteria = state.rowCriteria;
           colCriteria = state.colCriteria;
-        
+          
           renderGrid();
-        
-          // Re-populate filled cells
+          
           gameGrid.forEach((row, r) => {
             row.forEach((coaster, c) => {
               if (coaster) {
@@ -1794,6 +1796,11 @@
               }
             });
           });
+        
+          // Check if game was ended
+          if (state.gameEnded) {
+            setTimeout(() => endGame(), 100); // Slight delay to let grid render
+          }
         }
 
         // Call this function when the page loads
