@@ -9,20 +9,16 @@
   <link rel="stylesheet" type="text/css" href="mainpage.css">
   <link rel="icon" type="image/x-icon" href="/images/FaviconGame2.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      background: #11111a;
-      color: white;
+      background: #f5f5f5;
       margin: 0;
       padding: 20px;
     }
 
     .grid-container {
-      grid-template-columns: repeat(4, 100px);
-      grid-template-rows: repeat(4, 100px);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(4, 1fr);
@@ -48,7 +44,6 @@
     .header {
       font-weight: bold;
       background-color: #e0e0e0;
-      color: black;
     }
 
     .input-cell {
@@ -64,7 +59,6 @@
     }
 
     .park-name {
-      color: black !important;
       font-size: 12px;
       color: #666;
       margin-top: 5px;
@@ -193,11 +187,6 @@
       cursor: pointer;
     }
 
-    #endGameBtn {
-      background-color: orange;
-      color: white;
-    }
-
     .game-button:hover {
       background-color: #40a9ff;
     }
@@ -208,12 +197,10 @@
     }
 
     .check-results {
-      color: black !important;
       margin-top: 20px;
       padding: 10px;
       border-radius: 4px;
       display: none;
-      color: black;
     }
 
     .success {
@@ -247,9 +234,6 @@
     }
 
     .criteria-info {
-      color: black !important;
-      font-size: 16px;
-      font-weight: bold;
       font-size: 12px;
       margin-top: 5px;
       color: #666;
@@ -341,39 +325,14 @@
       margin-top: 3px;
     }
 
-    .mode-selector {
-      margin: 20px auto;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .mode-button {
-      padding: 10px 20px;
-      background-color: #f0f0f0;
-      color: #333;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .mode-button.active {
-      background-color: #1890ff;
-      color: white;
-    }
-
-    .mode-button:hover {
-      background-color: #e0e0e0;
-    }
-
-    .mode-button.active:hover {
-      background-color: #40a9ff;
+    .unguessed .cell-content {
+      background-color: rgba(204, 229, 255, 0.85);
     }
 
     #settingsButton,
     #infoButton,
-    #homeButton {
+    #homeButton,
+    #statsButton {
       position: fixed;
       top: 10px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -394,22 +353,46 @@
       right: 70px;
     }
 
+    #statsButton {
+      right: 130px;
+    }
+
     #homeButton {
       left: 10px;
     }
 
     #settingsButton:hover,
     #infoButton:hover,
-    #homeButton:hover {
+    #homeButton:hover,
+    #statsButton:hover {
       background-color: white;
       color: black;
     }
 
     #settingsButton:active,
     #infoButton:active,
-    #homeButton:active {
+    #homeButton:active,
+    #statsButton:active {
       background-color: white;
       color: black;
+    }
+
+    #closeButton {
+      color: gray;
+      background-color: white;
+      z-index: 6;
+      padding: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 100%;
+      transition-duration: 0.2s;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    #closeButton:hover {
+      background-color: lightgrey;
     }
 
     .popupPanel {
@@ -427,6 +410,56 @@
       font-family: sans-serif;
     }
 
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      /* semi-transparent black */
+      z-index: 5;
+      /* Behind panels, above background */
+    }
+
+    .solution-view {
+      background-color: #a1a1a1;
+    }
+
+    .flip-button {
+      all: unset;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-spinner-small {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1890ff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -441,24 +474,29 @@
 
 <body>
   <!-- Buttons (Top Right/Left) -->
-  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i
-      class="fa-solid fa-house-chimney"></i></button>
+  <button id="homeButton" onclick="window.location.href='index.html'"
+    title="Home Page"><iclass="fa-solidfa-house-chimney"></i></button>
+  <button id="statsButton" onclick="toggleStatsPanel()" title="Stats"><i class="fas fa-trophy"></i></button>
   <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
   <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
+
+  <div id="overlay"></div>
 
   <!-- Settings Panel -->
   <div id="settingsPanel" class="popupPanel">
     <h3>Game Settings</h3>
-    <p>Game settings coming soon!</p>
-    <button onclick="toggleSettingsPanel()">Close</button>
+    <p>Game settings coming soon! (including metric conversions)</p>
+    <h2 id="puzzleNumberDisplay" style="margin-top: 0; font-weight: normal; color: lightgray; display: none;"></h2>
+    <button id="closeButton" onclick="toggleSettingsPanel()">✖</button>
   </div>
 
   <!-- Info Panel -->
   <div id="infoPanel" class="popupPanel">
     <h3>How to Play</h3>
-    <p>Fill the grid with roller coasters that match the criteria for both the row and column!
-      The same coaster can only appear on the grid at most one time.
-      There is a new puzzle every day, or you can play in random mode for unlimited puzzles!</p>
+    <p>Fill the grid with roller coasters that match the criteria for both the row and column!<br>
+      Add a coaster by clicking on a square, searching for a coaster, and then selecting it!<br>
+      The same coaster can only appear on the grid at most one time.<br>
+      There is a new puzzle every day (at midnight EST), or you can play in random mode for unlimited puzzles!</p>
     <h3>About the Project</h3>
     <p>This game was coded fully in html, css, and javascript as a personal project.</p>
     <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/"
@@ -466,16 +504,18 @@
     <p>The code for the project can be found on the <a
         href="https://github.com/Watkin81/watkin81.github.io/blob/main/coastergrid.html" target="_blank"
         rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
-    <button onclick="toggleInfoPanel()">Close</button>
+    <button id="closeButton" onclick="toggleInfoPanel()">✖</button>
+  </div>
+
+  <div id="statsPanel" class="popupPanel" style="width: 250%;">
+    <h3>Daily Game Stats</h3>
+    <div id="statsGraph" style="margin: 20px 0;"></div>
+    <p id="streakCounter" style="font-weight: bold; margin-top: 20px;">Current Streak: 0</p>
+    <button id="closeButton" onclick="toggleStatsPanel()">✖</button>
   </div>
 
   <h1>Coaster Grid</h1>
-<p>I will do site decoration and formatting later lol</p>
-
-  <div class="mode-selector">
-    <button class="mode-button active" id="dailyModeBtn">Daily Puzzle</button>
-    <button class="mode-button" id="randomModeBtn">Random Puzzle</button>
-  </div>
+  <p>I will do site decoration and formatting later lol</p>
 
   <div class="game-controls">
     <button class="game-button" id="newGameBtn">New Game</button>
@@ -497,8 +537,11 @@
   <div id="searchModal" class="search-modal">
     <div class="search-content">
       <h2>Select a Coaster...</h2>
-      <div class="search-container">
+      <div class="search-container" style="position: relative;">
         <input type="text" id="coasterSearchBox" placeholder="Type coaster name...">
+        <div id="searchLoading" style="display: none; position: absolute; top: 12px; right: 16px;">
+          <div class="loading-spinner-small"></div>
+        </div>
         <div class="search-list hide-search-list" id="searchList">
           <!-- Search results will be added here -->
         </div>
@@ -532,9 +575,7 @@
     let colCriteria = [];
     let allCoasters = [];
     let usedCoasterIds = new Set();
-    let currentMode = 'daily'; // 'daily' or 'random' modes
-    let dailyPuzzleDate = null;
-    let gameState = null;
+    let gameEnded = false;
 
     // Global variables to track units and values
     let metricCriteriaValues = {
@@ -560,13 +601,9 @@
     const endGameBtn = document.getElementById('endGameBtn');
     const resultsMessage = document.getElementById('resultsMessage');
     const loadingContainer = document.getElementById('loadingContainer');
-    const dailyModeBtn = document.getElementById('dailyModeBtn');
-    const randomModeBtn = document.getElementById('randomModeBtn');
 
     const updatedCellStyles = `
   .grid-container {
-  grid-template-columns: repeat(4, 100px);
-  grid-template-rows: repeat(4, 100px);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
@@ -589,7 +626,6 @@
     position: relative;
   }
   .cell-content {
-  color: black;
     position: relative;
     z-index: 2;
     background-color: rgba(255, 255, 255, 0.85);
@@ -609,15 +645,12 @@
     z-index: 1;
   }
   .filled-cell .cell-content {
-  color: black;
     background-color: rgba(230, 247, 255, 0.85);
   }
   .correct .cell-content {
-  color: black;
     background-color: rgba(183, 235, 143, 0.85);
   }
   .incorrect .cell-content {
-  color: black;
     background-color: rgba(255, 204, 199, 0.85);
   }
 `;
@@ -801,53 +834,17 @@
     }
 
     // Initialize game
-    function initGame() {
+    async function initGame() {
+      // Remove unit toggle related code
       fixMatcherFunctions();
 
-      // Set up event listeners
-      newGameBtn.addEventListener('click', createNewGame);
+      //newGameBtn.addEventListener('click', createNewGame);
+      newGameBtn.style.display = 'none';
       endGameBtn.addEventListener('click', endGame);
 
-      // Mode selector listeners
-      dailyModeBtn.addEventListener('click', () => switchMode('daily'));
-      randomModeBtn.addEventListener('click', () => switchMode('random'));
-
-      // Load any saved game state
-      loadGameState();
-
-      // Create initial game based on current mode
-      if (currentMode === 'daily') {
-        createDailyPuzzle();
-      } else {
-        createNewGame();
-      }
-    }
-
-    function switchMode(mode) {
-      if (mode === currentMode) return;
-
-      currentMode = mode;
-
-      // Update UI
-      dailyModeBtn.classList.toggle('active', mode === 'daily');
-      randomModeBtn.classList.toggle('active', mode === 'random');
-
-      newGameBtn.style.display = mode === 'random' ? 'inline-block' : 'none';
-
-      // Save mode preference
-      localStorage.setItem('coasterGridMode', mode);
-
-      // Create new game
-      if (mode === 'daily') {
-        createDailyPuzzle();
-      } else {
-        createNewGame();
-      }
-    }
-
-    function getDailySeed() {
-      // Calculate days since epoch (same for all users in same timezone)
-      return Math.floor(Date.now() / 86400000);
+      const rng = await getSeededRandom();
+      setupDailyGame(rng);
+      //createNewGame();
     }
 
     function fixMatcherFunctions() {
@@ -928,7 +925,7 @@
       });
     }
 
-    function createNewGame(isDaily = false) {
+    function createNewGame() {
       // Clear any existing game state
       solution = [];
       gameGrid = Array(3).fill().map(() => Array(3).fill(null));
@@ -944,7 +941,7 @@
 
       // Try to generate a valid puzzle
       let puzzleGenerated = false;
-      let maxTries = 10;
+      let maxTries = 10; // Increased from 5 to 10
       let tries = 0;
 
       while (!puzzleGenerated && tries < maxTries) {
@@ -962,122 +959,6 @@
 
       // Validate all solutions after grid creation
       validateAllSolutions();
-
-      // For daily puzzles, save initial state
-      if (isDaily) {
-        saveGameState();
-      }
-    }
-
-    function createDailyPuzzle() {
-      const today = new Date().toDateString();
-      dailyPuzzleDate = today;
-
-      newGameBtn.style.display = 'none';
-
-      // Get today's seed
-      let seed = getDailySeed();
-
-      // Check if we have a saved game for today
-      const savedDailyGame = JSON.parse(localStorage.getItem('coasterGridDailyGame'));
-
-      if (savedDailyGame && savedDailyGame.date === today) {
-        // Restore saved game
-        restoreGame(savedDailyGame);
-      } else {
-        // Generate new daily puzzle using date as seed
-        const randomBackup = Math.random; // Backup original random function
-
-        // Create a simple seeded random based on the date
-        Math.random = function () {
-          const x = Math.sin(seed++) * 10000;
-          return x - Math.floor(x);
-        };
-
-        createNewGame(true);
-
-        // Restore original random function
-        Math.random = randomBackup;
-      }
-    }
-
-    // Save game state to localStorage
-    function saveGameState() {
-      if (currentMode !== 'daily') return;
-
-      const state = {
-        date: dailyPuzzleDate,
-        mode: currentMode,
-        solution: solution,
-        rowCriteria: rowCriteria,
-        colCriteria: colCriteria,
-        gameGrid: gameGrid,
-        usedCoasterIds: Array.from(usedCoasterIds),
-        filledCells: getFilledCellsData()
-      };
-
-      localStorage.setItem('coasterGridDailyGame', JSON.stringify(state));
-    }
-
-    function getFilledCellsData() {
-      const filledCells = [];
-      document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
-        filledCells.push({
-          row: parseInt(cell.dataset.row),
-          col: parseInt(cell.dataset.col),
-          coasterId: parseInt(cell.dataset.coasterId)
-        });
-      });
-      return filledCells;
-    }
-
-    function restoreGame(savedState) {
-      solution = savedState.solution;
-      rowCriteria = savedState.rowCriteria;
-      colCriteria = savedState.colCriteria;
-      gameGrid = savedState.gameGrid;
-      usedCoasterIds = new Set(savedState.usedCoasterIds);
-
-      rowCriteria.forEach(rc => {
-        const base = rowCriteriaOptions.find(opt => opt.type === rc.type);
-        if (base) rc.matcher = base.matcher;
-      });
-      colCriteria.forEach(cc => {
-        const base = colCriteriaOptions.find(opt => opt.type === cc.type);
-        if (base) cc.matcher = base.matcher;
-      });
-
-      // Render grid with saved criteria
-      renderGrid();
-
-      // Restore filled cells
-      if (savedState.filledCells) {
-        savedState.filledCells.forEach(cellData => {
-          const coaster = allCoasters.find(c => c.id === cellData.coasterId);
-          if (coaster) {
-            const cell = document.querySelector(`.cell.input-cell[data-row="${cellData.row}"][data-col="${cellData.col}"]`);
-            if (cell) {
-              updateCellDisplay(cell, coaster, false);
-            }
-          }
-        });
-      }
-
-      // If game was completed, show results
-      if (savedState.completed) {
-        endGame(true);
-      }
-    }
-
-    // Load game state from localStorage
-    function loadGameState() {
-      // Load mode preference
-      const savedMode = localStorage.getItem('coasterGridMode');
-      if (savedMode) {
-        currentMode = savedMode;
-        dailyModeBtn.classList.toggle('active', savedMode === 'daily');
-        randomModeBtn.classList.toggle('active', savedMode === 'random');
-      }
     }
 
     // Row criteria options
@@ -1315,8 +1196,69 @@
       }
     ];
 
-    function generatePuzzle() {
-      let maxAttempts = 100; // Increased attempts
+    function simpleEncrypt(id) {
+      return btoa((id * 73 + 17).toString()); // multiply by 73, add 17, then base64 encode
+    }
+
+    function simpleDecrypt(encoded) {
+      return (parseInt(atob(encoded)) - 17) / 73;
+    }
+
+    function shuffleArray(array, rng) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function getDailySeed() {
+      const now = new Date();
+
+      // Get UTC time in milliseconds
+      const utcTimestamp = now.getTime() + (now.getTimezoneOffset() * 60000);
+
+      // Eastern Time is UTC-5 in winter, UTC-4 in summer (Daylight Saving Time)
+      // Let's detect whether daylight saving time is in effect
+      const estOffset = isDST(new Date(utcTimestamp)) ? -4 : -5;
+
+      // Shift the UTC timestamp by Eastern offset
+      const estTimestamp = utcTimestamp + (estOffset * 60 * 60 * 1000);
+      const estDate = new Date(estTimestamp);
+
+      const year = estDate.getFullYear();
+      const month = (estDate.getMonth() + 1).toString().padStart(2, '0');
+      const day = estDate.getDate().toString().padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function isDST(date) {
+      const jan = new Date(date.getFullYear(), 0, 1).getTimezoneOffset();
+      const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
+      return Math.max(jan, jul) !== date.getTimezoneOffset();
+    }
+
+    function mulberry32(seed) {
+      let t = seed += 0x6D2B79F5;
+      return function () {
+        t = Math.imul(t ^ (t >>> 15), 1 | t);
+        t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+    }
+
+    async function getSeededRandom() {
+      const seedString = getDailySeed();
+      const buffer = new TextEncoder().encode(seedString);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const seed = hashArray.slice(0, 4).reduce((a, b) => (a << 8) | b, 0); // 4 bytes => 32-bit number
+      return mulberry32(seed);
+    }
+
+    function generatePuzzle(rng) {
+      let maxAttempts = 100;
       let attempts = 0;
       let success = false;
 
@@ -1325,8 +1267,8 @@
         solution = [];
 
         // Shuffle criteria options for row and column separately
-        const shuffledRowOptions = [...rowCriteriaOptions].sort(() => 0.5 - Math.random());
-        const shuffledColOptions = [...colCriteriaOptions].sort(() => 0.5 - Math.random());
+        const shuffledRowOptions = shuffleArray([...rowCriteriaOptions], rng);
+        const shuffledColOptions = shuffleArray([...colCriteriaOptions], rng);
 
         // Select 3 random criteria for rows and columns
         const selectedRowCriteria = shuffledRowOptions.slice(0, 3);
@@ -1336,10 +1278,10 @@
         rowCriteria = [];
         colCriteria = [];
 
-        // For each row, select a value from its criteria type
+        // Pick random values for row criteria
         for (let i = 0; i < 3; i++) {
           const criteriaType = selectedRowCriteria[i];
-          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
+          const value = criteriaType.values[Math.floor(rng() * criteriaType.values.length)];
           rowCriteria.push({
             type: criteriaType.type,
             value,
@@ -1347,10 +1289,10 @@
           });
         }
 
-        // For each column, select a value from its criteria type
+        // Pick random values for column criteria
         for (let i = 0; i < 3; i++) {
           const criteriaType = selectedColCriteria[i];
-          const value = criteriaType.values[Math.floor(Math.random() * criteriaType.values.length)];
+          const value = criteriaType.values[Math.floor(rng() * criteriaType.values.length)];
           colCriteria.push({
             type: criteriaType.type,
             value,
@@ -1361,9 +1303,9 @@
         // Check if all cells have at least one matching coaster
         let validCellCount = 0;
         let cellSolutions = Array(3).fill().map(() => Array(3).fill(null));
-        let usedCoasterIds = new Set(); // Track used coasters to ensure unique solutions
+        let usedCoasterIdsTemp = new Set(); // temp, for building the board
 
-        // First pass: count valid cells and find matching coasters
+        // Find possible coasters for each cell
         for (let row = 0; row < 3; row++) {
           for (let col = 0; col < 3; col++) {
             const matchingCoasters = allCoasters.filter(coaster =>
@@ -1382,81 +1324,112 @@
           }
         }
 
-        // If all cells have valid options, assign unique coasters where possible
-        if (validCellCount === 9) {
-          // Sort cells by number of possible coasters (least options first)
-          const cellsToFill = [];
-          for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 3; col++) {
-              cellsToFill.push({
-                row,
-                col,
-                possibleCount: cellSolutions[row][col].possibleCoasters.length
-              });
-            }
+        if (validCellCount !== 9) {
+          // Not enough coasters to fill grid
+          continue;
+        }
+
+        // Try to fill the grid with unique coasters
+        const cellsToFill = [];
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            cellsToFill.push({
+              row,
+              col,
+              possibleCoasters: cellSolutions[row][col].possibleCoasters
+            });
+          }
+        }
+
+        // Sort cells by fewest options first
+        cellsToFill.sort((a, b) => a.possibleCoasters.length - b.possibleCoasters.length);
+
+        let allCellsFilled = true;
+
+        for (const cell of cellsToFill) {
+          const available = cell.possibleCoasters.filter(c => !usedCoasterIdsTemp.has(c.id));
+
+          if (available.length === 0) {
+            allCellsFilled = false;
+            break;
           }
 
-          // Sort by number of possible coasters (ascending)
-          cellsToFill.sort((a, b) => a.possibleCount - b.possibleCount);
+          const selected = available[Math.floor(rng() * available.length)];
+          usedCoasterIdsTemp.add(selected.id);
 
-          // Try to assign unique coasters to each cell
-          let allCellsFilled = true;
+          solution.push({
+            row: cell.row,
+            col: cell.col,
+            selectedCoaster: selected,
+            possibleCoasters: cell.possibleCoasters
+          });
+        }
 
-          for (const cell of cellsToFill) {
-            const { row, col } = cell;
-            // Filter out already used coasters
-            const availableCoasters = cellSolutions[row][col].possibleCoasters.filter(
-              coaster => !usedCoasterIds.has(coaster.id)
-            );
-
-            if (availableCoasters.length > 0) {
-              // Select a random coaster from available options
-              const selectedCoaster = availableCoasters[Math.floor(Math.random() * availableCoasters.length)];
-              cellSolutions[row][col].selectedCoaster = selectedCoaster;
-              usedCoasterIds.add(selectedCoaster.id);
-            } else if (cellSolutions[row][col].possibleCoasters.length > 0) {
-              // If no unique coaster is available, just use any valid one
-              const selectedCoaster = cellSolutions[row][col].possibleCoasters[
-                Math.floor(Math.random() * cellSolutions[row][col].possibleCoasters.length)
-              ];
-              cellSolutions[row][col].selectedCoaster = selectedCoaster;
-            } else {
-              allCellsFilled = false;
-              break;
-            }
-          }
-
-          if (allCellsFilled) {
-            // All cells have valid solutions, flatten the solution array
-            solution = [];
-            for (let row = 0; row < 3; row++) {
-              for (let col = 0; col < 3; col++) {
-                solution.push({
-                  row,
-                  col,
-                  selectedCoaster: cellSolutions[row][col].selectedCoaster,
-                  possibleCoasters: cellSolutions[row][col].possibleCoasters
-                });
-              }
-            }
-            success = true;
-          }
+        if (allCellsFilled) {
+          success = true;
         }
       }
 
+      console.log(`Puzzle generation ${success ? 'succeeded' : 'failed'} after ${attempts} attempt(s).`);
+
       if (!success) {
-        console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Trying with different criteria...`);
-        return false; // Signal that we need to try again
+        console.warn(`Failed to generate valid puzzle after ${maxAttempts} attempts`);
+        return false;
       }
 
-      // Validate the solution before accepting it
+      // Final validation
       const validationResult = validateSolution();
       if (!validationResult.valid) {
         console.warn("Generated puzzle has validation issues:", validationResult.message);
         return false;
       }
 
-      return true; // Successfully generated a puzzle
+      return true;
+    }
+
+    async function setupDailyGame(rng) {
+      const seed = getDailySeed();
+      console.log(`Starting daily game with seed: ${seed}`);
+
+      const savedState = loadGameState();
+      if (savedState && savedState.date === seed) {
+        console.log('Loading saved game...');
+
+        loadGameFromState(savedState);
+        restoreCriteriaMatchers();
+
+        if (savedState.gameEnded) {
+          console.log('Game was already ended, showing results...');
+          setTimeout(() => {
+            endGame(true); // Silent end
+          }, 100);
+        }
+        return;
+      }
+
+      console.log('Generating new daily game...');
+
+      solution = [];
+      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+      usedCoasterIds = new Set();
+      resultsMessage.style.display = 'none';
+
+      let maxTries = 20;
+      let tries = 0;
+      let puzzleGenerated = false;
+
+      while (!puzzleGenerated && tries < maxTries) {
+        puzzleGenerated = generatePuzzle(rng);
+        tries++;
+      }
+
+      if (!puzzleGenerated) {
+        alert('Failed to generate puzzle. Please try again later.');
+        return;
+      }
+
+      renderGrid();
+      saveGameState();
     }
 
     function validateSolution() {
@@ -1590,20 +1563,47 @@
       currentCell = null;
     }
 
-    function findCoasters() {
-      let query = coasterSearchBox.value.trim().toLowerCase();
+    function restoreCriteriaMatchers() {
+      rowCriteria.forEach(criterion => {
+        const match = rowCriteriaOptions.find(opt => opt.type === criterion.type);
+        if (match) {
+          criterion.matcher = match.matcher;
+        }
+      });
+
+      colCriteria.forEach(criterion => {
+        const match = colCriteriaOptions.find(opt => opt.type === criterion.type);
+        if (match) {
+          criterion.matcher = match.matcher;
+        }
+      });
+    }
+
+    async function findCoasters() {
+      const query = coasterSearchBox.value.trim();
       if (query.length > 0) {
         searchList.classList.remove('hide-search-list');
         clearTimeout(debounce);
-        debounce = setTimeout(function () {
-          // Search locally in our loaded coaster data
-          const results = allCoasters.filter(coaster =>
-            (coaster.name.toLowerCase().includes(query) ||
-              coaster.park.toLowerCase().includes(query)) &&
-            !usedCoasterIds.has(coaster.id) // Exclude already used coasters
-          );
+        debounce = setTimeout(async function () {
+          try {
+            document.getElementById('searchLoading').style.display = 'block'; // show spinner
 
-          displaySearchResults(results);
+            const response = await fetch(`https://rcdb-api.vercel.app/api/coasters/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            document.getElementById('searchLoading').style.display = 'none'; // hide spinner
+
+            if (data.coasters && data.coasters.length > 0) {
+              const results = data.coasters;
+              displaySearchResults(results, true); // "true" means live API data
+            } else {
+              searchList.innerHTML = '<div class="search-item">No coasters found</div>';
+            }
+          } catch (error) {
+            document.getElementById('searchLoading').style.display = 'none'; // hide spinner
+            console.error('Error fetching search results:', error);
+            searchList.innerHTML = '<div class="search-item">Error searching coasters</div>';
+          }
         }, 300);
       } else {
         searchList.classList.add('hide-search-list');
@@ -1612,7 +1612,8 @@
       }
     }
 
-    function displaySearchResults(results) {
+
+    function displaySearchResults(results, isApiData = false) {
       searchList.innerHTML = '';
 
       if (results.length > 0) {
@@ -1620,34 +1621,44 @@
           const searchItem = document.createElement('div');
           searchItem.classList.add('search-item');
 
-          // Get location information
-          let location = '';
-          if (coaster.location) {
-            if (coaster.location.city) location += coaster.location.city;
-            if (coaster.location.state) location += location ? `, ${coaster.location.state}` : coaster.location.state;
-            if (coaster.location.country && !location.includes(coaster.location.country))
-              location += location ? `, ${coaster.location.country}` : coaster.location.country;
-          }
+          const parkName = isApiData ? (coaster.park?.name || '') : (coaster.park || '');
+          const city = isApiData ? (coaster.city || '') : '';
+          const state = isApiData ? (coaster.state || '') : '';
+          const country = isApiData ? (coaster.country || '') : '';
 
-          // Display search result
+          let locationText = '';
+          if (city) locationText += city;
+          if (state) locationText += (locationText ? ', ' : '') + state;
+          if (country) locationText += (locationText ? ', ' : '') + country;
+
           searchItem.innerHTML = `
             <div><strong>${coaster.name}</strong></div>
-            <div class="search-item-details">${coaster.park}${location ? ` - ${location}` : ''}</div>
+            <div class="search-item-details">${parkName}${locationText ? ` - ${locationText}` : ''}</div>
           `;
 
           searchItem.addEventListener('click', () => {
-            // Remove selected class from all items
             document.querySelectorAll('.search-item').forEach(item => {
               item.classList.remove('selected-coaster');
             });
-
-            // Add selected class to this item
             searchItem.classList.add('selected-coaster');
 
-            // Store selected coaster data
-            selectedCoaster = coaster;
+            selectedCoaster = isApiData ? {
+              id: coaster.id,
+              name: coaster.name,
+              park: coaster.park?.name || '',
+              manufacturer: coaster.make || '',
+              height: coaster.stats?.height ? parseFloat(coaster.stats.height) : 0,
+              length: coaster.stats?.length ? parseFloat(coaster.stats.length) : 0,
+              speed: coaster.stats?.speed ? parseFloat(coaster.stats.speed) : 0,
+              inversions: coaster.stats?.inversions ? parseInt(coaster.stats.inversions) : 0,
+              year: coaster.status?.date?.opened ? parseInt(coaster.status.date.opened.substring(0, 4)) : 0,
+              type: coaster.type || '',
+              design: coaster.design || '',
+              category: '', // not available from the API easily
+              country: coaster.country || '',
+              mainPicture: coaster.mainPicture?.url || ''
+            } : coaster;
 
-            // Enable select button
             selectButton.disabled = false;
           });
 
@@ -1670,6 +1681,35 @@
           return `${(parseFloat(value) * 0.621371).toFixed(1)}mph`;
         default:
           return value;
+      }
+    }
+
+    function getStatValue(coaster, type) {
+      switch (type.toLowerCase()) {
+        case 'height':
+          return formatMeasurement(coaster.height, 'height');
+        case 'length':
+          return formatMeasurement(coaster.length, 'length');
+        case 'speed':
+          return formatMeasurement(coaster.speed, 'speed');
+        case 'year':
+          return coaster.year || 'Unknown';
+        case 'inversions':
+          return coaster.inversions;
+        case 'manufacturer':
+          return coaster.manufacturer || 'Unknown';
+        case 'coaster type':
+          return coaster.type || 'Unknown';
+        case 'design':
+          return coaster.design || 'Unknown';
+        case 'category':
+          return coaster.category || 'Unknown';
+        case 'country':
+          return coaster.country || 'Unknown';
+        case 'name':
+          return coaster.name || 'Unknown';
+        default:
+          return 'Unknown';
       }
     }
 
@@ -1719,65 +1759,42 @@
     }
 
     function updateCellDisplay(cell, coaster, showStats = false) {
+      saveGameState();
+
       // Clear previous content
       cell.innerHTML = '';
 
-      // Create background div for the image
+      // Create background div
       const bgDiv = document.createElement('div');
       bgDiv.className = 'cell-bg';
-
-      // Set background image if available
       if (coaster.mainPicture) {
         bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
       }
 
-      // Create content div
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'cell-content';
+      // Create content div (wrapper for text content only)
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'cell-content';
 
-      // Only show criteria stats if we're checking answers (showStats = true)
       let statsHTML = '';
       if (showStats) {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-
-        // Get the criteria for this cell
         const rowCriterion = rowCriteria[row];
         const colCriterion = colCriteria[col];
 
-        // Format the row criterion value
-        let rowValue = rowCriterion.value;
-
-        // Format the column criterion value based on coaster properties and unit system
-        let colValue;
-        if (colCriterion.type === "height") {
-          colValue = formatMeasurement(coaster.height, "height");
-        } else if (colCriterion.type === "length") {
-          colValue = formatMeasurement(coaster.length, "length");
-        } else if (colCriterion.type === "speed") {
-          colValue = formatMeasurement(coaster.speed, "speed");
-        } else if (colCriterion.type === "year") {
-          colValue = coaster.year;
-        } else if (colCriterion.type === "inversions") {
-          colValue = coaster.inversions;
-        }
-
         statsHTML = `
-      <div class="stats-info">
-        ${rowCriterion.type}: ${rowValue}<br>
-        ${colCriterion.type}: ${colValue}
-      </div>`;
+          <div class="stats-info">
+            ${rowCriterion.type}: ${getStatValue(coaster, rowCriterion.type)}<br>
+            ${colCriterion.type}: ${getStatValue(coaster, colCriterion.type)}
+          </div>
+        `;
       }
 
-      contentDiv.innerHTML = `
-    <div>${coaster.name}</div>
-    <div class="park-name">${coaster.park}</div>
-    ${statsHTML}
-  `;
-
-      // Add elements to the cell
-      cell.appendChild(bgDiv);
-      cell.appendChild(contentDiv);
+      contentWrapper.innerHTML = `
+        <div>${coaster.name}</div>
+        <div class="park-name">${coaster.park}</div>
+        ${statsHTML}
+      `;
 
       // Add RCDB link
       const rcdbLink = document.createElement('a');
@@ -1785,94 +1802,143 @@
       rcdbLink.target = '_blank';
       rcdbLink.className = 'rcdb-link';
       rcdbLink.textContent = 'View on RCDB';
-      contentDiv.appendChild(rcdbLink);
+      contentWrapper.appendChild(rcdbLink);
 
-      // Update cell classes and data
+      // Append elements
+      cell.appendChild(bgDiv);
+      cell.appendChild(contentWrapper);
+
+      // Mark cell as filled
       cell.classList.add('filled-cell');
       cell.dataset.coasterId = coaster.id;
     }
 
-    function endGame(fromSave = false) {
-      if (!fromSave && !confirm("Are you ready to end the game and see results?")) {
-        return;
-      }
+    function addFlipButton(cell, userCoaster, solutionCoaster) {
+      // Always remove any old flip button if it exists
+      const existingButton = cell.querySelector('.flip-button');
+      if (existingButton) existingButton.remove();
 
-      // First check which cells are correct
+      const flipButton = document.createElement('button');
+      flipButton.className = 'flip-button';
+      flipButton.innerHTML = '🔄';
+      flipButton.style.position = 'absolute';
+      flipButton.style.bottom = '5px';
+      flipButton.style.right = '5px';
+      flipButton.style.background = 'rgba(255,255,255,0.7)';
+      flipButton.style.border = 'none';
+      flipButton.style.borderRadius = '50%';
+      flipButton.style.width = '30px';
+      flipButton.style.height = '30px';
+      flipButton.style.cursor = 'pointer';
+      flipButton.style.fontSize = '18px';
+      flipButton.title = 'Toggle between your guess and solution';
+      flipButton.style.zIndex = '5';
+
+      // Setup data attributes for tracking
+      cell.dataset.currentView = cell.dataset.currentView || 'user';
+      cell.dataset.userCoasterId = userCoaster.id;
+      cell.dataset.solutionCoasterId = solutionCoaster.id;
+
+      flipButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering cell click
+        const isUserView = cell.dataset.currentView === 'user';
+        const nextCoaster = isUserView ? solutionCoaster : userCoaster;
+
+        // Update coaster info
+        updateCellDisplay(cell, nextCoaster, true);
+
+        // Re-add the flip button
+        addFlipButton(cell, userCoaster, solutionCoaster);
+
+        // Remove previous color classes
+        cell.classList.remove('correct', 'incorrect', 'unguessed', 'solution-view');
+
+        if (isUserView) {
+          // Flipping to solution view
+          cell.classList.add('solution-view');
+
+          // FORCE background manually gray (because updateCellDisplay resets it)
+          const content = cell.querySelector('.cell-content');
+          if (content) {
+            content.style.backgroundColor = '#a1a1a1';
+          }
+        } else {
+          // Flipping back to user guess
+          if (isCoasterValidForCell(userCoaster, parseInt(cell.dataset.row), parseInt(cell.dataset.col))) {
+            cell.classList.add('correct');
+          } else {
+            cell.classList.add('incorrect');
+          }
+        }
+
+        // Toggle view state
+        cell.dataset.currentView = isUserView ? 'solution' : 'user';
+      });
+
+      // Finally, add the button to the cell
+      cell.appendChild(flipButton);
+    }
+
+    function endGame(silent = false) {
+      gameEnded = true;
+
       let correctCells = [];
-      let emptyCells = [];
 
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
 
-        if (cell.dataset.coasterId) {
-          // Cell is filled, check if it's correct
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+        const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
+        const selectedCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
 
-          if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
+        const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
+
+        if (selectedCoaster) {
+          if (isCoasterValidForCell(selectedCoaster, row, col)) {
+            // Exact match with the correct solution
             cell.classList.add('correct');
-            // Update with criteria stats showing
-            updateCellDisplay(cell, selectedCoaster, true);
             correctCells.push({ row, col });
           } else {
+            // Wrong guess
             cell.classList.add('incorrect');
-            // Update with criteria stats showing
-            updateCellDisplay(cell, selectedCoaster, true);
           }
+
+          // Always show the guessed coaster
+          updateCellDisplay(cell, selectedCoaster, true);
+
+          // Only add flip button if solution exists and guess was different
+          if (solutionCoaster) {
+            addFlipButton(cell, selectedCoaster, solutionCoaster);
+          }
+
         } else {
-          // Cell is empty
-          emptyCells.push({ row, col });
+          // No guess — fill with correct solution
+          updateCellDisplay(cell, solutionCoaster, true);
+          cell.classList.add('unguessed');
         }
       });
 
-      // Fill empty cells with solutions
-      emptyCells.forEach(({ row, col }) => {
-        const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-
-        if (cellSolution && cellSolution.selectedCoaster) {
-          const solutionCoaster = cellSolution.selectedCoaster;
-
-          // Double-check that this solution is actually valid
-          if (isCoasterValidForCell(solutionCoaster, row, col)) {
-            // Display solution with unguessed class instead of correct
-            updateCellDisplay(cell, solutionCoaster, true);
-            cell.classList.add('unguessed');
-          } else {
-            // The solution is invalid! Find a valid alternative
-            const validCoasters = allCoasters.filter(c => isCoasterValidForCell(c, row, col));
-            if (validCoasters.length > 0) {
-              const alternativeSolution = validCoasters[0];
-              updateCellDisplay(cell, alternativeSolution, true);
-              cell.classList.add('unguessed');
-            }
-          }
-        }
-      });
-
-      // Display results
+      // Correct count out of 9
       resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+      const correctCount = document.querySelectorAll('.cell.correct').length;
+      updateStats(correctCount);
+      renderStatsGraph();
+      resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
 
-      // Only create emoji results for daily mode
-      if (currentMode === 'daily') {
-        createEmojiResults();
-      }
+      createEmojiResults();
 
-      // Disable cell clicks after game is ended
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
       });
 
-      // Save completed state for daily puzzles
-      if (currentMode === 'daily') {
-        const savedState = JSON.parse(localStorage.getItem('coasterGridDailyGame')) || {};
-        savedState.completed = true;
-        localStorage.setItem('coasterGridDailyGame', JSON.stringify(savedState));
+      const endButton = document.getElementById('endGameBtn');
+      if (endButton) {
+        endButton.style.display = 'none';
       }
+
+      saveGameState();
     }
 
     // Event listeners
@@ -1891,11 +1957,7 @@
         const col = parseInt(currentCell.dataset.col);
         gameGrid[row][col] = selectedCoaster;
 
-        // Save game state if in daily mode
-        if (currentMode === 'daily') {
-          saveGameState();
-        }
-
+        saveGameState();
         closeSearchModal();
       }
     });
@@ -1928,26 +1990,24 @@
       document.head.appendChild(styleElement);
     }
 
-    function getPuzzleNumber() {
-      const startDate = new Date("2025-04-27");
-      const today = new Date();
-      const diffTime = today - startDate;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    }
-
     function createEmojiResults() {
-      const container = document.querySelector('.emoji-result-container');
-      if (container) container.remove();
-
-      const today = new Date();
-      const dateString = today.toLocaleDateString("en-US");
-      const puzzleNumber = getPuzzleNumber();
+      // Remove existing container if it exists
+      const existingContainer = document.querySelector('.emoji-result-container');
+      if (existingContainer) {
+        existingContainer.remove();
+      }
 
       let emojiGrid = '';
+
       for (let row = 0; row < 3; row++) {
         let rowEmojis = '';
         for (let col = 0; col < 3; col++) {
-          const cell = document.querySelector(`.cell.input-cell[data-row="${row}"][data-col="${col}"]`);
+          const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+          if (!cell) {
+            rowEmojis += '⬛'; // If cell somehow missing, treat it as empty
+            continue;
+          }
+
           if (cell.classList.contains('correct')) {
             rowEmojis += '🟩';
           } else if (cell.classList.contains('incorrect')) {
@@ -1958,28 +2018,308 @@
             rowEmojis += '⬛';
           }
         }
-        emojiGrid += rowEmojis + '\n';
+
+        emojiGrid += rowEmojis;
+        if (row !== 2) { // Only add newline if it's not the last row
+          emojiGrid += '\n';
+        }
       }
 
-      const resultText = `Coaster Grid ${puzzleNumber}\n${dateString}\n${emojiGrid}`;
+      const puzzleNumber = getPuzzleNumber();
+      const resultText = `Coaster Grid #${puzzleNumber}\n${emojiGrid}`;
 
       const resultContainer = document.createElement('div');
       resultContainer.className = 'emoji-result-container';
-      resultContainer.innerHTML = `
-    <pre style="font-size: 18px; font-family: monospace;">${resultText}</pre>
-    <button onclick="navigator.clipboard.writeText(\`${resultText}\`)">Copy</button>
-  `;
+      resultContainer.style.margin = '20px auto';
+      resultContainer.style.padding = '15px';
+      resultContainer.style.backgroundColor = '#f5f5f5';
+      resultContainer.style.borderRadius = '8px';
+      resultContainer.style.maxWidth = '300px';
+      resultContainer.style.textAlign = 'center';
 
-      document.body.appendChild(resultContainer);
+      const resultTextArea = document.createElement('textarea');
+      resultTextArea.value = resultText;
+      resultTextArea.readOnly = true;
+      resultTextArea.rows = 5;
+      resultTextArea.style.width = '100%';
+      resultTextArea.style.marginBottom = '10px';
+      resultTextArea.style.resize = 'none';
+      resultTextArea.style.fontFamily = 'monospace';
+
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy Results';
+      copyButton.className = 'game-button';
+      copyButton.onclick = function () {
+        resultTextArea.select();
+        document.execCommand('copy');
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+          copyButton.textContent = 'Copy Results';
+        }, 2000);
+      };
+
+      resultContainer.appendChild(resultTextArea);
+      resultContainer.appendChild(copyButton);
+
+      resultsMessage.after(resultContainer);
+
+      return resultText;
+    }
+
+    function saveGameState() {
+      const state = {
+        date: getDailySeed(),
+        grid: gameGrid.map(row => row.map(coaster => coaster ? simpleEncrypt(coaster.id) : null)), // encrypt IDs
+        used: Array.from(usedCoasterIds).map(id => simpleEncrypt(id)), // encrypt used coaster IDs
+        rowCriteria: rowCriteria,
+        colCriteria: colCriteria,
+        solution: solution.map(cell => ({
+          row: cell.row,
+          col: cell.col,
+          selectedCoasterId: simpleEncrypt(cell.selectedCoaster.id) // encrypt solution coaster IDs
+        })),
+        gameEnded: gameEnded
+      };
+      localStorage.setItem('coasterGridDaily', JSON.stringify(state));
+    }
+
+    function loadGameState() {
+      const saved = localStorage.getItem('coasterGridDaily');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved game state', e);
+        }
+      }
+      return null;
+    }
+
+    function forceShowEndState() {
+      gameEnded = true;
+
+      let correctCells = [];
+      let emptyCells = [];
+
+      document.querySelectorAll('.cell[data-row][data-col]').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+        if (cell.dataset.coasterId) {
+          const coasterId = parseInt(cell.dataset.coasterId);
+          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+
+          if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
+            cell.classList.add('correct');
+            updateCellDisplay(cell, selectedCoaster, true);
+            correctCells.push({ row, col });
+          } else {
+            cell.classList.add('incorrect');
+            updateCellDisplay(cell, selectedCoaster, true);
+          }
+        } else {
+          emptyCells.push({ row, col });
+        }
+      });
+
+      // Fill in the blanks with correct solutions
+      emptyCells.forEach(({ row, col }) => {
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+        if (cell && cellSolution && cellSolution.selectedCoaster) {
+          updateCellDisplay(cell, cellSolution.selectedCoaster, true);
+          cell.classList.add('unguessed');
+        }
+      });
+
+      resultsMessage.style.display = 'block';
+      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+      resultsMessage.className = 'check-results success';
+
+      createEmojiResults();
+    }
+
+    function loadGameFromState(state) {
+      gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
+      usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
+      rowCriteria = state.rowCriteria;
+      colCriteria = state.colCriteria;
+
+      solution = state.solution.map(cell => {
+        const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
+        return {
+          row: cell.row,
+          col: cell.col,
+          selectedCoaster: coaster
+        };
+      });
+
+      renderGrid();
+
+      // After rendering, restore filled cells
+      gameGrid.forEach((row, r) => {
+        row.forEach((coaster, c) => {
+          if (coaster) {
+            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+            if (cell) {
+              updateCellDisplay(cell, coaster, false); // show without stats first
+            }
+          }
+        });
+      });
+
+      // THEN if game already ended:
+      if (state.gameEnded) {
+        setTimeout(() => {
+          document.querySelectorAll('.cell.input-cell').forEach(cell => {
+            cell.onclick = null;
+            cell.classList.remove('input-cell');
+          });
+
+          forceShowEndState();
+        }, 50); // slight delay to make sure DOM is ready
+      }
+    }
+
+    function getPuzzleNumber() {
+      const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+      const startDate = new Date('2025-04-28T00:00:00-04:00'); // April 28, 2025, EST midnight
+
+      const msInDay = 1000 * 60 * 60 * 24;
+      const diffInMs = estNow - startDate;
+      const diffInDays = Math.floor(diffInMs / msInDay);
+
+      return diffInDays + 1;
+    }
+
+    function loadStats() {
+      const stats = JSON.parse(localStorage.getItem('coasterGridStats')) || {
+        correctCounts: {}, // how many times player got 0-9 correct
+        streak: 0,
+        lastPlayedDate: null
+      };
+      return stats;
+    }
+
+    function saveStats(stats) {
+      localStorage.setItem('coasterGridStats', JSON.stringify(stats));
+    }
+
+    function updateStats(correctOutOfNine) {
+      const stats = loadStats();
+      const today = getDailySeed();
+
+      // Only update once per day
+      if (stats.lastPlayedDate !== today) {
+        stats.correctCounts[correctOutOfNine] = (stats.correctCounts[correctOutOfNine] || 0) + 1;
+
+        if (correctOutOfNine >= 1) {
+          // At least one correct, continue or start streak
+          if (stats.lastPlayedDate === getYesterdaySeed()) {
+            stats.streak += 1;
+          } else {
+            stats.streak = 1;
+          }
+        } else {
+          // No correct, streak ends
+          stats.streak = 0;
+        }
+
+        stats.lastPlayedDate = today;
+        saveStats(stats);
+      }
+    }
+
+    function getYesterdaySeed() {
+      const now = new Date();
+      now.setUTCDate(now.getUTCDate() - 1);
+      const year = now.getUTCFullYear();
+      const month = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = now.getUTCDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderStatsGraph() {
+      const stats = loadStats();
+      const graph = document.getElementById('statsGraph');
+      const streak = document.getElementById('streakCounter');
+
+      // Clear old graph
+      graph.innerHTML = '';
+
+      // Build bars from 0 to 9
+      for (let i = 0; i <= 9; i++) {
+        const count = stats.correctCounts[i] || 0;
+
+        const barContainer = document.createElement('div');
+        barContainer.style.display = 'flex';
+        barContainer.style.alignItems = 'center';
+        barContainer.style.marginBottom = '4px';
+
+        const label = document.createElement('div');
+        label.textContent = `${i}`;
+        label.style.width = '40px';
+        label.style.textAlign = 'right';
+        label.style.marginRight = '10px';
+
+        const bar = document.createElement('div');
+        bar.style.height = '20px';
+        bar.style.width = `${count * 20}px`; // simple scale
+        bar.style.backgroundColor = '#1890ff';
+        bar.style.borderRadius = '4px';
+
+        const countLabel = document.createElement('span');
+        countLabel.textContent = ` ${count}`;
+        countLabel.style.marginLeft = '8px';
+        countLabel.style.fontSize = '12px';
+
+        barContainer.appendChild(label);
+        barContainer.appendChild(bar);
+        barContainer.appendChild(countLabel);
+
+        graph.appendChild(barContainer);
+      }
+
+      streak.textContent = `Current Streak: ${stats.streak}`;
     }
 
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      const overlay = document.getElementById('overlay');
+      if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+      } else {
+        panel.style.display = 'block';
+        overlay.style.display = 'block';
+      }
     }
+
     function toggleInfoPanel() {
       const panel = document.getElementById('infoPanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      const overlay = document.getElementById('overlay');
+      if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+      } else {
+        panel.style.display = 'block';
+        overlay.style.display = 'block';
+      }
+    }
+
+    function toggleStatsPanel() {
+      const panel = document.getElementById('statsPanel');
+      const overlay = document.getElementById('overlay');
+      if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+      } else {
+        panel.style.display = 'block';
+        overlay.style.display = 'block';
+        renderStatsGraph();
+      }
     }
 
     // Call this function when the page loads
@@ -1987,6 +2327,14 @@
 
     // Start the game by loading coaster data
     window.onload = loadCoasterData;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const puzzleNumber = getPuzzleNumber();
+      const titleElement = document.querySelector('h1');
+      if (titleElement) {
+        titleElement.textContent = `Coaster Grid #${puzzleNumber}`;
+      }
+    });
   </script>
 </body>
 
