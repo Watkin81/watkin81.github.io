@@ -416,7 +416,7 @@
       /* Behind panels, above background */
     }
 
-    .solution-view .cell-content {
+    .solution-view {
       background-color: #cccccc;
       /* Light gray */
     }
@@ -1860,7 +1860,7 @@
         const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
 
         if (selectedCoaster) {
-          if (solutionCoaster && selectedCoaster.id === solutionCoaster.id) {
+          if (isCoasterValidForCell(selectedCoaster, row, col)) {
             // Exact match with the correct solution
             cell.classList.add('correct');
             correctCells.push({ row, col });
