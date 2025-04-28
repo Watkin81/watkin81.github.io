@@ -1838,9 +1838,8 @@
         emojiGrid += rowEmojis + '\n';
       }
 
-      const today = new Date();
-      const dateString = today.toLocaleDateString();
-      const resultText = `Coaster Grid\n${dateString}\n${emojiGrid}`;
+      const puzzleNumber = getPuzzleNumber();
+      const resultText = `Coaster Grid #${puzzleNumber}\n${emojiGrid}`;
 
       const resultContainer = document.createElement('div');
       resultContainer.className = 'emoji-result-container';
@@ -1997,6 +1996,17 @@
       }
     }
 
+    function getPuzzleNumber() {
+      const estNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+      const startDate = new Date('2025-04-28T00:00:00-04:00'); // April 28, 2025, EST midnight
+    
+      const msInDay = 1000 * 60 * 60 * 24;
+      const diffInMs = estNow - startDate;
+      const diffInDays = Math.floor(diffInMs / msInDay);
+    
+      return diffInDays + 1;
+    }
+
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
       panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
@@ -2011,6 +2021,14 @@
 
     // Start the game by loading coaster data
     window.onload = loadCoasterData;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const puzzleNumber = getPuzzleNumber();
+      const titleElement = document.querySelector('h1');
+      if (titleElement) {
+        titleElement.textContent = `Coaster Grid #${puzzleNumber}`;
+      }
+    });
   </script>
 </body>
 
