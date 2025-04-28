@@ -486,6 +486,7 @@
     let colCriteria = [];
     let allCoasters = [];
     let usedCoasterIds = new Set();
+    let gameEnded = false;
 
     // Global variables to track units and values
     let metricCriteriaValues = {
@@ -1673,9 +1674,10 @@
 }
 
     function endGame(silent = false) {
-      if (!silent && !confirm("Are you ready to end the game and see results?")) {
+      /*if (!silent && !confirm("Are you ready to end the game and see results?")) {
         return;
-      }
+      }*/
+      gameEnded = true;
 
       let correctCells = [];
       let emptyCells = [];
@@ -1863,7 +1865,7 @@
           col: cell.col,
           selectedCoasterId: simpleEncrypt(cell.selectedCoaster.id) // encrypt solution coaster IDs
         })),
-        gameEnded: document.querySelector('.cell.correct') !== null || document.querySelector('.cell.incorrect') !== null
+        gameEnded: gameEnded
       };
       localStorage.setItem('coasterGridDaily', JSON.stringify(state));
     }
