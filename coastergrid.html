@@ -3,7 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Coaster Grid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoasterGrid - A Coaster Statistics Game</title>
+  <meta name="description" content="A roller coaster statistic game.">
+  <link rel="stylesheet" type="text/css" href="mainpage.css">
+  <link rel="icon" type="image/x-icon" href="/images/FaviconGame2.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: sans-serif;
@@ -324,6 +329,62 @@
           background-color: rgba(204, 229, 255, 0.85);
         }
 
+        #settingsButton,
+        #infoButton,
+        #homeButton {
+          position: fixed;
+          top: 10px;
+          background-color: rgba(0, 0, 0, 0.5);
+          color: white;
+          padding: 15px;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          z-index: 5;
+          font-size: 1.5em;
+        }
+    
+        #settingsButton {
+          right: 10px;
+        }
+    
+        #infoButton {
+          right: 70px;
+        }
+    
+        #homeButton {
+          left: 10px;
+        }
+    
+        #settingsButton:hover,
+        #infoButton:hover,
+        #homeButton:hover {
+          background-color: white;
+          color: black;
+        }
+    
+        #settingsButton:active,
+        #infoButton:active,
+        #homeButton:active {
+          background-color: white;
+          color: black;
+        }
+    
+        .popupPanel {
+          text-align: left;
+          color: black;
+          display: none;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: white;
+          padding: 20px;
+          border-radius: 12px;
+          z-index: 10;
+          font-family: sans-serif;
+        }
+
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -337,8 +398,38 @@
 </head>
 
 <body>
-    <h1>Coaster Grid</h1>
-    <p>Fill the grid with roller coasters that match the criteria for both the row and column.</p>
+    <!-- Buttons (Top Right/Left) -->
+      <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i
+          class="fa-solid fa-house-chimney"></i></button>
+      <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
+      <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
+    
+      <!-- Settings Panel -->
+      <div id="settingsPanel" class="popupPanel">
+        <h3>Game Settings</h3>
+        <p>Game settings coming soon!</p>
+        <h2 id="puzzleNumberDisplay" style="margin-top: 0; font-weight: normal; color: lightgray; display: none;"></h2>
+        <button onclick="toggleSettingsPanel()">Close</button>
+      </div>
+    
+      <!-- Info Panel -->
+      <div id="infoPanel" class="popupPanel">
+        <h3>How to Play</h3>
+        <p>Fill the grid with roller coasters that match the criteria for both the row and column!
+          The same coaster can only appear on the grid at most one time.
+          There is a new puzzle every day, or you can play in random mode for unlimited puzzles!</p>
+        <h3>About the Project</h3>
+        <p>This game was coded fully in html, css, and javascript as a personal project.</p>
+        <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/"
+            target="_blank" rel="noopener noreferrer">Roller Coaster Instagram</a>!</p>
+        <p>The code for the project can be found on the <a
+            href="https://github.com/Watkin81/watkin81.github.io/blob/main/coastergrid.html" target="_blank"
+            rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
+        <button onclick="toggleInfoPanel()">Close</button>
+      </div>
+    
+      <h1>Coaster Grid</h1>
+      <p>I will do site decoration and formatting later lol</p>
 
     <div class="game-controls">
         <button class="game-button" id="newGameBtn">New Game</button>
@@ -1014,6 +1105,14 @@
                 }
             }
         ];
+
+        function simpleEncrypt(id) {
+          return btoa((id * 73 + 17).toString()); // multiply by 73, add 17, then base64 encode
+        }
+        
+        function simpleDecrypt(encoded) {
+          return (parseInt(atob(encoded)) - 17) / 73;
+        }
 
         function shuffleArray(array, rng) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -1763,10 +1862,15 @@
         function saveGameState() {
           const state = {
             date: getDailySeed(),
-            grid: gameGrid.map(row => row.map(coaster => coaster ? coaster.id : null)),
-            used: Array.from(usedCoasterIds),
+            grid: gameGrid.map(row => row.map(coaster => coaster ? simpleEncrypt(coaster.id) : null)), // encrypt IDs
+            used: Array.from(usedCoasterIds).map(id => simpleEncrypt(id)), // encrypt used coaster IDs
             rowCriteria: rowCriteria,
             colCriteria: colCriteria,
+            solution: solution.map(cell => ({
+              row: cell.row,
+              col: cell.col,
+              selectedCoasterId: simpleEncrypt(cell.selectedCoaster.id) // encrypt solution coaster IDs
+            })),
             gameEnded: document.querySelector('.cell.correct') !== null || document.querySelector('.cell.incorrect') !== null
           };
           localStorage.setItem('coasterGridDaily', JSON.stringify(state));
@@ -1785,13 +1889,22 @@
         }
 
         function loadGameFromState(state) {
-          gameGrid = state.grid.map(row => row.map(id => id ? allCoasters.find(c => c.id === id) : null));
-          usedCoasterIds = new Set(state.used);
+          gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
+          usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
           rowCriteria = state.rowCriteria;
           colCriteria = state.colCriteria;
-          
+        
+          solution = state.solution.map(cell => {
+            const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
+            return {
+              row: cell.row,
+              col: cell.col,
+              selectedCoaster: coaster
+            };
+          });
+        
           renderGrid();
-          
+        
           gameGrid.forEach((row, r) => {
             row.forEach((coaster, c) => {
               if (coaster) {
@@ -1803,10 +1916,18 @@
             });
           });
         
-          // Check if game was ended
           if (state.gameEnded) {
-            setTimeout(() => endGame(), 100); // Slight delay to let grid render
+            setTimeout(() => endGame(true), 100);
           }
+        }
+
+        function toggleSettingsPanel() {
+              const panel = document.getElementById('settingsPanel');
+              panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            }
+         function toggleInfoPanel() {
+            const panel = document.getElementById('infoPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
         // Call this function when the page loads
@@ -1816,5 +1937,4 @@
         window.onload = loadCoasterData;
     </script>
 </body>
-
 </html>
