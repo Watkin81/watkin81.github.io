@@ -1732,6 +1732,53 @@
       cell.dataset.coasterId = coaster.id;
     }
 
+    function addFlipButton(cell, userCoaster, solutionCoaster) {
+      const flipButton = document.createElement('button');
+      flipButton.innerHTML = '🔄';
+      flipButton.style.position = 'absolute';
+      flipButton.style.bottom = '5px';
+      flipButton.style.right = '5px';
+      flipButton.style.background = 'rgba(255,255,255,0.7)';
+      flipButton.style.border = 'none';
+      flipButton.style.borderRadius = '50%';
+      flipButton.style.width = '30px';
+      flipButton.style.height = '30px';
+      flipButton.style.cursor = 'pointer';
+      flipButton.style.fontSize = '18px';
+      flipButton.title = 'Toggle between your guess and a solution';
+    
+      // Store state
+      cell.dataset.currentView = 'user';
+      cell.dataset.userCoasterId = userCoaster.id;
+      cell.dataset.solutionCoasterId = solutionCoaster.id;
+    
+      flipButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Don't trigger any parent clicks
+        const isUserView = cell.dataset.currentView === 'user';
+    
+        const nextCoaster = isUserView
+          ? solutionCoaster
+          : userCoaster;
+    
+        updateCellDisplay(cell, nextCoaster, true);
+    
+        // Restore background color (correct or incorrect)
+        if (cell.classList.contains('correct')) {
+          cell.classList.add('correct');
+        } else if (cell.classList.contains('incorrect')) {
+          cell.classList.add('incorrect');
+        }
+    
+        // Re-add the flip button
+        addFlipButton(cell, userCoaster, solutionCoaster);
+    
+        // Toggle view
+        cell.dataset.currentView = isUserView ? 'solution' : 'user';
+      });
+    
+      cell.appendChild(flipButton);
+    }
+
     function endGame(silent = false) {
       gameEnded = true;
     
@@ -1763,23 +1810,29 @@
             cell.classList.add('incorrect');
           }
     
-          // Always show the guessed coaster stats (whether right or wrong)
+          // Always show the guessed coaster stats
           updateCellDisplay(cell, selectedCoaster, true);
     
+          // If solution differs from user's guess, add flip button
+          if (solutionCoaster && selectedCoaster.id !== solutionCoaster.id) {
+            addFlipButton(cell, selectedCoaster, solutionCoaster);
+          }
+    
         } else {
-          // Empty cell — insert correct official solution
+          // Empty cell — insert official solution
           updateCellDisplay(cell, solutionCoaster, true);
           cell.classList.add('unguessed');
         }
       });
     
+      // Update final results message
       resultsMessage.style.display = 'block';
       resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
     
       createEmojiResults();
     
-      // Disable future input
+      // Disable further input
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
