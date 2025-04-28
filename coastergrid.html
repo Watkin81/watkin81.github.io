@@ -1276,38 +1276,46 @@
         }
 
         async function setupDailyGame(rng) {
-            // Try loading saved game first
+            const seed = getDailySeed();
+            console.log(`Starting daily game with seed: ${seed}`);
+        
             const savedState = loadGameState();
-            if (savedState && savedState.date === getDailySeed()) {
+            if (savedState && savedState.date === seed) {
                 console.log('Loading saved game...');
+        
                 loadGameFromState(savedState);
+        
+                // 🛡 AFTER grid and coasters are ready
+                if (savedState.gameEnded) {
+                    console.log('Game was already ended, showing results...');
+                    setTimeout(() => {
+                        endGame(true); // Silent end
+                    }, 100);
+                }
                 return;
             }
-
-            // No saved game or wrong day: Create a new one
+        
             console.log('Generating new daily game...');
-            const seed = getDailySeed();
-            console.log(`Using seed: ${seed}`);
-
+        
             solution = [];
             gameGrid = Array(3).fill().map(() => Array(3).fill(null));
             usedCoasterIds = new Set();
             resultsMessage.style.display = 'none';
-
+        
             let maxTries = 20;
             let tries = 0;
             let puzzleGenerated = false;
-
+        
             while (!puzzleGenerated && tries < maxTries) {
                 puzzleGenerated = generatePuzzle(rng);
                 tries++;
             }
-
+        
             if (!puzzleGenerated) {
                 alert('Failed to generate puzzle. Please try again later.');
                 return;
             }
-
+        
             renderGrid();
             saveGameState();
         }
