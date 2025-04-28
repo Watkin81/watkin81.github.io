@@ -320,6 +320,10 @@
             margin-top: 3px;
         }
 
+        .unguessed .cell-content {
+          background-color: rgba(204, 229, 255, 0.85);
+        }
+
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -1556,9 +1560,9 @@
         }
 
         function endGame() {
-            if (!confirm("Are you ready to end the game and see results?")) {
+            /*if (!confirm("Are you ready to end the game and see results?")) {
                 return;
-            }
+            }*/
 
             // First check which cells are correct
             let correctCells = [];
@@ -1573,7 +1577,9 @@
                     const coasterId = parseInt(cell.dataset.coasterId);
                     const selectedCoaster = allCoasters.find(c => c.id === coasterId);
 
-                    if (selectedCoaster && isCoasterValidForCell(selectedCoaster, row, col)) {
+                    const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+                    if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
                         cell.classList.add('correct');
                         // Update with criteria stats showing
                         updateCellDisplay(cell, selectedCoaster, true);
