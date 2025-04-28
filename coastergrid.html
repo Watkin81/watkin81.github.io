@@ -1043,147 +1043,131 @@
         }
 
         function generatePuzzle(rng) {
-            let maxAttempts = 100; // Increased attempts
-            let attempts = 0;
-            let success = false;
-
-            while (!success && attempts < maxAttempts) {
-                attempts++;
-                solution = [];
-
-                // Shuffle criteria options for row and column separately
-                const shuffledRowOptions = shuffleArray([...rowCriteriaOptions], rng);
-                const shuffledColOptions = shuffleArray([...colCriteriaOptions], rng);
-
-                // Select 3 random criteria for rows and columns
-                const selectedRowCriteria = shuffledRowOptions.slice(0, 3);
-                const selectedColCriteria = shuffledColOptions.slice(0, 3);
-
-                // Initialize row and column criteria arrays
-                rowCriteria = [];
-                colCriteria = [];
-
-                // For each row, select a value from its criteria type
-                for (let i = 0; i < 3; i++) {
-                    const criteriaType = selectedRowCriteria[i];
-                    const value = criteriaType.values[Math.floor(rng() * criteriaType.values.length)];
-                    rowCriteria.push({
-                        type: criteriaType.type,
-                        value,
-                        matcher: criteriaType.matcher
-                    });
-                }
-
-                // For each column, select a value from its criteria type
-                for (let i = 0; i < 3; i++) {
-                    const criteriaType = selectedColCriteria[i];
-                    const selectedCoaster = availableCoasters[Math.floor(rng() * availableCoasters.length)];
-                    colCriteria.push({
-                        type: criteriaType.type,
-                        value,
-                        matcher: criteriaType.matcher
-                    });
-                }
-
-                // Check if all cells have at least one matching coaster
-                let validCellCount = 0;
-                let cellSolutions = Array(3).fill().map(() => Array(3).fill(null));
-                let usedCoasterIds = new Set(); // Track used coasters to ensure unique solutions
-
-                // First pass: count valid cells and find matching coasters
-                for (let row = 0; row < 3; row++) {
-                    for (let col = 0; col < 3; col++) {
-                        const matchingCoasters = allCoasters.filter(coaster =>
-                            rowCriteria[row].matcher(coaster, rowCriteria[row].value) &&
-                            colCriteria[col].matcher(coaster, colCriteria[col].value)
-                        );
-
-                        if (matchingCoasters.length > 0) {
-                            validCellCount++;
-                            cellSolutions[row][col] = {
-                                row,
-                                col,
-                                possibleCoasters: matchingCoasters
-                            };
-                        }
-                    }
-                }
-
-                // If all cells have valid options, assign unique coasters where possible
-                if (validCellCount === 9) {
-                    // Sort cells by number of possible coasters (least options first)
-                    const cellsToFill = [];
-                    for (let row = 0; row < 3; row++) {
-                        for (let col = 0; col < 3; col++) {
-                            cellsToFill.push({
-                                row,
-                                col,
-                                possibleCount: cellSolutions[row][col].possibleCoasters.length
-                            });
-                        }
-                    }
-
-                    // Sort by number of possible coasters (ascending)
-                    cellsToFill.sort((a, b) => a.possibleCount - b.possibleCount);
-
-                    // Try to assign unique coasters to each cell
-                    let allCellsFilled = true;
-
-                    for (const cell of cellsToFill) {
-                        const { row, col } = cell;
-                        // Filter out already used coasters
-                        const availableCoasters = cellSolutions[row][col].possibleCoasters.filter(
-                            coaster => !usedCoasterIds.has(coaster.id)
-                        );
-
-                        if (availableCoasters.length > 0) {
-                            // Select a random coaster from available options
-                            const selectedCoaster = availableCoasters[Math.floor(Math.random() * availableCoasters.length)];
-                            cellSolutions[row][col].selectedCoaster = selectedCoaster;
-                            usedCoasterIds.add(selectedCoaster.id);
-                        } else if (cellSolutions[row][col].possibleCoasters.length > 0) {
-                            // If no unique coaster is available, just use any valid one
-                            const selectedCoaster = cellSolutions[row][col].possibleCoasters[
-                                Math.floor(Math.random() * cellSolutions[row][col].possibleCoasters.length)
-                            ];
-                            cellSolutions[row][col].selectedCoaster = selectedCoaster;
-                        } else {
-                            allCellsFilled = false;
-                            break;
-                        }
-                    }
-
-                    if (allCellsFilled) {
-                        // All cells have valid solutions, flatten the solution array
-                        solution = [];
-                        for (let row = 0; row < 3; row++) {
-                            for (let col = 0; col < 3; col++) {
-                                solution.push({
-                                    row,
-                                    col,
-                                    selectedCoaster: cellSolutions[row][col].selectedCoaster,
-                                    possibleCoasters: cellSolutions[row][col].possibleCoasters
-                                });
-                            }
-                        }
-                        success = true;
-                    }
-                }
+          let maxAttempts = 100;
+          let attempts = 0;
+          let success = false;
+        
+          while (!success && attempts < maxAttempts) {
+            attempts++;
+            solution = [];
+        
+            // Shuffle criteria options for row and column separately
+            const shuffledRowOptions = shuffleArray([...rowCriteriaOptions], rng);
+            const shuffledColOptions = shuffleArray([...colCriteriaOptions], rng);
+        
+            // Select 3 random criteria for rows and columns
+            const selectedRowCriteria = shuffledRowOptions.slice(0, 3);
+            const selectedColCriteria = shuffledColOptions.slice(0, 3);
+        
+            // Initialize row and column criteria arrays
+            rowCriteria = [];
+            colCriteria = [];
+        
+            // Pick random values for row criteria
+            for (let i = 0; i < 3; i++) {
+              const criteriaType = selectedRowCriteria[i];
+              const value = criteriaType.values[Math.floor(rng() * criteriaType.values.length)];
+              rowCriteria.push({
+                type: criteriaType.type,
+                value,
+                matcher: criteriaType.matcher
+              });
             }
-
-            if (!success) {
-                console.warn(`Could not generate complete puzzle after ${maxAttempts} attempts. Trying with different criteria...`);
-                return false; // Signal that we need to try again
+        
+            // Pick random values for column criteria
+            for (let i = 0; i < 3; i++) {
+              const criteriaType = selectedColCriteria[i];
+              const value = criteriaType.values[Math.floor(rng() * criteriaType.values.length)];
+              colCriteria.push({
+                type: criteriaType.type,
+                value,
+                matcher: criteriaType.matcher
+              });
             }
-
-            // Validate the solution before accepting it
-            const validationResult = validateSolution();
-            if (!validationResult.valid) {
-                console.warn("Generated puzzle has validation issues:", validationResult.message);
-                return false;
+        
+            // Check if all cells have at least one matching coaster
+            let validCellCount = 0;
+            let cellSolutions = Array(3).fill().map(() => Array(3).fill(null));
+            let usedCoasterIdsTemp = new Set(); // temp, for building the board
+        
+            // Find possible coasters for each cell
+            for (let row = 0; row < 3; row++) {
+              for (let col = 0; col < 3; col++) {
+                const matchingCoasters = allCoasters.filter(coaster =>
+                  rowCriteria[row].matcher(coaster, rowCriteria[row].value) &&
+                  colCriteria[col].matcher(coaster, colCriteria[col].value)
+                );
+        
+                if (matchingCoasters.length > 0) {
+                  validCellCount++;
+                  cellSolutions[row][col] = {
+                    row,
+                    col,
+                    possibleCoasters: matchingCoasters
+                  };
+                }
+              }
             }
-
-            return true; // Successfully generated a puzzle
+        
+            if (validCellCount !== 9) {
+              // Not enough coasters to fill grid
+              continue;
+            }
+        
+            // Try to fill the grid with unique coasters
+            const cellsToFill = [];
+            for (let row = 0; row < 3; row++) {
+              for (let col = 0; col < 3; col++) {
+                cellsToFill.push({
+                  row,
+                  col,
+                  possibleCoasters: cellSolutions[row][col].possibleCoasters
+                });
+              }
+            }
+        
+            // Sort cells by fewest options first
+            cellsToFill.sort((a, b) => a.possibleCoasters.length - b.possibleCoasters.length);
+        
+            let allCellsFilled = true;
+        
+            for (const cell of cellsToFill) {
+              const available = cell.possibleCoasters.filter(c => !usedCoasterIdsTemp.has(c.id));
+        
+              if (available.length === 0) {
+                allCellsFilled = false;
+                break;
+              }
+        
+              const selected = available[Math.floor(rng() * available.length)];
+              usedCoasterIdsTemp.add(selected.id);
+        
+              solution.push({
+                row: cell.row,
+                col: cell.col,
+                selectedCoaster: selected,
+                possibleCoasters: cell.possibleCoasters
+              });
+            }
+        
+            if (allCellsFilled) {
+              success = true;
+            }
+          }
+        
+          if (!success) {
+            console.warn(`Failed to generate valid puzzle after ${maxAttempts} attempts`);
+            return false;
+          }
+        
+          // Final validation
+          const validationResult = validateSolution();
+          if (!validationResult.valid) {
+            console.warn("Generated puzzle has validation issues:", validationResult.message);
+            return false;
+          }
+        
+          return true;
         }
 
         async function setupDailyGame(rng) {
