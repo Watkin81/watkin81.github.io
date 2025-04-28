@@ -1750,12 +1750,14 @@
         }
 
         function saveGameState() {
-            const state = {
-                date: getDailySeed(),
-                grid: gameGrid.map(row => row.map(coaster => coaster ? coaster.id : null)),
-                used: Array.from(usedCoasterIds)
-            };
-            localStorage.setItem('coasterGridDaily', JSON.stringify(state));
+          const state = {
+            date: getDailySeed(),
+            grid: gameGrid.map(row => row.map(coaster => coaster ? coaster.id : null)),
+            used: Array.from(usedCoasterIds),
+            rowCriteria: rowCriteria,
+            colCriteria: colCriteria
+          };
+          localStorage.setItem('coasterGridDaily', JSON.stringify(state));
         }
 
         function loadGameState() {
@@ -1771,21 +1773,27 @@
         }
 
         function loadGameFromState(state) {
-            gameGrid = state.grid.map(row => row.map(id => id ? allCoasters.find(c => c.id === id) : null));
-            usedCoasterIds = new Set(state.used);
-            renderGrid();
-
-            // Re-populate filled cells
-            gameGrid.forEach((row, r) => {
-                row.forEach((coaster, c) => {
-                    if (coaster) {
-                        const cell = document.querySelector(`.cell.input-cell[data-row="${r}"][data-col="${c}"]`);
-                        if (cell) {
-                            updateCellDisplay(cell, coaster);
-                        }
-                    }
-                });
+          // Restore grid
+          gameGrid = state.grid.map(row => row.map(id => id ? allCoasters.find(c => c.id === id) : null));
+          usedCoasterIds = new Set(state.used);
+        
+          // Restore criteria
+          rowCriteria = state.rowCriteria;
+          colCriteria = state.colCriteria;
+        
+          renderGrid();
+        
+          // Re-populate filled cells
+          gameGrid.forEach((row, r) => {
+            row.forEach((coaster, c) => {
+              if (coaster) {
+                const cell = document.querySelector(`.cell.input-cell[data-row="${r}"][data-col="${c}"]`);
+                if (cell) {
+                  updateCellDisplay(cell, coaster);
+                }
+              }
             });
+          });
         }
 
         // Call this function when the page loads
