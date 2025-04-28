@@ -1720,41 +1720,44 @@
 
     function updateCellDisplay(cell, coaster, showStats = false) {
       saveGameState();
+    
+      const existingFlipButton = cell.querySelector('.flip-button');
+    
       // Clear previous content
       cell.innerHTML = '';
-
+    
       // Create background div
       const bgDiv = document.createElement('div');
       bgDiv.className = 'cell-bg';
       if (coaster.mainPicture) {
         bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
       }
-
+    
       // Create content div
       const contentDiv = document.createElement('div');
       contentDiv.className = 'cell-content';
-
+    
       let statsHTML = '';
       if (showStats) {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
         const rowCriterion = rowCriteria[row];
         const colCriterion = colCriteria[col];
-
+    
         statsHTML = `
-      <div class="stats-info">
-        ${rowCriterion.type}: ${getStatValue(coaster, rowCriterion.type)}<br>
-        ${colCriterion.type}: ${getStatValue(coaster, colCriterion.type)}
-      </div>
-    `;
+          <div class="stats-info">
+            ${rowCriterion.type}: ${getStatValue(coaster, rowCriterion.type)}<br>
+            ${colCriterion.type}: ${getStatValue(coaster, colCriterion.type)}
+          </div>
+        `;
       }
-
+    
       contentDiv.innerHTML = `
-    <div>${coaster.name}</div>
-    <div class="park-name">${coaster.park}</div>
-    ${statsHTML}
-  `;
-
+        <div>${coaster.name}</div>
+        <div class="park-name">${coaster.park}</div>
+        ${statsHTML}
+      `;
+    
       // Add RCDB link
       const rcdbLink = document.createElement('a');
       rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
@@ -1762,10 +1765,14 @@
       rcdbLink.className = 'rcdb-link';
       rcdbLink.textContent = 'View on RCDB';
       contentDiv.appendChild(rcdbLink);
-
+    
       cell.appendChild(bgDiv);
       cell.appendChild(contentDiv);
-
+    
+      if (existingFlipButton) {
+        cell.appendChild(existingFlipButton);
+      }
+    
       cell.classList.add('filled-cell');
       cell.dataset.coasterId = coaster.id;
     }
