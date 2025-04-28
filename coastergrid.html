@@ -1734,71 +1734,64 @@
 
     function endGame(silent = false) {
       gameEnded = true;
-  
+    
       let correctCells = [];
       let emptyCells = [];
-  
+    
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
-          const row = parseInt(cell.dataset.row);
-          const col = parseInt(cell.dataset.col);
-  
-          if (cell.dataset.coasterId) {
-              const coasterId = parseInt(cell.dataset.coasterId);
-              const selectedCoaster = allCoasters.find(c => c.id === coasterId);
-  
-              if (selectedCoaster) {
-                  const rowCriterion = rowCriteria[row];
-                  const colCriterion = colCriteria[col];
-  
-                  const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
-                  const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
-  
-                  if (rowMatch && colMatch) {
-                      cell.classList.add('correct');
-                      correctCells.push({ row, col });
-                  } else {
-                      cell.classList.add('incorrect');
-                  }
-  
-                  updateCellDisplay(cell, selectedCoaster, true);
-              } else {
-                  emptyCells.push({ row, col });
-              }
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+    
+        const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
+        const selectedCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
+    
+        const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
+    
+        if (selectedCoaster) {
+          const rowCriterion = rowCriteria[row];
+          const colCriterion = colCriteria[col];
+    
+          const rowMatch = rowCriterion.matcher(selectedCoaster, rowCriterion.value);
+          const colMatch = colCriterion.matcher(selectedCoaster, colCriterion.value);
+    
+          if (rowMatch && colMatch) {
+            // Correct guess
+            cell.classList.add('correct');
+            correctCells.push({ row, col });
           } else {
-              emptyCells.push({ row, col });
+            // Wrong guess
+            cell.classList.add('incorrect');
           }
+    
+          // Always show the guessed coaster stats (whether right or wrong)
+          updateCellDisplay(cell, selectedCoaster, true);
+    
+        } else {
+          // Empty cell — insert correct official solution
+          updateCellDisplay(cell, solutionCoaster, true);
+          cell.classList.add('unguessed');
+        }
       });
-  
-      // Fill in empty cells with the official puzzle solutions
-      emptyCells.forEach(({ row, col }) => {
-          const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-          const cellSolution = solution.find(s => s.row === row && s.col === col);
-  
-          if (cell && cellSolution && cellSolution.selectedCoaster) {
-              updateCellDisplay(cell, cellSolution.selectedCoaster, true);
-              cell.classList.add('unguessed');
-          }
-      });
-  
+    
       resultsMessage.style.display = 'block';
       resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
-  
+    
       createEmojiResults();
-  
-      // Disable further input
+    
+      // Disable future input
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
-          cell.onclick = null;
-          cell.classList.remove('input-cell');
+        cell.onclick = null;
+        cell.classList.remove('input-cell');
       });
-  
+    
       const endButton = document.getElementById('endGameBtn');
       if (endButton) {
-          endButton.style.display = 'none';
+        endButton.style.display = 'none';
       }
-  
+    
       saveGameState();
-  }
+    }
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
