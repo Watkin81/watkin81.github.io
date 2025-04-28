@@ -1674,62 +1674,67 @@
 }
 
     function endGame(silent = false) {
-      /*if (!silent && !confirm("Are you ready to end the game and see results?")) {
-        return;
-      }*/
-      gameEnded = true;
+  /*if (!silent && !confirm("Are you ready to end the game and see results?")) {
+    return;
+  }*/
 
-      let correctCells = [];
-      let emptyCells = [];
+  gameEnded = true;
 
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
+  let correctCells = [];
+  let emptyCells = [];
 
-        if (cell.dataset.coasterId) {
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-          if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
-            cell.classList.add('correct');
-            updateCellDisplay(cell, selectedCoaster, true);
-            correctCells.push({ row, col });
-          } else {
-            cell.classList.add('incorrect');
-            updateCellDisplay(cell, selectedCoaster, true);
-          }
-        } else {
-          emptyCells.push({ row, col });
-        }
-      });
+    if (cell.dataset.coasterId) {
+      const coasterId = parseInt(cell.dataset.coasterId);
+      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
 
-      // 🛠 Fill empty cells with solution even after reload
-      emptyCells.forEach(({ row, col }) => {
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-
-        if (cell && cellSolution && cellSolution.selectedCoaster) {
-          const solutionCoaster = cellSolution.selectedCoaster;
-          updateCellDisplay(cell, solutionCoaster, true);
-          cell.classList.add('unguessed'); // important to apply light blue background
-        }
-      });
-
-      resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-
-      createEmojiResults();
-
-      // Disable any further clicks
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
-
-      saveGameState(); // save again after ending
+      if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
+        cell.classList.add('correct');
+        updateCellDisplay(cell, selectedCoaster, true);
+        correctCells.push({ row, col });
+      } else {
+        cell.classList.add('incorrect');
+        updateCellDisplay(cell, selectedCoaster, true);
+      }
+    } else {
+      emptyCells.push({ row, col });
     }
+  });
+
+  // Fill in empty cells with solutions
+  emptyCells.forEach(({ row, col }) => {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+    if (cell && cellSolution && cellSolution.selectedCoaster) {
+      updateCellDisplay(cell, cellSolution.selectedCoaster, true);
+      cell.classList.add('unguessed');
+    }
+  });
+
+  resultsMessage.style.display = 'block';
+  resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+
+  createEmojiResults();
+
+  // Disable any further cell clicks
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('input-cell');
+  });
+
+  const endButton = document.getElementById('endGameBtn');
+  if (endButton) {
+    endButton.style.display = 'none'; // hide it
+  }
+
+  saveGameState();
+}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
