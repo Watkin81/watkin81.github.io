@@ -1882,48 +1882,93 @@
       return null;
     }
 
-    function loadGameFromState(state) {
-      gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
-      usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
-      rowCriteria = state.rowCriteria;
-      colCriteria = state.colCriteria;
+    function forceShowEndState() {
+  gameEnded = true;
 
-      solution = state.solution.map(cell => {
-        const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
-        return {
-          row: cell.row,
-          col: cell.col,
-          selectedCoaster: coaster
-        };
-      });
+  let correctCells = [];
+  let emptyCells = [];
 
-      renderGrid();
+  document.querySelectorAll('.cell[data-row][data-col]').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-      // 🔥 Immediately disable clicks if the game had already ended
-      if (state.gameEnded) {
-        document.querySelectorAll('.cell.input-cell').forEach(cell => {
-          cell.onclick = null;
-          cell.classList.remove('input-cell');
-        });
+    if (cell.dataset.coasterId) {
+      const coasterId = parseInt(cell.dataset.coasterId);
+      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+
+      if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
+        cell.classList.add('correct');
+        updateCellDisplay(cell, selectedCoaster, true);
+        correctCells.push({ row, col });
+      } else {
+        cell.classList.add('incorrect');
+        updateCellDisplay(cell, selectedCoaster, true);
       }
-
-      // 🛠 Immediately show coasters with or without stats depending on whether game ended
-      gameGrid.forEach((row, r) => {
-        row.forEach((coaster, c) => {
-          if (coaster) {
-            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-            if (cell) {
-              updateCellDisplay(cell, coaster, state.gameEnded); // <-- pass true if game ended
-            }
-          }
-        });
-      });
-
-      if (state.gameEnded) {
-        setTimeout(() => endGame(true), 100);
-      }
+    } else {
+      emptyCells.push({ row, col });
     }
+  });
 
+  // Fill in the blanks with correct solutions
+  emptyCells.forEach(({ row, col }) => {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
+
+    if (cell && cellSolution && cellSolution.selectedCoaster) {
+      updateCellDisplay(cell, cellSolution.selectedCoaster, true);
+      cell.classList.add('unguessed');
+    }
+  });
+
+  resultsMessage.style.display = 'block';
+  resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+
+  createEmojiResults();
+}
+
+    function loadGameFromState(state) {
+  gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
+  usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
+  rowCriteria = state.rowCriteria;
+  colCriteria = state.colCriteria;
+
+  solution = state.solution.map(cell => {
+    const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
+    return {
+      row: cell.row,
+      col: cell.col,
+      selectedCoaster: coaster
+    };
+  });
+
+  renderGrid();
+
+  // After rendering, restore filled cells
+  gameGrid.forEach((row, r) => {
+    row.forEach((coaster, c) => {
+      if (coaster) {
+        const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+        if (cell) {
+          updateCellDisplay(cell, coaster, false); // show without stats first
+        }
+      }
+    });
+  });
+
+  // THEN if game already ended:
+  if (state.gameEnded) {
+    setTimeout(() => {
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.onclick = null;
+        cell.classList.remove('input-cell');
+      });
+
+      forceShowEndState();
+    }, 50); // slight delay to make sure DOM is ready
+  }
+}
 
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
