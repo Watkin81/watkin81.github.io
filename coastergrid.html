@@ -1852,7 +1852,7 @@
           updateCellDisplay(cell, selectedCoaster, true);
     
           // Only add flip button if solution exists and guess was different
-          if (solutionCoaster && selectedCoaster.id !== solutionCoaster.id) {
+          if (solutionCoaster) {
             addFlipButton(cell, selectedCoaster, solutionCoaster);
           }
     
