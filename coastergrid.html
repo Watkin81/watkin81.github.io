@@ -1506,6 +1506,22 @@
       currentCell = null;
     }
 
+    function restoreCriteriaMatchers() {
+      rowCriteria.forEach(criterion => {
+        const match = rowCriteriaOptions.find(opt => opt.type === criterion.type);
+        if (match) {
+          criterion.matcher = match.matcher;
+        }
+      });
+    
+      colCriteria.forEach(criterion => {
+        const match = colCriteriaOptions.find(opt => opt.type === criterion.type);
+        if (match) {
+          criterion.matcher = match.matcher;
+        }
+      });
+    }
+
     async function findCoasters() {
       const query = coasterSearchBox.value.trim();
       if (query.length > 0) {
