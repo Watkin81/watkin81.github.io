@@ -1721,8 +1721,6 @@
     function updateCellDisplay(cell, coaster, showStats = false) {
       saveGameState();
     
-      const existingFlipButton = cell.querySelector('.flip-button');
-    
       // Clear previous content
       cell.innerHTML = '';
     
@@ -1733,9 +1731,9 @@
         bgDiv.style.backgroundImage = `url('${coaster.mainPicture}')`;
       }
     
-      // Create content div
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'cell-content';
+      // Create content div (wrapper for text content only)
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'cell-content';
     
       let statsHTML = '';
       if (showStats) {
@@ -1752,7 +1750,7 @@
         `;
       }
     
-      contentDiv.innerHTML = `
+      contentWrapper.innerHTML = `
         <div>${coaster.name}</div>
         <div class="park-name">${coaster.park}</div>
         ${statsHTML}
@@ -1764,65 +1762,65 @@
       rcdbLink.target = '_blank';
       rcdbLink.className = 'rcdb-link';
       rcdbLink.textContent = 'View on RCDB';
-      contentDiv.appendChild(rcdbLink);
+      contentWrapper.appendChild(rcdbLink);
     
+      // Append elements
       cell.appendChild(bgDiv);
-      cell.appendChild(contentDiv);
+      cell.appendChild(contentWrapper);
     
-      if (existingFlipButton) {
-        cell.appendChild(existingFlipButton);
-      }
-    
+      // Mark cell as filled
       cell.classList.add('filled-cell');
       cell.dataset.coasterId = coaster.id;
     }
 
-    function addFlipButton(cell, userCoaster, solutionCoaster) {
-      // Remove any existing flip buttons first
-      const existingButton = cell.querySelector('.flip-button');
-      if (existingButton) existingButton.remove();
-    
-      const flipButton = document.createElement('button');
-      flipButton.className = 'flip-button';
-      flipButton.innerHTML = '🔄';
-      flipButton.style.position = 'absolute';
-      flipButton.style.bottom = '5px';
-      flipButton.style.right = '5px';
-      flipButton.style.background = 'rgba(255,255,255,0.7)';
-      flipButton.style.border = 'none';
-      flipButton.style.borderRadius = '50%';
-      flipButton.style.width = '30px';
-      flipButton.style.height = '30px';
-      flipButton.style.cursor = 'pointer';
-      flipButton.style.fontSize = '18px';
-      flipButton.title = 'Toggle between your guess and a solution';
-    
-      cell.dataset.currentView = 'user';
-      cell.dataset.userCoasterId = userCoaster.id;
-      cell.dataset.solutionCoasterId = solutionCoaster.id;
-    
-      flipButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Don't trigger the cell click
-        const isUserView = cell.dataset.currentView === 'user';
-    
-        const nextCoaster = isUserView ? solutionCoaster : userCoaster;
-        updateCellDisplay(cell, nextCoaster, true);
-    
-        // Restore correct or incorrect background
-        if (cell.classList.contains('correct')) {
-          cell.classList.add('correct');
-        } else if (cell.classList.contains('incorrect')) {
-          cell.classList.add('incorrect');
-        }
-    
-        // Re-add flip button after redraw
-        addFlipButton(cell, userCoaster, solutionCoaster);
-    
-        cell.dataset.currentView = isUserView ? 'solution' : 'user';
-      });
-    
-      cell.appendChild(flipButton);
+     function addFlipButton(cell, userCoaster, solutionCoaster) {
+  // Always remove any old flip button if it exists
+  const existingButton = cell.querySelector('.flip-button');
+  if (existingButton) existingButton.remove();
+
+  const flipButton = document.createElement('button');
+  flipButton.className = 'flip-button';
+  flipButton.innerHTML = '🔄';
+  flipButton.style.position = 'absolute';
+  flipButton.style.bottom = '5px';
+  flipButton.style.right = '5px';
+  flipButton.style.background = 'rgba(255,255,255,0.7)';
+  flipButton.style.border = 'none';
+  flipButton.style.borderRadius = '50%';
+  flipButton.style.width = '30px';
+  flipButton.style.height = '30px';
+  flipButton.style.cursor = 'pointer';
+  flipButton.style.fontSize = '18px';
+  flipButton.title = 'Toggle between your guess and solution';
+
+  // Setup data attributes for tracking
+  cell.dataset.currentView = 'user';
+  cell.dataset.userCoasterId = userCoaster.id;
+  cell.dataset.solutionCoasterId = solutionCoaster.id;
+
+  flipButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Don't trigger cell click
+    const isUserView = cell.dataset.currentView === 'user';
+
+    const nextCoaster = isUserView ? solutionCoaster : userCoaster;
+    updateCellDisplay(cell, nextCoaster, true);
+
+    // Re-add flip button after redrawing
+    addFlipButton(cell, userCoaster, solutionCoaster);
+
+    // Reapply correct or incorrect class
+    if (cell.classList.contains('correct')) {
+      cell.classList.add('correct');
+    } else if (cell.classList.contains('incorrect')) {
+      cell.classList.add('incorrect');
     }
+
+    cell.dataset.currentView = isUserView ? 'solution' : 'user';
+  });
+
+  // Finally, add button to cell
+  cell.appendChild(flipButton);
+}
 
     function endGame(silent = false) {
       gameEnded = true;
