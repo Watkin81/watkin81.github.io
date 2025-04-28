@@ -417,8 +417,7 @@
     }
 
     .solution-view {
-      background-color: #cccccc;
-      /* Light gray */
+      background-color: #a1a1a1;
     }
 
     .flip-button {
@@ -1846,11 +1845,11 @@
         // FORCE background manually gray (because updateCellDisplay resets it)
         const content = cell.querySelector('.cell-content');
         if (content) {
-          content.style.backgroundColor = '#cccccc';
+          content.style.backgroundColor = '#a1a1a1';
         }
       } else {
         // Flipping back to user guess
-        if (userCoaster.id === solutionCoaster.id) {
+        if (isCoasterValidForCell(userCoaster, parseInt(cell.dataset.row), parseInt(cell.dataset.col))) {
           cell.classList.add('correct');
         } else {
           cell.classList.add('incorrect');
