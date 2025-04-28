@@ -1861,7 +1861,7 @@
             rowEmojis += '⬛'; // If cell somehow missing, treat it as empty
             continue;
           }
-
+      
           if (cell.classList.contains('correct')) {
             rowEmojis += '🟩';
           } else if (cell.classList.contains('incorrect')) {
@@ -1872,7 +1872,11 @@
             rowEmojis += '⬛';
           }
         }
-        emojiGrid += rowEmojis + '\n';
+      
+        emojiGrid += rowEmojis;
+        if (row !== 2) { // Only add newline if it's not the last row
+          emojiGrid += '\n';
+        }
       }
 
       const puzzleNumber = getPuzzleNumber();
