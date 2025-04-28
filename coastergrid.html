@@ -1806,12 +1806,14 @@
       `;
 
       // Add RCDB link
-      const rcdbLink = document.createElement('a');
-      rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
-      rcdbLink.target = '_blank';
-      rcdbLink.className = 'rcdb-link';
-      rcdbLink.textContent = 'View on RCDB';
-      contentWrapper.appendChild(rcdbLink);
+      if (showStats) {
+        const rcdbLink = document.createElement('a');
+        rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+        rcdbLink.target = '_blank';
+        rcdbLink.className = 'rcdb-link';
+        rcdbLink.textContent = 'View on RCDB';
+        contentWrapper.appendChild(rcdbLink);
+      }
 
       // Append elements
       cell.appendChild(bgDiv);
@@ -1889,62 +1891,73 @@
     }
 
     function endGame(silent = false) {
-      gameEnded = true;
-    
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-    
-        const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
-        const selectedCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
-    
-        const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
-    
-        if (selectedCoaster) {
-          // Show the user's guess first
-          updateCellDisplay(cell, selectedCoaster, true);
-    
-          // Mark correct or incorrect
-          if (isCoasterValidForCell(selectedCoaster, row, col)) {
-            cell.classList.add('correct');
-          } else {
-            cell.classList.add('incorrect');
-          }
-    
-          // Always allow flip button to see solution
-          if (solutionCoaster) {
-            addFlipButton(cell, selectedCoaster, solutionCoaster);
-          }
-    
-        } else {
-          // No guess made: show the solution directly
-          updateCellDisplay(cell, solutionCoaster, true);
-          cell.classList.add('unguessed');
-        }
-      });
-    
-      // Update stats and other end game things
-      const correctCount = document.querySelectorAll('.cell.correct').length;
-      resultsMessage.style.display = 'block';
-      updateStats(correctCount);
-      renderStatsGraph();
-      resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-    
-      createEmojiResults();
-    
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
-    
-      const endButton = document.getElementById('endGameBtn');
-      if (endButton) {
-        endButton.style.display = 'none';
+  gameEnded = true;
+
+  let correctCells = [];
+  let emptyCells = [];
+
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
+    const userCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
+    const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
+
+    if (userCoaster) {
+      // User made a guess
+      if (solutionCoaster && userCoaster.id === solutionCoaster.id) {
+        cell.classList.add('correct');
+        correctCells.push({ row, col });
+      } else {
+        cell.classList.add('incorrect');
       }
-    
-      saveGameState();
+
+      updateCellDisplay(cell, userCoaster, true);
+
+      // Always add flip button so user can flip to see the real solution
+      if (solutionCoaster && userCoaster.id !== solutionCoaster.id) {
+        addFlipButton(cell, userCoaster, solutionCoaster);
+      }
+
+    } else {
+      // Empty cell - show the correct solution
+      emptyCells.push({ row, col });
     }
+  });
+
+  // Now fill all empty cells with the correct coasters
+  emptyCells.forEach(({ row, col }) => {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
+
+    if (solutionCoaster && cell) {
+      updateCellDisplay(cell, solutionCoaster, true);
+      cell.classList.add('unguessed');
+    }
+  });
+
+  // Results UI
+  resultsMessage.style.display = 'block';
+  const correctCount = correctCells.length;
+  updateStats(correctCount);
+  renderStatsGraph();
+  resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+
+  createEmojiResults();
+
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('input-cell');
+  });
+
+  const endButton = document.getElementById('endGameBtn');
+  if (endButton) {
+    endButton.style.display = 'none';
+  }
+
+  saveGameState();
+}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
