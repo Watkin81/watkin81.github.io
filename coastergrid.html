@@ -331,7 +331,8 @@
 
     #settingsButton,
     #infoButton,
-    #homeButton {
+    #homeButton,
+    #statsButton {
       position: fixed;
       top: 10px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -352,20 +353,26 @@
       right: 70px;
     }
 
+    #statsButton {
+      right: 130px;
+    }
+
     #homeButton {
       left: 10px;
     }
 
     #settingsButton:hover,
     #infoButton:hover,
-    #homeButton:hover {
+    #homeButton:hover,
+    #statsButton:hover {
       background-color: white;
       color: black;
     }
 
     #settingsButton:active,
     #infoButton:active,
-    #homeButton:active {
+    #homeButton:active,
+    #statsButton:active {
       background-color: white;
       color: black;
     }
@@ -500,7 +507,7 @@
     <button id="closeButton" onclick="toggleInfoPanel()">✖</button>
   </div>
 
-  <div id="statsPanel" class="popupPanel">
+  <div id="statsPanel" class="popupPanel" style="width: 250%;">
     <h3>Daily Game Stats</h3>
     <div id="statsGraph" style="margin: 20px 0;"></div>
     <p id="streakCounter" style="font-weight: bold; margin-top: 20px;">Current Streak: 0</p>
@@ -2252,7 +2259,7 @@
         barContainer.style.marginBottom = '4px';
 
         const label = document.createElement('div');
-        label.textContent = `${i}/9`;
+        label.textContent = `${i}`;
         label.style.width = '40px';
         label.style.textAlign = 'right';
         label.style.marginRight = '10px';
