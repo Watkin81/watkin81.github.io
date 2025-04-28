@@ -421,6 +421,20 @@
       /* Light gray */
     }
 
+    .flip-button {
+      all: unset;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .loading-spinner-small {
       border: 3px solid #f3f3f3;
       border-top: 3px solid #1890ff;
@@ -1826,16 +1840,22 @@
         cell.classList.remove('correct', 'incorrect', 'unguessed', 'solution-view');
 
         if (isUserView) {
-          // Flipping to show solution: make gray
-          cell.classList.add('solution-view');
-        } else {
-          // Flipping to show user's guess: restore red/green
-          if (userCoaster.id === solutionCoaster.id) {
-            cell.classList.add('correct');
-          } else {
-            cell.classList.add('incorrect');
-          }
+        // Flipping to solution view
+        cell.classList.add('solution-view');
+      
+        // FORCE background manually gray (because updateCellDisplay resets it)
+        const content = cell.querySelector('.cell-content');
+        if (content) {
+          content.style.backgroundColor = '#cccccc';
         }
+      } else {
+        // Flipping back to user guess
+        if (userCoaster.id === solutionCoaster.id) {
+          cell.classList.add('correct');
+        } else {
+          cell.classList.add('incorrect');
+        }
+      }
 
         // Toggle view state
         cell.dataset.currentView = isUserView ? 'solution' : 'user';
@@ -1886,7 +1906,8 @@
 
       // Correct count out of 9
       resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+      const correctCount = document.querySelectorAll('.cell.correct').length;
+      resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
 
       createEmojiResults();
