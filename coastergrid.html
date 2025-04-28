@@ -1890,63 +1890,59 @@
 
     function endGame(silent = false) {
       gameEnded = true;
-
-      let correctCells = [];
-
+    
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-
+    
         const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
         const selectedCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
-
+    
         const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
-
+    
         if (selectedCoaster) {
+          // Show the user's guess first
+          updateCellDisplay(cell, selectedCoaster, true);
+    
+          // Mark correct or incorrect
           if (isCoasterValidForCell(selectedCoaster, row, col)) {
-            // Exact match with the correct solution
             cell.classList.add('correct');
-            correctCells.push({ row, col });
           } else {
-            // Wrong guess
             cell.classList.add('incorrect');
           }
-
-          // Always show the guessed coaster
-          updateCellDisplay(cell, selectedCoaster, true);
-
-          // Only add flip button if solution exists and guess was different
+    
+          // Always allow flip button to see solution
           if (solutionCoaster) {
             addFlipButton(cell, selectedCoaster, solutionCoaster);
           }
-
+    
         } else {
-          // No guess — fill with correct solution
+          // No guess made: show the solution directly
           updateCellDisplay(cell, solutionCoaster, true);
           cell.classList.add('unguessed');
         }
       });
-
-      // Correct count out of 9
-      resultsMessage.style.display = 'block';
+    
+      // Update stats and other end game things
       const correctCount = document.querySelectorAll('.cell.correct').length;
+      resultsMessage.style.display = 'block';
       updateStats(correctCount);
       renderStatsGraph();
       resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
       resultsMessage.className = 'check-results success';
-
+    
       createEmojiResults();
-
+    
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
       });
-
+    
       const endButton = document.getElementById('endGameBtn');
       if (endButton) {
         endButton.style.display = 'none';
       }
-
+    
       saveGameState();
     }
 
