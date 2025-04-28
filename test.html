@@ -2,6 +2,16 @@
 <html lang="en">
 
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9KNFBSTTPJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9KNFBSTTPJ');
+</script>
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CoasterGrid - A Coaster Statistics Game</title>
@@ -474,8 +484,7 @@
 
 <body>
   <!-- Buttons (Top Right/Left) -->
-  <button id="homeButton" onclick="window.location.href='index.html'"
-    title="Home Page"><iclass="fa-solidfa-house-chimney"></i></button>
+  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i class="fa-solid fa-house-chimney"></i></button>
   <button id="statsButton" onclick="toggleStatsPanel()" title="Stats"><i class="fas fa-trophy"></i></button>
   <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
   <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
@@ -496,7 +505,7 @@
     <p>Fill the grid with roller coasters that match the criteria for both the row and column!<br>
       Add a coaster by clicking on a square, searching for a coaster, and then selecting it!<br>
       The same coaster can only appear on the grid at most one time.<br>
-      There is a new puzzle every day (at midnight EST), or you can play in random mode for unlimited puzzles!</p>
+      There is a new puzzle every day (at midnight EST)!</p>
     <h3>About the Project</h3>
     <p>This game was coded fully in html, css, and javascript as a personal project.</p>
     <p>If you like this game please check out my <a href="https://www.instagram.com/roller.coaster.images/"
@@ -507,7 +516,7 @@
     <button id="closeButton" onclick="toggleInfoPanel()">✖</button>
   </div>
 
-  <div id="statsPanel" class="popupPanel" style="width: 250%;">
+  <div id="statsPanel" class="popupPanel" style="width: 500px;">
     <h3>Daily Game Stats</h3>
     <div id="statsGraph" style="margin: 20px 0;"></div>
     <p id="streakCounter" style="font-weight: bold; margin-top: 20px;">Current Streak: 0</p>
@@ -1612,62 +1621,68 @@
       }
     }
 
-
     function displaySearchResults(results, isApiData = false) {
-      searchList.innerHTML = '';
+  searchList.innerHTML = '';
 
-      if (results.length > 0) {
-        results.forEach(coaster => {
-          const searchItem = document.createElement('div');
-          searchItem.classList.add('search-item');
+  if (results.length > 0) {
+    results.forEach(coaster => {
+      const coasterId = isApiData ? coaster.id : coaster.id;
 
-          const parkName = isApiData ? (coaster.park?.name || '') : (coaster.park || '');
-          const city = isApiData ? (coaster.city || '') : '';
-          const state = isApiData ? (coaster.state || '') : '';
-          const country = isApiData ? (coaster.country || '') : '';
-
-          let locationText = '';
-          if (city) locationText += city;
-          if (state) locationText += (locationText ? ', ' : '') + state;
-          if (country) locationText += (locationText ? ', ' : '') + country;
-
-          searchItem.innerHTML = `
-            <div><strong>${coaster.name}</strong></div>
-            <div class="search-item-details">${parkName}${locationText ? ` - ${locationText}` : ''}</div>
-          `;
-
-          searchItem.addEventListener('click', () => {
-            document.querySelectorAll('.search-item').forEach(item => {
-              item.classList.remove('selected-coaster');
-            });
-            searchItem.classList.add('selected-coaster');
-
-            selectedCoaster = isApiData ? {
-              id: coaster.id,
-              name: coaster.name,
-              park: coaster.park?.name || '',
-              manufacturer: coaster.make || '',
-              height: coaster.stats?.height ? parseFloat(coaster.stats.height) : 0,
-              length: coaster.stats?.length ? parseFloat(coaster.stats.length) : 0,
-              speed: coaster.stats?.speed ? parseFloat(coaster.stats.speed) : 0,
-              inversions: coaster.stats?.inversions ? parseInt(coaster.stats.inversions) : 0,
-              year: coaster.status?.date?.opened ? parseInt(coaster.status.date.opened.substring(0, 4)) : 0,
-              type: coaster.type || '',
-              design: coaster.design || '',
-              category: '', // not available from the API easily
-              country: coaster.country || '',
-              mainPicture: coaster.mainPicture?.url || ''
-            } : coaster;
-
-            selectButton.disabled = false;
-          });
-
-          searchList.appendChild(searchItem);
-        });
-      } else {
-        searchList.innerHTML = '<div class="search-item">No coasters found</div>';
+      // 🔥 BLOCK already used coasters!
+      if (usedCoasterIds.has(coasterId)) {
+        return; // skip this one
       }
-    }
+
+      const searchItem = document.createElement('div');
+      searchItem.classList.add('search-item');
+
+      const parkName = isApiData ? (coaster.park?.name || '') : (coaster.park || '');
+      const city = isApiData ? (coaster.city || '') : '';
+      const state = isApiData ? (coaster.state || '') : '';
+      const country = isApiData ? (coaster.country || '') : '';
+
+      let locationText = '';
+      if (city) locationText += city;
+      if (state) locationText += (locationText ? ', ' : '') + state;
+      if (country) locationText += (locationText ? ', ' : '') + country;
+
+      searchItem.innerHTML = `
+        <div><strong>${coaster.name}</strong></div>
+        <div class="search-item-details">${parkName}${locationText ? ` - ${locationText}` : ''}</div>
+      `;
+
+      searchItem.addEventListener('click', () => {
+        document.querySelectorAll('.search-item').forEach(item => {
+          item.classList.remove('selected-coaster');
+        });
+        searchItem.classList.add('selected-coaster');
+
+        selectedCoaster = isApiData ? {
+          id: coaster.id,
+          name: coaster.name,
+          park: coaster.park?.name || '',
+          manufacturer: coaster.make || '',
+          height: coaster.stats?.height ? parseFloat(coaster.stats.height) : 0,
+          length: coaster.stats?.length ? parseFloat(coaster.stats.length) : 0,
+          speed: coaster.stats?.speed ? parseFloat(coaster.stats.speed) : 0,
+          inversions: coaster.stats?.inversions ? parseInt(coaster.stats.inversions) : 0,
+          year: coaster.status?.date?.opened ? parseInt(coaster.status.date.opened.substring(0, 4)) : 0,
+          type: coaster.type || '',
+          design: coaster.design || '',
+          category: '',
+          country: coaster.country || '',
+          mainPicture: coaster.mainPicture?.url || ''
+        } : coaster;
+
+        selectButton.disabled = false;
+      });
+
+      searchList.appendChild(searchItem);
+    });
+  } else {
+    searchList.innerHTML = '<div class="search-item">No coasters found</div>';
+  }
+}
 
     function formatMeasurement(value, type) {
       if (!value) return "N/A";
@@ -1880,66 +1895,63 @@
     }
 
     function endGame(silent = false) {
-      gameEnded = true;
+  gameEnded = true;
 
-      let correctCells = [];
+  let correctCells = [];
 
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
 
-        const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
-        const selectedCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
+    const coasterId = cell.dataset.coasterId ? parseInt(cell.dataset.coasterId) : null;
+    const userCoaster = coasterId ? allCoasters.find(c => c.id === coasterId) : null;
+    const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
 
-        const solutionCoaster = solution.find(s => s.row === row && s.col === col)?.selectedCoaster;
-
-        if (selectedCoaster) {
-          if (isCoasterValidForCell(selectedCoaster, row, col)) {
-            // Exact match with the correct solution
-            cell.classList.add('correct');
-            correctCells.push({ row, col });
-          } else {
-            // Wrong guess
-            cell.classList.add('incorrect');
-          }
-
-          // Always show the guessed coaster
-          updateCellDisplay(cell, selectedCoaster, true);
-
-          // Only add flip button if solution exists and guess was different
-          if (solutionCoaster) {
-            addFlipButton(cell, selectedCoaster, solutionCoaster);
-          }
-
-        } else {
-          // No guess — fill with correct solution
-          updateCellDisplay(cell, solutionCoaster, true);
-          cell.classList.add('unguessed');
-        }
-      });
-
-      // Correct count out of 9
-      resultsMessage.style.display = 'block';
-      const correctCount = document.querySelectorAll('.cell.correct').length;
-      updateStats(correctCount);
-      renderStatsGraph();
-      resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-
-      createEmojiResults();
-
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
-
-      const endButton = document.getElementById('endGameBtn');
-      if (endButton) {
-        endButton.style.display = 'none';
+    if (userCoaster) {
+      if (isCoasterValidForCell(userCoaster, row, col)) {
+        cell.classList.add('correct');
+        correctCells.push({ row, col });
+      } else {
+        cell.classList.add('incorrect');
       }
 
-      saveGameState();
+      // Always show stats after game ends
+      updateCellDisplay(cell, userCoaster, true);
+
+      // Add flip button if the user's guess is NOT the solution coaster
+      if (solutionCoaster && userCoaster.id !== solutionCoaster.id) {
+        addFlipButton(cell, userCoaster, solutionCoaster);
+      }
+
+    } else {
+      // If blank, fill with solution coaster
+      updateCellDisplay(cell, solutionCoaster, true);
+      cell.classList.add('unguessed');
     }
+  });
+
+  // Correct count out of 9
+  resultsMessage.style.display = 'block';
+  const correctCount = document.querySelectorAll('.cell.correct').length;
+  updateStats(correctCount);
+  renderStatsGraph();
+  resultsMessage.textContent = `Game over! You had ${correctCount} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+
+  createEmojiResults();
+
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('input-cell');
+  });
+
+  const endButton = document.getElementById('endGameBtn');
+  if (endButton) {
+    endButton.style.display = 'none';
+  }
+
+  saveGameState();
+}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
@@ -2141,47 +2153,52 @@
       createEmojiResults();
     }
 
-    function loadGameFromState(state) {
-      gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
-      usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
-      rowCriteria = state.rowCriteria;
-      colCriteria = state.colCriteria;
+    function loadGameFromState(savedState) {
+  console.log("Restoring saved game state...");
 
-      solution = state.solution.map(cell => {
-        const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
-        return {
-          row: cell.row,
-          col: cell.col,
-          selectedCoaster: coaster
-        };
-      });
+  // Restore the grid
+  gameGrid = savedState.grid.map(row => row.map(cell => {
+    if (cell) {
+      const id = simpleDecrypt(cell);
+      const coaster = allCoasters.find(c => c.id === id);
+      if (coaster) {
+        usedCoasterIds.add(coaster.id);
+      }
+      return coaster || null;
+    }
+    return null;
+  }));
 
-      renderGrid();
+  // Restore rows/columns
+  rowCriteria = savedState.rowCriteria;
+  colCriteria = savedState.colCriteria;
+  solution = savedState.solution.map(sol => {
+    const coaster = allCoasters.find(c => c.id === sol.selectedCoasterId);
+    return {
+      row: sol.row,
+      col: sol.col,
+      selectedCoaster: coaster
+    };
+  });
 
-      // After rendering, restore filled cells
-      gameGrid.forEach((row, r) => {
-        row.forEach((coaster, c) => {
-          if (coaster) {
-            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-            if (cell) {
-              updateCellDisplay(cell, coaster, false); // show without stats first
-            }
-          }
-        });
-      });
+  // Re-render the grid visually
+  renderGrid();
 
-      // THEN if game already ended:
-      if (state.gameEnded) {
-        setTimeout(() => {
-          document.querySelectorAll('.cell.input-cell').forEach(cell => {
-            cell.onclick = null;
-            cell.classList.remove('input-cell');
-          });
-
-          forceShowEndState();
-        }, 50); // slight delay to make sure DOM is ready
+  // Refill the placed coasters
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const coaster = gameGrid[row][col];
+      if (coaster) {
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        updateCellDisplay(cell, coaster, false);
       }
     }
+  }
+
+  if (savedState.gameEnded) {
+    gameEnded = true;
+  }
+}
 
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
