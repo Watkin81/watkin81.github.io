@@ -1339,8 +1339,8 @@
         console.log('Loading saved game...');
 
         loadGameFromState(savedState);
+        restoreCriteriaMatchers();
 
-        // 🛡 AFTER grid and coasters are ready
         if (savedState.gameEnded) {
           console.log('Game was already ended, showing results...');
           setTimeout(() => {
