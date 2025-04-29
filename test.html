@@ -2126,28 +2126,34 @@
     }
 
     function saveGameState() {
-      const gridData = [];
+  const gridData = [];
 
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const coaster = gameGrid[row][col];
-          if (coaster) {
-            gridData.push({ row, col, coaster });
-          }
-        }
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const coaster = gameGrid[row][col];
+      if (coaster) {
+        gridData.push({ row, col, coaster });
       }
-
-      const state = {
-  date: getDailySeed(),
-  gameEnded,
-  usedCoasterIds: Array.from(usedCoasterIds),
-  gridData,
-  rowCriteria,
-  colCriteria,
-  solution
-};
-localStorage.setItem('coasterGridSave', JSON.stringify(state));
     }
+  }
+
+  const state = {
+    date: getDailySeed(),
+    gameEnded,
+    usedCoasterIds: Array.from(usedCoasterIds),
+    gridData,
+    rowCriteria: rowCriteria.map(c => ({ type: c.type, value: c.value })),
+    colCriteria: colCriteria.map(c => ({ type: c.type, value: c.value })),
+    solution: solution.map(s => ({
+      row: s.row,
+      col: s.col,
+      selectedCoaster: s.selectedCoaster,
+      possibleCoasters: [] // Optional: you can omit or reduce size for performance
+    }))
+  };
+
+  localStorage.setItem('coasterGridSave', JSON.stringify(state));
+}
 
     function loadGameState() {
       const saved = localStorage.getItem('coasterGridSave'); // <- fix the key here
@@ -2215,7 +2221,18 @@ localStorage.setItem('coasterGridSave', JSON.stringify(state));
   colCriteria = state.colCriteria || [];
   solution = state.solution || [];
 
-  // Apply grid placements
+  // Reassign matcher functions to row/col criteria after JSON restore
+  rowCriteria.forEach(rc => {
+    const found = rowCriteriaOptions.find(opt => opt.type === rc.type);
+    rc.matcher = found?.matcher || (() => false);
+  });
+
+  colCriteria.forEach(cc => {
+    const found = colCriteriaOptions.find(opt => opt.type === cc.type);
+    cc.matcher = found?.matcher || (() => false);
+  });
+
+  // Restore grid data
   if (state.gridData) {
     for (const { row, col, coaster } of state.gridData) {
       gameGrid[row][col] = coaster;
@@ -2224,7 +2241,7 @@ localStorage.setItem('coasterGridSave', JSON.stringify(state));
 
   renderGrid();
 
-  // Re-render cells
+  // Re-render cell content
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 3; col++) {
       const coaster = gameGrid[row][col];
@@ -2235,6 +2252,7 @@ localStorage.setItem('coasterGridSave', JSON.stringify(state));
     }
   }
 }
+
 
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
