@@ -2099,7 +2099,7 @@
       }
 
       const puzzleNumber = getPuzzleNumber();
-      const resultText = `Coaster Grid #${puzzleNumber} (${correctAnswers}/9)\n${emojiGrid}`;
+      const resultText = `Coaster Grid #${puzzleNumber}\n${emojiGrid}`;
 
       const resultContainer = document.createElement('div');
       resultContainer.className = 'emoji-result-container';
@@ -2134,7 +2134,7 @@
       resultContainer.appendChild(resultTextArea);
       resultContainer.appendChild(copyButton);
 
-      const tweetText = `Coaster Grid #${puzzleNumber} (${correctAnswers}/9) #coastergrid\n${emojiGrid}\nhttps://watkin81.github.io/coastergrid`;
+      const tweetText = `Coaster Grid #${puzzleNumber} #coastergrid\n${emojiGrid}\nhttps://watkin81.github.io/coastergrid`;
       const tweetButton = document.createElement('button');
       tweetButton.className = 'game-button';
       tweetButton.textContent = 'Tweet Result';
