@@ -836,7 +836,7 @@
       endGameBtn.addEventListener('click', endGame);
 
       const rng = await getSeededRandom();
-      setupDailyGame(rng);
+      ilyGame(rng);
       //createNewGame();
     }
 
@@ -1381,49 +1381,52 @@
     }
 
     async function setupDailyGame(rng) {
-      const seed = getDailySeed();
-      console.log(`Starting daily game with seed: ${seed}`);
+  const seed = getDailySeed();
+  console.log(`Starting daily game with seed: ${seed}`);
 
-      const savedState = loadGameState();
-      if (savedState && savedState.date === seed) {
-        console.log('Loading saved game...');
+  // Always generate the puzzle to initialize rowCriteria, colCriteria, and solution
+  solution = [];
+  gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+  usedCoasterIds = new Set();
+  resultsMessage.style.display = 'none';
 
-        loadGameFromState(savedState);
+  let maxTries = 20;
+  let tries = 0;
+  let puzzleGenerated = false;
 
-        if (savedState.gameEnded) {
-          console.log('Game was already ended, showing results...');
-          setTimeout(() => {
-            endGame(true); // Silent end
-            restoreFlipButtonsAfterReload();
-          }, 100);
-        }
-        return;
-      }
+  while (!puzzleGenerated && tries < maxTries) {
+    puzzleGenerated = generatePuzzle(rng);
+    tries++;
+  }
 
-      console.log('Generating new daily game...');
+  if (!puzzleGenerated) {
+    alert('Failed to generate puzzle. Please try again later.');
+    return;
+  }
 
-      solution = [];
-      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
-      usedCoasterIds = new Set();
-      resultsMessage.style.display = 'none';
+  // Render grid with criteria headers so cell placement works
+  renderGrid();
 
-      let maxTries = 20;
-      let tries = 0;
-      let puzzleGenerated = false;
+  // Now it's safe to load saved state if it exists
+  const savedState = loadGameState();
+  if (savedState && savedState.date === seed) {
+    console.log('Loading saved game...');
+    loadGameFromState(savedState);
 
-      while (!puzzleGenerated && tries < maxTries) {
-        puzzleGenerated = generatePuzzle(rng);
-        tries++;
-      }
-
-      if (!puzzleGenerated) {
-        alert('Failed to generate puzzle. Please try again later.');
-        return;
-      }
-
-      renderGrid();
-      saveGameState();
+    if (savedState.gameEnded) {
+      console.log('Game was already ended, showing results...');
+      setTimeout(() => {
+        endGame(true); // Silent end
+        restoreFlipButtonsAfterReload();
+      }, 100);
     }
+
+    return;
+  }
+
+  console.log('Saving new daily game...');
+  saveGameState();
+}
 
     function restoreFlipButtonsAfterReload() {
       document.querySelectorAll('.cell.filled-cell').forEach(cell => {
