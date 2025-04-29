@@ -2126,37 +2126,37 @@
     }
 
     function saveGameState() {
-      const gridData = [];
+  const state = {
+    date: getDailySeed(),
+    gameEnded: gameEnded,
+    gridData: []
+  };
 
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const coaster = gameGrid[row][col];
-          if (coaster) {
-            gridData.push({ row, col, coaster });
-          }
-        }
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const coaster = gameGrid[row][col];
+      if (coaster) {
+        state.gridData.push({ row, col, coaster });
       }
-
-      const state = {
-        date: getDailySeed(),
-        gameEnded,
-        gridData
-      };
-
-      localStorage.setItem('coasterGridSave', JSON.stringify(state));
     }
+  }
+
+  localStorage.setItem('coasterGridSave', JSON.stringify(state));
+}
 
     function loadGameState() {
-      const saved = localStorage.getItem('coasterGridSave');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error('Failed to parse saved game state', e);
-        }
-      }
-      return null;
-    }
+  const saved = localStorage.getItem('coasterGridSave');
+  if (!saved) return null;
+
+  try {
+    const state = JSON.parse(saved);
+    if (state.date !== getDailySeed()) return null; // only restore today's game
+    return state;
+  } catch (err) {
+    console.error('Failed to parse saved game state:', err);
+    return null;
+  }
+}
 
     function forceShowEndState() {
       gameEnded = true;
@@ -2205,22 +2205,15 @@
     }
 
     function loadGameFromState(state) {
-      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
-
-      renderGrid(); // Ensure grid structure exists
-
-      for (const { row, col, coaster } of state.gridData) {
-        gameGrid[row][col] = coaster;
-
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        if (cell) {
-          usedCoasterIds.add(coaster.id);
-          updateCellDisplay(cell, coaster, false);
-        }
-      }
-
-      gameEnded = state.gameEnded;
+  state.gridData.forEach(({ row, col, coaster }) => {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    if (cell) {
+      updateCellDisplay(cell, coaster, false);
+      gameGrid[row][col] = coaster;
+      usedCoasterIds.add(coaster.id);
     }
+  });
+}
 
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
