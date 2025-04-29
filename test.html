@@ -441,6 +441,20 @@
       background-color: #a1a1a1 !important;
     }
 
+    .flip-button {
+      all: unset;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -1380,7 +1394,6 @@
           console.log('Game was already ended, showing results...');
           setTimeout(() => {
             endGame(true); // Silent end
-            restoreFlipButtonsAfterReload();
           }, 100);
         }
         return;
@@ -1811,93 +1824,81 @@
     }
 
     function endGame(silent = false) {
-      gameEnded = true;
+  gameEnded = true;
 
-      let correctCells = [];
-      let emptyCells = [];
+  let correctCells = [];
+  let emptyCells = [];
 
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-        const rowCriterion = rowCriteria[row];
-        const colCriterion = colCriteria[col];
+    const rowCriterion = rowCriteria[row];
+    const colCriterion = colCriteria[col];
 
-        // Defensive check for missing matchers
-        if (typeof rowCriterion?.matcher !== 'function' || typeof colCriterion?.matcher !== 'function') {
-          console.error('Missing matcher function:', { rowCriterion, colCriterion });
-          return;
-        }
-
-        if (cell.dataset.coasterId) {
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
-
-          if (selectedCoaster) {
-            const isCorrect =
-              rowCriterion.matcher(selectedCoaster, rowCriterion.value) &&
-              colCriterion.matcher(selectedCoaster, colCriterion.value);
-
-            if (isCorrect) {
-              cell.classList.add('correct');
-              updateCellDisplay(cell, selectedCoaster, true);
-              correctCells.push({ row, col });
-            } else {
-              cell.classList.add('incorrect');
-              updateCellDisplay(cell, selectedCoaster, true);
-            }
-
-            if (cellSolution?.selectedCoaster) {
-              addFlipButton(cell, selectedCoaster, cellSolution.selectedCoaster);
-            }
-          }
-        } else {
-          emptyCells.push({ row, col });
-        }
-      });
-
-      // Fill empty cells with solution coasters
-      emptyCells.forEach(({ row, col }) => {
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-        if (cell && cellSolution && cellSolution.selectedCoaster) {
-          updateCellDisplay(cell, cellSolution.selectedCoaster, true);
-          cell.classList.add('unguessed');
-        }
-      });
-
-      let correctAnswers = 0;
-      solution.forEach(({ row, col, selectedCoaster }) => {
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        if (!cell || !cell.dataset.coasterId) return;
-
-        const placedCoasterId = parseInt(cell.dataset.coasterId);
-        if (placedCoasterId === selectedCoaster.id) {
-          correctAnswers++;
-        }
-      });
-
-      resultsMessage.style.display = 'block';
-      resultsMessage.textContent = `Game over! You had ${correctAnswers} correct answers out of 9 cells.`;
-      resultsMessage.className = 'check-results success';
-
-      saveStats(correctAnswers);
-      createEmojiResults();
-
-      // Disable further cell input
-      document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        cell.onclick = null;
-        cell.classList.remove('input-cell');
-      });
-
-      const endButton = document.getElementById('endGameBtn');
-      if (endButton) {
-        endButton.style.display = 'none';
-      }
-
-      saveGameState();
+    // Defensive check for missing matchers
+    if (typeof rowCriterion?.matcher !== 'function' || typeof colCriterion?.matcher !== 'function') {
+      console.error('Missing matcher function:', { rowCriterion, colCriterion });
+      return;
     }
+
+    if (cell.dataset.coasterId) {
+      const coasterId = parseInt(cell.dataset.coasterId);
+      const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+
+      if (selectedCoaster) {
+        const isCorrect =
+          rowCriterion.matcher(selectedCoaster, rowCriterion.value) &&
+          colCriterion.matcher(selectedCoaster, colCriterion.value);
+
+        if (isCorrect) {
+          cell.classList.add('correct');
+          updateCellDisplay(cell, selectedCoaster, true);
+          correctCells.push({ row, col });
+        } else {
+          cell.classList.add('incorrect');
+          updateCellDisplay(cell, selectedCoaster, true);
+        }
+
+        if (cellSolution?.selectedCoaster) {
+          addFlipButton(cell, selectedCoaster, cellSolution.selectedCoaster);
+        }
+      }
+    } else {
+      emptyCells.push({ row, col });
+    }
+  });
+
+  // Fill empty cells with solution coasters
+  emptyCells.forEach(({ row, col }) => {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    const cellSolution = solution.find(s => s.row === row && s.col === col);
+    if (cell && cellSolution && cellSolution.selectedCoaster) {
+      updateCellDisplay(cell, cellSolution.selectedCoaster, true);
+      cell.classList.add('unguessed');
+    }
+  });
+
+  resultsMessage.style.display = 'block';
+  resultsMessage.textContent = `Game over! You had ${correctCells.length} correct answers out of 9 cells.`;
+  resultsMessage.className = 'check-results success';
+
+  createEmojiResults();
+
+  // Disable further cell input
+  document.querySelectorAll('.cell.input-cell').forEach(cell => {
+    cell.onclick = null;
+    cell.classList.remove('input-cell');
+  });
+
+  const endButton = document.getElementById('endGameBtn');
+  if (endButton) {
+    endButton.style.display = 'none';
+  }
+
+  saveGameState();
+}
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
@@ -2026,66 +2027,6 @@
       });
 
       cell.appendChild(flipButton);
-    }
-
-    function restoreFlipButtonsAfterReload() {
-      document.querySelectorAll('.cell.filled-cell').forEach(cell => {
-        const userCoasterId = parseInt(cell.dataset.coasterId);
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        const cellSolution = solution.find(s => s.row === row && s.col === col);
-
-        if (cellSolution && userCoasterId && cellSolution.selectedCoaster?.id !== userCoasterId) {
-          const userCoaster = allCoasters.find(c => c.id === userCoasterId);
-          if (userCoaster && cellSolution.selectedCoaster) {
-            addFlipButton(cell, userCoaster, cellSolution.selectedCoaster);
-          }
-        }
-      });
-    }
-
-    function renderStatsGraph() {
-      const stats = loadStats();
-      const graph = document.getElementById('statsGraph');
-      const streak = document.getElementById('streakCounter');
-
-      // Clear previous bars
-      graph.innerHTML = '';
-
-      // Build bars for 0 to 9 correct counts
-      for (let i = 0; i <= 9; i++) {
-        const count = stats.correctCounts?.[i] || 0;
-
-        const barContainer = document.createElement('div');
-        barContainer.style.display = 'flex';
-        barContainer.style.alignItems = 'center';
-        barContainer.style.marginBottom = '4px';
-
-        const label = document.createElement('div');
-        label.textContent = `${i}`;
-        label.style.width = '40px';
-        label.style.textAlign = 'right';
-        label.style.marginRight = '10px';
-
-        const bar = document.createElement('div');
-        bar.style.height = '20px';
-        bar.style.width = `${count * 20}px`; // basic scale
-        bar.style.backgroundColor = '#1890ff';
-        bar.style.borderRadius = '4px';
-
-        const countLabel = document.createElement('span');
-        countLabel.textContent = ` ${count}`;
-        countLabel.style.marginLeft = '8px';
-        countLabel.style.fontSize = '12px';
-
-        barContainer.appendChild(label);
-        barContainer.appendChild(bar);
-        barContainer.appendChild(countLabel);
-
-        graph.appendChild(barContainer);
-      }
-
-      streak.textContent = `Current Streak: ${stats.streak || 0}`;
     }
 
     function createEmojiResults() {
@@ -2235,16 +2176,6 @@
       createEmojiResults();
     }
 
-    function loadStats() {
-      return JSON.parse(localStorage.getItem('coasterStats')) || {
-        correctCounts: Array(10).fill(0),
-        streak: 0,
-        lastPlayed: null,
-        lastCorrect: {}
-      };
-    }
-
-
     function loadGameFromState(state) {
       gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
       usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
@@ -2287,40 +2218,6 @@
       }
     }
 
-    function saveStats(correctAnswers) {
-      const stats = loadStats();
-      const today = getDailySeed();
-
-      if (stats.lastPlayed !== today) {
-        // Update correct count histogram
-        stats.correctCounts[correctAnswers] = (stats.correctCounts[correctAnswers] || 0) + 1;
-
-        // Streak only increases if today's correct count ≥ 1
-        if (correctAnswers > 0) {
-          const yesterday = getYesterdaySeed();
-          const playedYesterday = stats.lastPlayed === yesterday;
-
-          const yesterdayWasSuccess = stats.lastCorrect && stats.lastCorrect[yesterday] > 0;
-
-          if (playedYesterday && yesterdayWasSuccess) {
-            stats.streak += 1;
-          } else {
-            stats.streak = 1;
-          }
-
-          // Save today's correct value for future reference
-          stats.lastCorrect = stats.lastCorrect || {};
-          stats.lastCorrect[today] = correctAnswers;
-        } else {
-          stats.streak = 0;
-        }
-
-        stats.lastPlayed = today;
-
-        localStorage.setItem('coasterStats', JSON.stringify(stats));
-      }
-    }
-
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
       const startDate = new Date('2025-04-28T00:00:00-04:00'); // April 28, 2025, EST midnight
@@ -2333,14 +2230,14 @@
     }
 
     function restoreMatchers(criteriaList, sourceOptions) {
-      return criteriaList.map(saved => {
-        const original = sourceOptions.find(opt => opt.type === saved.type);
-        return {
-          ...saved,
-          matcher: original?.matcher
-        };
-      });
-    }
+  return criteriaList.map(saved => {
+    const original = sourceOptions.find(opt => opt.type === saved.type);
+    return {
+      ...saved,
+      matcher: original?.matcher
+    };
+  });
+}
 
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
@@ -2367,12 +2264,14 @@
     }
 
     function toggleStatsPanel() {
-      const panel = document.getElementById('statsPanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-      document.getElementById('overlay').style.display = panel.style.display === 'block' ? 'block' : 'none';
-
-      if (panel.style.display === 'block') {
-        renderStatsGraph();
+      const statsPanel = document.getElementById('statsPanel');
+      const overlay = document.getElementById('overlay');
+      if (statsPanel.style.display === 'block') {
+        statsPanel.style.display = 'none';
+        overlay.style.display = 'none';
+      } else {
+        statsPanel.style.display = 'block';
+        overlay.style.display = 'block';
       }
     }
 
