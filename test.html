@@ -1834,13 +1834,20 @@
         const col = parseInt(cell.dataset.col);
         const cellSolution = solution.find(s => s.row === row && s.col === col);
 
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
+
+        // Defensive check for missing matchers
+        if (typeof rowCriterion?.matcher !== 'function' || typeof colCriterion?.matcher !== 'function') {
+          console.error('Missing matcher function:', { rowCriterion, colCriterion });
+          return;
+        }
+
         if (cell.dataset.coasterId) {
           const coasterId = parseInt(cell.dataset.coasterId);
           const selectedCoaster = allCoasters.find(c => c.id === coasterId);
 
           if (selectedCoaster) {
-            const rowCriterion = rowCriteria[row];
-            const colCriterion = colCriteria[col];
             const isCorrect =
               rowCriterion.matcher(selectedCoaster, rowCriterion.value) &&
               colCriterion.matcher(selectedCoaster, colCriterion.value);
@@ -1863,11 +1870,10 @@
         }
       });
 
-      // Fill in empty cells with possible valid coasters from solution
+      // Fill empty cells with solution coasters
       emptyCells.forEach(({ row, col }) => {
         const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
         const cellSolution = solution.find(s => s.row === row && s.col === col);
-
         if (cell && cellSolution && cellSolution.selectedCoaster) {
           updateCellDisplay(cell, cellSolution.selectedCoaster, true);
           cell.classList.add('unguessed');
@@ -1880,7 +1886,7 @@
 
       createEmojiResults();
 
-      // Disable further input
+      // Disable further cell input
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
@@ -2173,8 +2179,8 @@
     function loadGameFromState(state) {
       gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
       usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
-      rowCriteria = state.rowCriteria;
-      colCriteria = state.colCriteria;
+      rowCriteria = restoreMatchers(savedState.rowCriteria, rowCriteriaOptions);
+      colCriteria = restoreMatchers(savedState.colCriteria, colCriteriaOptions);
 
       solution = state.solution.map(cell => {
         const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
@@ -2221,6 +2227,16 @@
       const diffInDays = Math.floor(diffInMs / msInDay);
 
       return diffInDays + 1;
+    }
+
+    function restoreMatchers(criteriaList, sourceOptions) {
+      return criteriaList.map(saved => {
+        const original = sourceOptions.find(opt => opt.type === saved.type);
+        return {
+          ...saved,
+          matcher: original?.matcher
+        };
+      });
     }
 
     function toggleSettingsPanel() {
