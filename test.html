@@ -1849,38 +1849,33 @@
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
+        const coaster = gameGrid[row][col];
         const cellSolution = solution.find(s => s.row === row && s.col === col);
 
         const rowCriterion = rowCriteria[row];
         const colCriterion = colCriteria[col];
 
-        // Defensive check for missing matchers
+        // Defensive check
         if (typeof rowCriterion?.matcher !== 'function' || typeof colCriterion?.matcher !== 'function') {
           console.error('Missing matcher function:', { rowCriterion, colCriterion });
           return;
         }
 
-        if (cell.dataset.coasterId) {
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const selectedCoaster = allCoasters.find(c => c.id === coasterId);
+        if (coaster) {
+          const isCorrect = rowCriterion.matcher(coaster, rowCriterion.value) &&
+            colCriterion.matcher(coaster, colCriterion.value);
 
-          if (selectedCoaster) {
-            const isCorrect =
-              rowCriterion.matcher(selectedCoaster, rowCriterion.value) &&
-              colCriterion.matcher(selectedCoaster, colCriterion.value);
+          if (isCorrect) {
+            cell.classList.add('correct');
+            correctCells.push({ row, col });
+          } else {
+            cell.classList.add('incorrect');
+          }
 
-            if (isCorrect) {
-              cell.classList.add('correct');
-              updateCellDisplay(cell, selectedCoaster, true);
-              correctCells.push({ row, col });
-            } else {
-              cell.classList.add('incorrect');
-              updateCellDisplay(cell, selectedCoaster, true);
-            }
+          updateCellDisplay(cell, coaster, true);
 
-            if (cellSolution?.selectedCoaster) {
-              addFlipButton(cell, selectedCoaster, cellSolution.selectedCoaster);
-            }
+          if (cellSolution?.selectedCoaster && cellSolution.selectedCoaster.id !== coaster.id) {
+            addFlipButton(cell, coaster, cellSolution.selectedCoaster);
           }
         } else {
           emptyCells.push({ row, col });
@@ -1899,14 +1894,11 @@
 
       let correctAnswers = 0;
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        if (!cell.dataset.coasterId || cell.classList.contains('unguessed')) return;
-
-        const coasterId = parseInt(cell.dataset.coasterId);
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
-        const coaster = allCoasters.find(c => c.id === coasterId);
+        const coaster = gameGrid[row][col];
 
-        if (isCoasterValidForCell(coaster, row, col)) {
+        if (coaster && !cell.classList.contains('unguessed') && isCoasterValidForCell(coaster, row, col)) {
           correctAnswers++;
         }
       });
@@ -2023,7 +2015,7 @@
       flipButton.style.position = 'absolute';
       flipButton.style.bottom = '5px';
       flipButton.style.right = '5px';
-      flipButton.style.zIndex = '10';
+      flipButton.style.zIndex = '4';
 
       // Track view state
       cell.dataset.currentView = cell.dataset.currentView || 'user';
@@ -2134,20 +2126,24 @@
     }
 
     function saveGameState() {
+      const gridData = [];
+
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const coaster = gameGrid[row][col];
+          if (coaster) {
+            gridData.push({ row, col, coaster });
+          }
+        }
+      }
+
       const state = {
         date: getDailySeed(),
-        grid: gameGrid.map(row => row.map(coaster => coaster ? simpleEncrypt(coaster.id) : null)), // encrypt IDs
-        used: Array.from(usedCoasterIds).map(id => simpleEncrypt(id)), // encrypt used coaster IDs
-        rowCriteria: rowCriteria,
-        colCriteria: colCriteria,
-        solution: solution.map(cell => ({
-          row: cell.row,
-          col: cell.col,
-          selectedCoasterId: simpleEncrypt(cell.selectedCoaster.id) // encrypt solution coaster IDs
-        })),
-        gameEnded: gameEnded
+        gameEnded,
+        gridData
       };
-      localStorage.setItem('coasterGridDaily', JSON.stringify(state));
+
+      localStorage.setItem('coasterGridSave', JSON.stringify(state));
     }
 
     function loadGameState() {
@@ -2209,45 +2205,21 @@
     }
 
     function loadGameFromState(state) {
-      gameGrid = state.grid.map(row => row.map(encId => encId ? allCoasters.find(c => c.id === simpleDecrypt(encId)) : null));
-      usedCoasterIds = new Set(state.used.map(encId => simpleDecrypt(encId)));
-      rowCriteria = restoreMatchers(state.rowCriteria, rowCriteriaOptions);
-      colCriteria = restoreMatchers(state.colCriteria, colCriteriaOptions);
+      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
 
-      solution = state.solution.map(cell => {
-        const coaster = allCoasters.find(c => c.id === simpleDecrypt(cell.selectedCoasterId));
-        return {
-          row: cell.row,
-          col: cell.col,
-          selectedCoaster: coaster
-        };
-      });
+      renderGrid(); // Ensure grid structure exists
 
-      renderGrid();
+      for (const { row, col, coaster } of state.gridData) {
+        gameGrid[row][col] = coaster;
 
-      // After rendering, restore filled cells
-      gameGrid.forEach((row, r) => {
-        row.forEach((coaster, c) => {
-          if (coaster) {
-            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-            if (cell) {
-              updateCellDisplay(cell, coaster, false); // show without stats first
-            }
-          }
-        });
-      });
-
-      // THEN if game already ended:
-      if (state.gameEnded) {
-        setTimeout(() => {
-          document.querySelectorAll('.cell.input-cell').forEach(cell => {
-            cell.onclick = null;
-            cell.classList.remove('input-cell');
-          });
-
-          forceShowEndState();
-        }, 50); // slight delay to make sure DOM is ready
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+          usedCoasterIds.add(coaster.id);
+          updateCellDisplay(cell, coaster, false);
+        }
       }
+
+      gameEnded = state.gameEnded;
     }
 
     function getPuzzleNumber() {
