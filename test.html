@@ -453,6 +453,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 4;
     }
 
     @keyframes spin {
@@ -1897,14 +1898,15 @@
       });
 
       let correctAnswers = 0;
-      solution.forEach(({ row, col }) => {
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        if (!cell || !cell.dataset.coasterId) return;
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        if (!cell.dataset.coasterId) return;
 
-        const placedCoasterId = parseInt(cell.dataset.coasterId);
-        const placedCoaster = allCoasters.find(c => c.id === placedCoasterId);
+        const coasterId = parseInt(cell.dataset.coasterId);
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const coaster = allCoasters.find(c => c.id === coasterId);
 
-        if (isCoasterValidForCell(placedCoaster, row, col)) {
+        if (isCoasterValidForCell(coaster, row, col)) {
           correctAnswers++;
         }
       });
@@ -2086,7 +2088,8 @@
             rowEmojis += '⬛';
           }
         }
-        emojiGrid += rowEmojis + '\n';
+        emojiGrid += rowEmojis;
+        if (row < 2) emojiGrid += '\n';
       }
 
       const puzzleNumber = getPuzzleNumber();
