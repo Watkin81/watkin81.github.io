@@ -2138,12 +2138,15 @@
       }
 
       const state = {
-        date: getDailySeed(),
-        gameEnded,
-        gridData
-      };
-
-      localStorage.setItem('coasterGridSave', JSON.stringify(state));
+  date: getDailySeed(),
+  gameEnded,
+  usedCoasterIds: Array.from(usedCoasterIds),
+  gridData,
+  rowCriteria,
+  colCriteria,
+  solution
+};
+localStorage.setItem('coasterGridSave', JSON.stringify(state));
     }
 
     function loadGameState() {
@@ -2205,22 +2208,33 @@
     }
 
     function loadGameFromState(state) {
-      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+  gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+  usedCoasterIds = new Set(state.usedCoasterIds || []);
+  gameEnded = state.gameEnded || false;
+  rowCriteria = state.rowCriteria || [];
+  colCriteria = state.colCriteria || [];
+  solution = state.solution || [];
 
-      renderGrid(); // Ensure grid structure exists
-
-      for (const { row, col, coaster } of state.gridData) {
-        gameGrid[row][col] = coaster;
-
-        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-        if (cell) {
-          usedCoasterIds.add(coaster.id);
-          updateCellDisplay(cell, coaster, false);
-        }
-      }
-
-      gameEnded = state.gameEnded;
+  // Apply grid placements
+  if (state.gridData) {
+    for (const { row, col, coaster } of state.gridData) {
+      gameGrid[row][col] = coaster;
     }
+  }
+
+  renderGrid();
+
+  // Re-render cells
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const coaster = gameGrid[row][col];
+      if (coaster) {
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        updateCellDisplay(cell, coaster, gameEnded);
+      }
+    }
+  }
+}
 
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
