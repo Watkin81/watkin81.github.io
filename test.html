@@ -1384,13 +1384,39 @@
   const seed = getDailySeed();
   console.log(`Starting daily game with seed: ${seed}`);
 
-  // Always generate the puzzle to initialize rowCriteria, colCriteria, and solution
+  const savedState = loadGameState();
+
+  // Clear current game state
   solution = [];
   gameGrid = Array(3).fill().map(() => Array(3).fill(null));
   usedCoasterIds = new Set();
   resultsMessage.style.display = 'none';
 
-  let maxTries = 20;
+  if (savedState && savedState.date === seed) {
+    console.log('Restoring saved game...');
+
+    // Restore full puzzle state
+    rowCriteria = savedState.rowCriteria;
+    colCriteria = savedState.colCriteria;
+    solution = savedState.solution;
+
+    renderGrid();
+    loadGameFromState(savedState);
+
+    if (savedState.gameEnded) {
+      setTimeout(() => {
+        endGame(true); // Silent
+        restoreFlipButtonsAfterReload();
+      }, 100);
+    } else {
+      saveGameState(); // Re-save to lock state for future refresh
+    }
+
+    return;
+  }
+
+  console.log('No save found — generating new puzzle...');
+  let maxTries = 100;
   let tries = 0;
   let puzzleGenerated = false;
 
@@ -1404,27 +1430,7 @@
     return;
   }
 
-  // Render grid with criteria headers so cell placement works
   renderGrid();
-
-  // Now it's safe to load saved state if it exists
-  const savedState = loadGameState();
-  if (savedState && savedState.date === seed) {
-    console.log('Loading saved game...');
-    loadGameFromState(savedState);
-
-    if (savedState.gameEnded) {
-      console.log('Game was already ended, showing results...');
-      setTimeout(() => {
-        endGame(true); // Silent end
-        restoreFlipButtonsAfterReload();
-      }, 100);
-    }
-
-    return;
-  }
-
-  console.log('Saving new daily game...');
   saveGameState();
 }
 
@@ -2132,7 +2138,10 @@
   const state = {
     date: getDailySeed(),
     gameEnded: gameEnded,
-    gridData: []
+    gridData: [],
+    rowCriteria,
+    colCriteria,
+    solution
   };
 
   for (let row = 0; row < 3; row++) {
@@ -2153,7 +2162,7 @@
 
   try {
     const state = JSON.parse(saved);
-    if (state.date !== getDailySeed()) return null; // only restore today's game
+    if (state.date !== getDailySeed()) return null;
     return state;
   } catch (err) {
     console.error('Failed to parse saved game state:', err);
