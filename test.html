@@ -390,7 +390,7 @@
       top: 20px;
       right: 20px;
     }
-    
+
     #closeButton:hover {
       background-color: lightgrey;
     }
@@ -417,27 +417,43 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.25); /* semi-transparent black */
-      z-index: 5; /* Behind panels, above background */
+      background: rgba(0, 0, 0, 0.25);
+      /* semi-transparent black */
+      z-index: 5;
+      /* Behind panels, above background */
     }
 
     .flip-button {
-  all: unset;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
-  cursor: pointer;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+      all: unset;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.solution-view {
-  background-color: #a1a1a1;
-}
+    .solution-view .cell-content {
+      background-color: #a1a1a1 !important;
+    }
+
+    .flip-button {
+      all: unset;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     @keyframes spin {
       0% {
@@ -453,7 +469,8 @@
 
 <body>
   <!-- Buttons (Top Right/Left) -->
-  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i class="fa-solid fa-house-chimney"></i></button>
+  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i
+      class="fa-solid fa-house-chimney"></i></button>
   <button id="statsButton" onclick="toggleStatsPanel()" title="Stats"><i class="fas fa-trophy"></i></button>
   <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
   <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
@@ -1708,27 +1725,27 @@
     }
 
     function flipCellContent(cell) {
-  if (!cell) return;
-  const content = cell.querySelector('.cell-content');
-  const background = cell.querySelector('.cell-bg');
+      if (!cell) return;
+      const content = cell.querySelector('.cell-content');
+      const background = cell.querySelector('.cell-bg');
 
-  if (!background) {
-    console.error('No solution background found to flip to.');
-    return;
-  }
+      if (!background) {
+        console.error('No solution background found to flip to.');
+        return;
+      }
 
-  if (content.style.display === 'none') {
-    // Show user's guess
-    content.style.display = 'block';
-    background.style.display = 'none';
-    cell.classList.remove('solution-view');
-  } else {
-    // Show solution background
-    content.style.display = 'none';
-    background.style.display = 'block';
-    cell.classList.add('solution-view');
-  }
-}
+      if (content.style.display === 'none') {
+        // Show user's guess
+        content.style.display = 'block';
+        background.style.display = 'none';
+        cell.classList.remove('solution-view');
+      } else {
+        // Show solution background
+        content.style.display = 'none';
+        background.style.display = 'block';
+        cell.classList.add('solution-view');
+      }
+    }
 
 
     function updateCellDisplay(cell, coaster, showStats = false) {
@@ -1784,10 +1801,6 @@
     }
 
     function endGame(silent = false) {
-      /*if (!silent && !confirm("Are you ready to end the game and see results?")) {
-        return;
-      }*/
-
       gameEnded = true;
 
       let correctCells = [];
@@ -1802,20 +1815,32 @@
           const coasterId = parseInt(cell.dataset.coasterId);
           const selectedCoaster = allCoasters.find(c => c.id === coasterId);
 
-          if (selectedCoaster && cellSolution && selectedCoaster.id === cellSolution.selectedCoaster.id) {
-            cell.classList.add('correct');
-            updateCellDisplay(cell, selectedCoaster, true);
-            correctCells.push({ row, col });
-          } else {
-            cell.classList.add('incorrect');
-            updateCellDisplay(cell, selectedCoaster, true);
+          if (selectedCoaster) {
+            const rowCriterion = rowCriteria[row];
+            const colCriterion = colCriteria[col];
+            const isCorrect =
+              rowCriterion.matcher(selectedCoaster, rowCriterion.value) &&
+              colCriterion.matcher(selectedCoaster, colCriterion.value);
+
+            if (isCorrect) {
+              cell.classList.add('correct');
+              updateCellDisplay(cell, selectedCoaster, true);
+              correctCells.push({ row, col });
+            } else {
+              cell.classList.add('incorrect');
+              updateCellDisplay(cell, selectedCoaster, true);
+            }
+
+            if (cellSolution?.selectedCoaster) {
+              addFlipButton(cell, selectedCoaster, cellSolution.selectedCoaster);
+            }
           }
         } else {
           emptyCells.push({ row, col });
         }
       });
 
-      // Fill in empty cells with solutions
+      // Fill in empty cells with possible valid coasters from solution
       emptyCells.forEach(({ row, col }) => {
         const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
         const cellSolution = solution.find(s => s.row === row && s.col === col);
@@ -1832,7 +1857,7 @@
 
       createEmojiResults();
 
-      // Disable any further cell clicks
+      // Disable further input
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
         cell.onclick = null;
         cell.classList.remove('input-cell');
@@ -1840,7 +1865,7 @@
 
       const endButton = document.getElementById('endGameBtn');
       if (endButton) {
-        endButton.style.display = 'none'; // hide it
+        endButton.style.display = 'none';
       }
 
       saveGameState();
@@ -1894,6 +1919,55 @@
       styleElement.textContent = updatedCellStyles;
       document.head.appendChild(styleElement);
     }
+
+    function addFlipButton(cell, userCoaster, solutionCoaster) {
+  // Remove old flip button if it exists
+  const existingButton = cell.querySelector('.flip-button');
+  if (existingButton) existingButton.remove();
+
+  const flipButton = document.createElement('button');
+  flipButton.className = 'flip-button';
+  flipButton.innerHTML = '🔄';
+  flipButton.title = 'Flip between your guess and a possible correct coaster';
+  flipButton.style.position = 'absolute';
+  flipButton.style.bottom = '5px';
+  flipButton.style.right = '5px';
+  flipButton.style.zIndex = '10';
+
+  // Track view state
+  cell.dataset.currentView = cell.dataset.currentView || 'user';
+  cell.dataset.userCoasterId = userCoaster.id;
+  cell.dataset.solutionCoasterId = solutionCoaster.id;
+
+  flipButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent cell click
+    const isUserView = cell.dataset.currentView === 'user';
+    const nextCoaster = isUserView ? solutionCoaster : userCoaster;
+
+    updateCellDisplay(cell, nextCoaster, true);
+    addFlipButton(cell, userCoaster, solutionCoaster); // Reattach button
+
+    // Update color classes
+    cell.classList.remove('correct', 'incorrect', 'solution-view');
+    if (isUserView) {
+      cell.classList.add('solution-view');
+      const content = cell.querySelector('.cell-content');
+      if (content) content.style.backgroundColor = '#a1a1a1';
+    } else {
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+      if (isCoasterValidForCell(userCoaster, row, col)) {
+        cell.classList.add('correct');
+      } else {
+        cell.classList.add('incorrect');
+      }
+    }
+
+    cell.dataset.currentView = isUserView ? 'solution' : 'user';
+  });
+
+  cell.appendChild(flipButton);
+}
 
     function createEmojiResults() {
       // Remove existing container if it exists
@@ -2085,13 +2159,13 @@
     }
 
     function getPuzzleNumber() {
-      const estNow = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+      const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
       const startDate = new Date('2025-04-28T00:00:00-04:00'); // April 28, 2025, EST midnight
-    
+
       const msInDay = 1000 * 60 * 60 * 24;
       const diffInMs = estNow - startDate;
       const diffInDays = Math.floor(diffInMs / msInDay);
-    
+
       return diffInDays + 1;
     }
 
@@ -2106,7 +2180,7 @@
         overlay.style.display = 'block';
       }
     }
-    
+
     function toggleInfoPanel() {
       const panel = document.getElementById('infoPanel');
       const overlay = document.getElementById('overlay');
@@ -2120,16 +2194,16 @@
     }
 
     function toggleStatsPanel() {
-  const statsPanel = document.getElementById('statsPanel');
-  const overlay = document.getElementById('overlay');
-  if (statsPanel.style.display === 'block') {
-    statsPanel.style.display = 'none';
-    overlay.style.display = 'none';
-  } else {
-    statsPanel.style.display = 'block';
-    overlay.style.display = 'block';
-  }
-}
+      const statsPanel = document.getElementById('statsPanel');
+      const overlay = document.getElementById('overlay');
+      if (statsPanel.style.display === 'block') {
+        statsPanel.style.display = 'none';
+        overlay.style.display = 'none';
+      } else {
+        statsPanel.style.display = 'block';
+        overlay.style.display = 'block';
+      }
+    }
 
     // Call this function when the page loads
     window.addEventListener('DOMContentLoaded', applyUpdatedStyles);
