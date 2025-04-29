@@ -1920,6 +1920,40 @@
       const endButton = document.getElementById('endGameBtn');
       if (endButton) endButton.style.display = 'none';
 
+      const today = getDailySeed();
+      const lastPlayed = localStorage.getItem('lastPlayedDate');
+      let streak = parseInt(localStorage.getItem('dailyStreak') || '0');
+
+      if (correctAnswers > 0) {
+        if (lastPlayed) {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const formattedYesterday = yesterday.toISOString().split('T')[0];
+
+          if (lastPlayed === formattedYesterday) {
+            streak++;
+          } else if (lastPlayed !== today) {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+
+        localStorage.setItem('dailyStreak', streak);
+        localStorage.setItem('lastPlayedDate', today);
+      } else {
+        // Reset if score is 0
+        streak = 0;
+        localStorage.setItem('dailyStreak', '0');
+        localStorage.setItem('lastPlayedDate', today);
+      }
+
+      // Update stats panel streak display
+      const streakCounter = document.getElementById('streakCounter');
+      if (streakCounter) {
+        streakCounter.textContent = `Current Streak: ${streak}`;
+      }
+
       saveGameState();
     }
 
