@@ -2255,19 +2255,22 @@
 
     function restoreFlipButtonsAfterReload() {
       document.querySelectorAll('.cell.filled-cell').forEach(cell => {
-        if (cell.classList.contains('unguessed')) return;
-
         const userCoasterId = parseInt(cell.dataset.coasterId);
         const row = parseInt(cell.dataset.row);
         const col = parseInt(cell.dataset.col);
         const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-        if (userCoasterId && cellSolution) {
-          const userCoaster = allCoasters.find(c => c.id === userCoasterId);
-          const solutionCoaster = cellSolution.selectedCoaster;
-          if (userCoaster && solutionCoaster) {
-            addFlipButton(cell, userCoaster, solutionCoaster);
-          }
+        if (!cellSolution || !userCoasterId) return;
+
+        const userCoaster = allCoasters.find(c => c.id === userCoasterId);
+        const solutionCoaster = cellSolution.selectedCoaster;
+
+        // Only show flip if userCoaster is different AND user actually guessed this cell
+        if (!userCoaster || !solutionCoaster || userCoaster.id === solutionCoaster.id) return;
+
+        // Confirm this was a user guess (i.e., exists in gameGrid)
+        if (gameGrid[row][col]) {
+          addFlipButton(cell, userCoaster, solutionCoaster);
         }
       });
     }
