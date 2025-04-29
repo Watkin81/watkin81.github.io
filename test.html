@@ -1408,10 +1408,16 @@
     loadGameFromState(savedState);
 
     if (savedState.gameEnded) {
-      setTimeout(() => {
-        endGame(true);
-        restoreFlipButtonsAfterReload();
-      }, 100);
+      const waitForGrid = () => {
+        const cellsReady = document.querySelectorAll('.cell.input-cell').length === 9;
+        if (cellsReady) {
+          endGame(true);
+          restoreFlipButtonsAfterReload();
+        } else {
+          requestAnimationFrame(waitForGrid);
+        }
+      };
+      waitForGrid();
     } else {
       saveGameState(); // Re-save to lock state
     }
@@ -1420,7 +1426,7 @@
   }
 
   console.log('No save found — generating new puzzle...');
-  let maxTries = 20;
+  let maxTries = 100;
   let tries = 0;
   let puzzleGenerated = false;
 
@@ -1445,10 +1451,13 @@
         const col = parseInt(cell.dataset.col);
         const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-        if (cellSolution && userCoasterId && cellSolution.selectedCoaster?.id !== userCoasterId) {
+        if (cellSolution && userCoasterId) {
           const userCoaster = allCoasters.find(c => c.id === userCoasterId);
-          if (userCoaster && cellSolution.selectedCoaster) {
-            addFlipButton(cell, userCoaster, cellSolution.selectedCoaster);
+          const solutionCoaster = cellSolution.selectedCoaster;
+          if (userCoaster && solutionCoaster && userCoaster.id !== solutionCoaster.id) {
+            addFlipButton(cell, userCoaster, solutionCoaster);
+          } else if (userCoaster && solutionCoaster && userCoaster.id === solutionCoaster.id) {
+            addFlipButton(cell, userCoaster, solutionCoaster); // Add even if correct
           }
         }
       });
