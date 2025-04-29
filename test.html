@@ -2147,7 +2147,7 @@
     }
 
     function loadGameState() {
-      const saved = localStorage.getItem('coasterGridDaily');
+      const saved = localStorage.getItem('coasterGridSave'); // <- fix the key here
       if (saved) {
         try {
           return JSON.parse(saved);
