@@ -1386,7 +1386,7 @@
 
   const savedState = loadGameState();
 
-  // Clear current game state
+  // Clear current state
   solution = [];
   gameGrid = Array(3).fill().map(() => Array(3).fill(null));
   usedCoasterIds = new Set();
@@ -1395,28 +1395,32 @@
   if (savedState && savedState.date === seed) {
     console.log('Restoring saved game...');
 
-    // Restore full puzzle state
+    // Restore puzzle criteria and solution
     rowCriteria = savedState.rowCriteria;
     colCriteria = savedState.colCriteria;
     solution = savedState.solution;
+
+    // Reattach matcher functions (JSON doesn't store them)
+    rehydrateCriteriaMatchers(rowCriteria, rowCriteriaOptions);
+    rehydrateCriteriaMatchers(colCriteria, colCriteriaOptions);
 
     renderGrid();
     loadGameFromState(savedState);
 
     if (savedState.gameEnded) {
       setTimeout(() => {
-        endGame(true); // Silent
+        endGame(true);
         restoreFlipButtonsAfterReload();
       }, 100);
     } else {
-      saveGameState(); // Re-save to lock state for future refresh
+      saveGameState(); // Re-save to lock state
     }
 
     return;
   }
 
   console.log('No save found — generating new puzzle...');
-  let maxTries = 100;
+  let maxTries = 20;
   let tries = 0;
   let puzzleGenerated = false;
 
@@ -1796,6 +1800,16 @@
       }
     }
 
+    function rehydrateCriteriaMatchers(criteriaList, sourceOptions) {
+  for (let crit of criteriaList) {
+    const match = sourceOptions.find(opt => opt.type === crit.type);
+    if (match && typeof match.matcher === 'function') {
+      crit.matcher = match.matcher;
+    } else {
+      console.warn("Missing matcher for type:", crit.type);
+    }
+  }
+}
 
     function updateCellDisplay(cell, coaster, showStats = false) {
       saveGameState();
