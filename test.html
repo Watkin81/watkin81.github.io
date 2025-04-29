@@ -331,7 +331,8 @@
 
     #settingsButton,
     #infoButton,
-    #homeButton {
+    #homeButton,
+    #statsButton {
       position: fixed;
       top: 10px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -348,6 +349,10 @@
       right: 10px;
     }
 
+    #statsButton {
+      right: 130px;
+    }
+
     #infoButton {
       right: 70px;
     }
@@ -358,14 +363,16 @@
 
     #settingsButton:hover,
     #infoButton:hover,
-    #homeButton:hover {
+    #homeButton:hover,
+    #statsButton:hover {
       background-color: white;
       color: black;
     }
 
     #settingsButton:active,
     #infoButton:active,
-    #homeButton:active {
+    #homeButton:active,
+    #statsButton:active {
       background-color: white;
       color: black;
     }
@@ -414,6 +421,24 @@
       z-index: 5; /* Behind panels, above background */
     }
 
+    .flip-button {
+  all: unset;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.solution-view {
+  background-color: #a1a1a1;
+}
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -428,8 +453,8 @@
 
 <body>
   <!-- Buttons (Top Right/Left) -->
-  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i
-      class="fa-solid fa-house-chimney"></i></button>
+  <button id="homeButton" onclick="window.location.href='index.html'" title="Home Page"><i class="fa-solid fa-house-chimney"></i></button>
+  <button id="statsButton" onclick="toggleStatsPanel()" title="Stats"><i class="fas fa-trophy"></i></button>
   <button id="infoButton" onclick="toggleInfoPanel()" title="Info"><i class="fas fa-info-circle"></i></button>
   <button id="settingsButton" onclick="toggleSettingsPanel()" title="Settings"><i class="fas fa-cog"></i></button>
 
@@ -458,6 +483,13 @@
         href="https://github.com/Watkin81/watkin81.github.io/blob/main/coastergrid.html" target="_blank"
         rel="noopener noreferrer">Watkin81 GitHub</a>!</p>
     <button id="closeButton" onclick="toggleInfoPanel()">✖</button>
+  </div>
+
+  <div id="statsPanel" class="popupPanel" style="width: 500px;">
+    <h3>Daily Game Stats</h3>
+    <div id="statsGraph" style="margin: 20px 0;"></div>
+    <p id="streakCounter" style="font-weight: bold; margin-top: 20px;">Current Streak: 0</p>
+    <button id="closeButton" onclick="toggleStatsPanel()">✖</button>
   </div>
 
   <h1>Coaster Grid</h1>
@@ -1675,6 +1707,30 @@
       });
     }
 
+    function flipCellContent(cell) {
+  if (!cell) return;
+  const content = cell.querySelector('.cell-content');
+  const background = cell.querySelector('.cell-bg');
+
+  if (!background) {
+    console.error('No solution background found to flip to.');
+    return;
+  }
+
+  if (content.style.display === 'none') {
+    // Show user's guess
+    content.style.display = 'block';
+    background.style.display = 'none';
+    cell.classList.remove('solution-view');
+  } else {
+    // Show solution background
+    content.style.display = 'none';
+    background.style.display = 'block';
+    cell.classList.add('solution-view');
+  }
+}
+
+
     function updateCellDisplay(cell, coaster, showStats = false) {
       saveGameState();
       // Clear previous content
@@ -2062,6 +2118,18 @@
         overlay.style.display = 'block';
       }
     }
+
+    function toggleStatsPanel() {
+  const statsPanel = document.getElementById('statsPanel');
+  const overlay = document.getElementById('overlay');
+  if (statsPanel.style.display === 'block') {
+    statsPanel.style.display = 'none';
+    overlay.style.display = 'none';
+  } else {
+    statsPanel.style.display = 'block';
+    overlay.style.display = 'block';
+  }
+}
 
     // Call this function when the page loads
     window.addEventListener('DOMContentLoaded', applyUpdatedStyles);
