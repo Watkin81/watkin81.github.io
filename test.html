@@ -1899,7 +1899,7 @@
 
       let correctAnswers = 0;
       document.querySelectorAll('.cell.input-cell').forEach(cell => {
-        if (!cell.dataset.coasterId) return;
+        if (!cell.dataset.coasterId || cell.classList.contains('unguessed')) return;
 
         const coasterId = parseInt(cell.dataset.coasterId);
         const row = parseInt(cell.dataset.row);
