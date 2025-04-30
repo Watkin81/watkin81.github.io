@@ -1696,17 +1696,29 @@
 
     function formatMeasurement(value, type) {
       if (!value) return "N/A";
-
-      switch (type) {
-        case "height":
-          return `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
-        case "length":
-          return `${(parseFloat(value) * 3.28084).toFixed(1)}ft`;
-        case "speed":
-          return `${(parseFloat(value) * 0.621371).toFixed(1)}mph`;
-        default:
-          return value;
+      const num = parseFloat(value);
+    
+      if (useMetricUnits) {
+        switch (type) {
+          case "height":
+            return `${num.toFixed(1)}m`;
+          case "length":
+            return `${num.toFixed(1)}m`;
+          case "speed":
+            return `${num.toFixed(1)}km/h`;
+        }
+      } else {
+        switch (type) {
+          case "height":
+            return `${(num * 3.28084).toFixed(1)}ft`;
+          case "length":
+            return `${(num * 3.28084).toFixed(1)}ft`;
+          case "speed":
+            return `${(num * 0.621371).toFixed(1)}mph`;
+        }
       }
+    
+      return value;
     }
 
     function getStatValue(coaster, type) {
