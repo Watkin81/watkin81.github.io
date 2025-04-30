@@ -423,20 +423,6 @@
       /* Behind panels, above background */
     }
 
-    .flip-button {
-      all: unset;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      font-size: 18px;
-      cursor: pointer;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     .solution-view .cell-content {
       background-color: #a1a1a1 !important;
     }
@@ -454,6 +440,11 @@
       align-items: center;
       justify-content: center;
       z-index: 4;
+    }
+
+    #statsGraph {
+      padding: 10px;
+      text-align: left;
     }
 
     @keyframes spin {
@@ -481,7 +472,13 @@
   <!-- Settings Panel -->
   <div id="settingsPanel" class="popupPanel">
     <h3>Game Settings</h3>
-    <p>Game settings coming soon!</p>
+    <div class="unit-toggle">
+      <label class="switch">
+        <input type="checkbox" id="unitToggle">
+        <span class="slider round"></span>
+      </label>
+      <span id="unitLabel">Use Metric</span>
+    </div>
     <h2 id="puzzleNumberDisplay" style="margin-top: 0; font-weight: normal; color: lightgray; display: none;"></h2>
     <button id="closeButton" onclick="toggleSettingsPanel()">✖</button>
   </div>
@@ -511,7 +508,7 @@
   </div>
 
   <h1>Coaster Grid</h1>
-  <p>I will do site decoration and formatting later lol</p>
+  <p>I will do site decoration and formatting soon(ish)</p>
 
   <div class="game-controls">
     <button class="game-button" id="newGameBtn">New Game</button>
@@ -785,7 +782,7 @@
 
             cell.innerHTML = `
           <div>${displayValue}</div>
-          <div class="criteria-info">${criterion.type}${useMetricUnits ? ' (metric)' : ' (imperial)'}</div>
+          <div class="criteria-info">${criterion.type}</div>
         `;
           }
         }
@@ -1381,68 +1378,68 @@
     }
 
     async function setupDailyGame(rng) {
-  const seed = getDailySeed();
-  console.log(`Starting daily game with seed: ${seed}`);
+      const seed = getDailySeed();
+      console.log(`Starting daily game with seed: ${seed}`);
 
-  const savedState = loadGameState();
+      const savedState = loadGameState();
 
-  // Clear current state
-  solution = [];
-  gameGrid = Array(3).fill().map(() => Array(3).fill(null));
-  usedCoasterIds = new Set();
-  resultsMessage.style.display = 'none';
+      // Clear current state
+      solution = [];
+      gameGrid = Array(3).fill().map(() => Array(3).fill(null));
+      usedCoasterIds = new Set();
+      resultsMessage.style.display = 'none';
 
-  if (savedState && savedState.date === seed) {
-    console.log('Restoring saved game...');
+      if (savedState && savedState.date === seed) {
+        console.log('Restoring saved game...');
 
-    // Restore puzzle criteria and solution
-    rowCriteria = savedState.rowCriteria;
-    colCriteria = savedState.colCriteria;
-    solution = savedState.solution;
+        // Restore puzzle criteria and solution
+        rowCriteria = savedState.rowCriteria;
+        colCriteria = savedState.colCriteria;
+        solution = savedState.solution;
 
-    // Reattach matcher functions (JSON doesn't store them)
-    rehydrateCriteriaMatchers(rowCriteria, rowCriteriaOptions);
-    rehydrateCriteriaMatchers(colCriteria, colCriteriaOptions);
+        // Reattach matcher functions (JSON doesn't store them)
+        rehydrateCriteriaMatchers(rowCriteria, rowCriteriaOptions);
+        rehydrateCriteriaMatchers(colCriteria, colCriteriaOptions);
 
-    renderGrid();
-    loadGameFromState(savedState);
+        renderGrid();
+        loadGameFromState(savedState);
 
-    if (savedState.gameEnded) {
-      const waitForGrid = () => {
-        const cellsReady = document.querySelectorAll('.cell.input-cell').length === 9;
-        if (cellsReady) {
-          endGame(true);
-          restoreFlipButtonsAfterReload();
+        if (savedState.gameEnded) {
+          const waitForGrid = () => {
+            const cellsReady = document.querySelectorAll('.cell.input-cell').length === 9;
+            if (cellsReady) {
+              endGame(true);
+              restoreFlipButtonsAfterReload();
+              createEmojiResults();
+            } else {
+              requestAnimationFrame(waitForGrid);
+            }
+          };
+          waitForGrid();
         } else {
-          requestAnimationFrame(waitForGrid);
+          saveGameState(); // Re-save to lock state
         }
-      };
-      waitForGrid();
-    } else {
-      saveGameState(); // Re-save to lock state
+        return;
+      }
+
+      console.log('No save found — generating new puzzle...');
+      let maxTries = 100;
+      let tries = 0;
+      let puzzleGenerated = false;
+
+      while (!puzzleGenerated && tries < maxTries) {
+        puzzleGenerated = generatePuzzle(rng);
+        tries++;
+      }
+
+      if (!puzzleGenerated) {
+        alert('Failed to generate puzzle. Please try again later.');
+        return;
+      }
+
+      renderGrid();
+      saveGameState();
     }
-
-    return;
-  }
-
-  console.log('No save found — generating new puzzle...');
-  let maxTries = 100;
-  let tries = 0;
-  let puzzleGenerated = false;
-
-  while (!puzzleGenerated && tries < maxTries) {
-    puzzleGenerated = generatePuzzle(rng);
-    tries++;
-  }
-
-  if (!puzzleGenerated) {
-    alert('Failed to generate puzzle. Please try again later.');
-    return;
-  }
-
-  renderGrid();
-  saveGameState();
-}
 
     function restoreFlipButtonsAfterReload() {
       document.querySelectorAll('.cell.filled-cell').forEach(cell => {
@@ -1677,7 +1674,7 @@
               height: parseFloat(coaster.stats?.height) || null,
               length: parseFloat(coaster.stats?.length) || null,
               speed: parseFloat(coaster.stats?.speed) || null,
-              inversions: parseInt(coaster.stats?.inversions) || null,
+              inversions: coaster.stats?.inversions !== undefined ? parseInt(coaster.stats.inversions) : null,
               year: coaster.status?.date?.opened?.split("-")[0] || null,
               manufacturer: coaster.make || '',
               type: coaster.type || '',
@@ -1743,34 +1740,24 @@
 
     function handleUnitToggle() {
       useMetricUnits = this.checked;
-      document.getElementById('unitLabel').textContent = useMetricUnits ? 'Metric Units' : 'Imperial Units';
-
-      // Update column headers to show the appropriate unit values
-      document.querySelectorAll('.cell.header').forEach((cell, index) => {
-        // Skip the first cell (corner cell) and row headers
-        if (index === 0 || (index - 4) % 4 === 0) {
-          return;
-        }
-
-        // Calculate column index (for column headers at positions 1, 2, 3)
-        const col = (index - 1) % 4;
-        if (col >= 0 && col < colCriteria.length) {
-          const criterion = colCriteria[col];
-
-          // Only update if this criterion has different metric/imperial displays
-          if (criterion.type === "height" || criterion.type === "length" || criterion.type === "speed") {
-            // Switch between metric and imperial display values
-            const displayValue = useMetricUnits ?
-              metricCriteriaValues[criterion.type][colCriteria[col].values.indexOf(colCriteria[col].value)] :
-              colCriteria[col].value;
-
-            cell.innerHTML = `
-          <div>${displayValue}</div>
-          <div class="criteria-info">${criterion.type}${useMetricUnits ? ' (metric)' : ' (imperial)'}</div>
-        `;
+      localStorage.setItem('useMetricUnits', useMetricUnits ? 'true' : 'false');
+      document.getElementById('unitLabel').textContent = 'Use Metric';
+    
+      // Update column headers
+      updateUnitDisplay();
+    
+      // Update filled coaster cells to reflect unit display
+      document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
+        if (cell.dataset.coasterId) {
+          const coasterId = parseInt(cell.dataset.coasterId);
+          const coaster = allCoasters.find(c => c.id === coasterId);
+          if (coaster) {
+            const isShowingStats = cell.querySelector('.stats-info') !== null;
+            updateCellDisplay(cell, coaster, isShowingStats);
           }
         }
       });
+    }
 
       // Update any filled cells to show stats in the correct units
       document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
@@ -1810,15 +1797,15 @@
     }
 
     function rehydrateCriteriaMatchers(criteriaList, sourceOptions) {
-  for (let crit of criteriaList) {
-    const match = sourceOptions.find(opt => opt.type === crit.type);
-    if (match && typeof match.matcher === 'function') {
-      crit.matcher = match.matcher;
-    } else {
-      console.warn("Missing matcher for type:", crit.type);
+      for (let crit of criteriaList) {
+        const match = sourceOptions.find(opt => opt.type === crit.type);
+        if (match && typeof match.matcher === 'function') {
+          crit.matcher = match.matcher;
+        } else {
+          console.warn("Missing matcher for type:", crit.type);
+        }
+      }
     }
-  }
-}
 
     function updateCellDisplay(cell, coaster, showStats = false) {
       saveGameState();
@@ -1858,12 +1845,14 @@
   `;
 
       // Add RCDB link
-      const rcdbLink = document.createElement('a');
-      rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
-      rcdbLink.target = '_blank';
-      rcdbLink.className = 'rcdb-link';
-      rcdbLink.textContent = 'View on RCDB';
-      contentDiv.appendChild(rcdbLink);
+      if (gameEnded) {
+        const rcdbLink = document.createElement('a');
+        rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+        rcdbLink.target = '_blank';
+        rcdbLink.className = 'rcdb-link';
+        rcdbLink.textContent = 'View on RCDB';
+        contentDiv.appendChild(rcdbLink);
+      }
 
       cell.appendChild(bgDiv);
       cell.appendChild(contentDiv);
@@ -1873,63 +1862,112 @@
     }
 
     function endGame(silent = false) {
-  gameEnded = true;
+      gameEnded = true;
 
-  let correctAnswers = 0;
+      let correctAnswers = 0;
 
-  document.querySelectorAll('.cell.input-cell').forEach(cell => {
-    const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.col);
-    const coaster = gameGrid[row][col];
-    const cellSolution = solution.find(s => s.row === row && s.col === col);
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const coaster = gameGrid[row][col];
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-    const rowCriterion = rowCriteria[row];
-    const colCriterion = colCriteria[col];
+        const rowCriterion = rowCriteria[row];
+        const colCriterion = colCriteria[col];
 
-    if (!rowCriterion?.matcher || !colCriterion?.matcher) {
-      console.error('Missing matcher function:', { rowCriterion, colCriterion });
-      return;
-    }
+        if (!rowCriterion?.matcher || !colCriterion?.matcher) {
+          console.error('Missing matcher function:', { rowCriterion, colCriterion });
+          return;
+        }
 
-    if (coaster) {
-      const isCorrect = rowCriterion.matcher(coaster, rowCriterion.value) &&
-                        colCriterion.matcher(coaster, colCriterion.value);
+        if (coaster) {
+          const isCorrect = rowCriterion.matcher(coaster, rowCriterion.value) &&
+            colCriterion.matcher(coaster, colCriterion.value);
 
-      cell.classList.add(isCorrect ? 'correct' : 'incorrect');
-      updateCellDisplay(cell, coaster, true);
+          cell.classList.add(isCorrect ? 'correct' : 'incorrect');
+          updateCellDisplay(cell, coaster, true);
 
-      if (cellSolution?.selectedCoaster) {
-        addFlipButton(cell, coaster, cellSolution.selectedCoaster);
+          if (cellSolution?.selectedCoaster) {
+            addFlipButton(cell, coaster, cellSolution.selectedCoaster);
+          }
+
+          if (isCorrect) correctAnswers++;
+        } else {
+          // Fill empty cells with solution
+          if (cellSolution?.selectedCoaster) {
+            updateCellDisplay(cell, cellSolution.selectedCoaster, true);
+            cell.classList.add('unguessed');
+          }
+        }
+      });
+
+      // Show results
+      resultsMessage.style.display = 'block';
+      resultsMessage.textContent = `Game over! You had ${correctAnswers} correct answers out of 9 cells.`;
+      resultsMessage.className = 'check-results success';
+
+      recordScoreHistogram(correctAnswers);
+      createEmojiResults();
+
+      // Disable inputs
+      document.querySelectorAll('.cell.input-cell').forEach(cell => {
+        cell.onclick = null;
+        cell.classList.remove('input-cell');
+      });
+
+      const endButton = document.getElementById('endGameBtn');
+      if (endButton) endButton.style.display = 'none';
+
+      const today = getDailySeed();
+      const lastPlayed = localStorage.getItem('lastPlayedDate');
+      let streak = parseInt(localStorage.getItem('dailyStreak') || '0');
+
+      if (correctAnswers > 0) {
+        if (lastPlayed) {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const formattedYesterday = yesterday.toISOString().split('T')[0];
+
+          if (lastPlayed === formattedYesterday) {
+            streak++;
+          } else if (lastPlayed !== today) {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+
+        localStorage.setItem('dailyStreak', streak);
+        localStorage.setItem('lastPlayedDate', today);
+      } else {
+        // Reset if score is 0
+        streak = 0;
+        localStorage.setItem('dailyStreak', '0');
+        localStorage.setItem('lastPlayedDate', today);
       }
 
-      if (isCorrect) correctAnswers++;
-    } else {
-      // Fill empty cells with solution
-      if (cellSolution?.selectedCoaster) {
-        updateCellDisplay(cell, cellSolution.selectedCoaster, true);
-        cell.classList.add('unguessed');
+      // Update stats panel streak display
+      const streakCounter = document.getElementById('streakCounter');
+      if (streakCounter) {
+        streakCounter.textContent = `Current Streak: ${streak}`;
       }
+
+      saveGameState();
     }
-  });
 
-  // Show results
-  resultsMessage.style.display = 'block';
-  resultsMessage.textContent = `Game over! You had ${correctAnswers} correct answers out of 9 cells.`;
-  resultsMessage.className = 'check-results success';
+    function recordScoreHistogram(score) {
+      const today = getDailySeed();
+      const recordedKey = `scoreRecorded_${today}`;
 
-  createEmojiResults();
+      if (localStorage.getItem(recordedKey)) {
+        return; // Already recorded for today
+      }
 
-  // Disable inputs
-  document.querySelectorAll('.cell.input-cell').forEach(cell => {
-    cell.onclick = null;
-    cell.classList.remove('input-cell');
-  });
-
-  const endButton = document.getElementById('endGameBtn');
-  if (endButton) endButton.style.display = 'none';
-
-  saveGameState();
-}
+      const stored = JSON.parse(localStorage.getItem("scoreHistogram")) || {};
+      stored[score] = (stored[score] || 0) + 1;
+      localStorage.setItem("scoreHistogram", JSON.stringify(stored));
+      localStorage.setItem(recordedKey, 'true');
+    }
 
     // Event listeners
     coasterSearchBox.addEventListener('input', findCoasters);
@@ -1971,7 +2009,7 @@
         case 'height': return coaster.height !== null;
         case 'length': return coaster.length !== null;
         case 'speed': return coaster.speed !== null;
-        case 'inversions': return coaster.inversions !== null;
+        case 'inversions': return coaster.inversions !== null && !isNaN(coaster.inversions);
         case 'year': return coaster.year !== null;
         case 'manufacturer': return coaster.manufacturer !== '';
         case 'coaster type': return coaster.type !== '';
@@ -2128,46 +2166,56 @@
       resultContainer.appendChild(resultTextArea);
       resultContainer.appendChild(copyButton);
 
+      const tweetText = `Coaster Grid #${puzzleNumber} #coastergrid\n${emojiGrid}\nhttps://watkin81.github.io/coastergrid`;
+      const tweetButton = document.createElement('button');
+      tweetButton.className = 'game-button';
+      tweetButton.textContent = 'Tweet Result';
+      tweetButton.onclick = () => {
+        const twitterUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
+        window.open(twitterUrl, '_blank');
+      };
+      resultContainer.appendChild(tweetButton);
+
       resultsMessage.after(resultContainer);
 
       return resultText;
     }
 
     function saveGameState() {
-  const state = {
-    date: getDailySeed(),
-    gameEnded: gameEnded,
-    gridData: [],
-    rowCriteria,
-    colCriteria,
-    solution
-  };
+      const state = {
+        date: getDailySeed(),
+        gameEnded: gameEnded,
+        gridData: [],
+        rowCriteria,
+        colCriteria,
+        solution
+      };
 
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      const coaster = gameGrid[row][col];
-      if (coaster) {
-        state.gridData.push({ row, col, coaster });
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const coaster = gameGrid[row][col];
+          if (coaster) {
+            state.gridData.push({ row, col, coaster });
+          }
+        }
       }
-    }
-  }
 
-  localStorage.setItem('coasterGridSave', JSON.stringify(state));
-}
+      localStorage.setItem('coasterGridSave', JSON.stringify(state));
+    }
 
     function loadGameState() {
-  const saved = localStorage.getItem('coasterGridSave');
-  if (!saved) return null;
+      const saved = localStorage.getItem('coasterGridSave');
+      if (!saved) return null;
 
-  try {
-    const state = JSON.parse(saved);
-    if (state.date !== getDailySeed()) return null;
-    return state;
-  } catch (err) {
-    console.error('Failed to parse saved game state:', err);
-    return null;
-  }
-}
+      try {
+        const state = JSON.parse(saved);
+        if (state.date !== getDailySeed()) return null;
+        return state;
+      } catch (err) {
+        console.error('Failed to parse saved game state:', err);
+        return null;
+      }
+    }
 
     function forceShowEndState() {
       gameEnded = true;
@@ -2216,15 +2264,15 @@
     }
 
     function loadGameFromState(state) {
-  state.gridData.forEach(({ row, col, coaster }) => {
-    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-    if (cell) {
-      updateCellDisplay(cell, coaster, false);
-      gameGrid[row][col] = coaster;
-      usedCoasterIds.add(coaster.id);
+      state.gridData.forEach(({ row, col, coaster }) => {
+        const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+          updateCellDisplay(cell, coaster, false);
+          gameGrid[row][col] = coaster;
+          usedCoasterIds.add(coaster.id);
+        }
+      });
     }
-  });
-}
 
     function getPuzzleNumber() {
       const estNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
@@ -2238,21 +2286,26 @@
     }
 
     function restoreFlipButtonsAfterReload() {
-  document.querySelectorAll('.cell.filled-cell:not(.unguessed)').forEach(cell => {
-    const userCoasterId = parseInt(cell.dataset.coasterId);
-    const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.col);
-    const cellSolution = solution.find(s => s.row === row && s.col === col);
+      document.querySelectorAll('.cell.filled-cell').forEach(cell => {
+        const userCoasterId = parseInt(cell.dataset.coasterId);
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const cellSolution = solution.find(s => s.row === row && s.col === col);
 
-    if (cellSolution && userCoasterId) {
-      const userCoaster = allCoasters.find(c => c.id === userCoasterId);
-      const solutionCoaster = cellSolution.selectedCoaster;
-      if (userCoaster && solutionCoaster) {
-        addFlipButton(cell, userCoaster, solutionCoaster);
-      }
+        if (!cellSolution || !userCoasterId) return;
+
+        const userCoaster = allCoasters.find(c => c.id === userCoasterId);
+        const solutionCoaster = cellSolution.selectedCoaster;
+
+        // Only show flip if userCoaster is different AND user actually guessed this cell
+        if (!userCoaster || !solutionCoaster || userCoaster.id === solutionCoaster.id) return;
+
+        // Confirm this was a user guess (i.e., exists in gameGrid)
+        if (gameGrid[row][col]) {
+          addFlipButton(cell, userCoaster, solutionCoaster);
+        }
+      });
     }
-  });
-}
 
     function toggleSettingsPanel() {
       const panel = document.getElementById('settingsPanel');
@@ -2287,8 +2340,60 @@
       } else {
         statsPanel.style.display = 'block';
         overlay.style.display = 'block';
+        renderScoreHistogram();
       }
     }
+
+    function renderScoreHistogram() {
+      const statsGraph = document.getElementById("statsGraph");
+      statsGraph.innerHTML = ""; // Clear previous
+
+      const histogram = JSON.parse(localStorage.getItem("scoreHistogram")) || {};
+      const maxCount = Math.max(...Object.values(histogram), 1); // Avoid div-by-zero
+
+      for (let score = 0; score <= 9; score++) {
+        const count = histogram[score] || 0;
+        const bar = document.createElement("div");
+        bar.style.display = "flex";
+        bar.style.alignItems = "center";
+        bar.style.marginBottom = "4px";
+
+        const label = document.createElement("div");
+        label.textContent = `${score}: `;
+        label.style.width = "30px";
+
+        const barInner = document.createElement("div");
+        barInner.style.height = "20px";
+        barInner.style.width = `${(count / maxCount) * 200}px`;
+        barInner.style.backgroundColor = "#1890ff";
+        barInner.style.transition = "width 0.3s";
+
+        const countLabel = document.createElement("div");
+        countLabel.textContent = ` ${count}`;
+        countLabel.style.marginLeft = "8px";
+
+        bar.appendChild(label);
+        bar.appendChild(barInner);
+        bar.appendChild(countLabel);
+
+        statsGraph.appendChild(bar);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const unitToggle = document.getElementById('unitToggle');
+      const savedPreference = localStorage.getItem('useMetricUnits');
+      if (savedPreference === 'true') {
+        unitToggle.checked = true;
+        useMetricUnits = true;
+        document.getElementById('unitLabel').textContent = 'Use Metric';
+        updateUnitDisplay();
+      }
+    
+      if (unitToggle) {
+        unitToggle.addEventListener('change', handleUnitToggle);
+      }
+    });
 
     // Call this function when the page loads
     window.addEventListener('DOMContentLoaded', applyUpdatedStyles);
