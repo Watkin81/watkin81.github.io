@@ -1668,7 +1668,7 @@
               height: parseFloat(coaster.stats?.height) || null,
               length: parseFloat(coaster.stats?.length) || null,
               speed: parseFloat(coaster.stats?.speed) || null,
-              inversions: parseInt(coaster.stats?.inversions) || null,
+              inversions: coaster.stats?.inversions !== undefined ? parseInt(coaster.stats.inversions) : null,
               year: coaster.status?.date?.opened?.split("-")[0] || null,
               manufacturer: coaster.make || '',
               type: coaster.type || '',
@@ -1849,12 +1849,14 @@
   `;
 
       // Add RCDB link
-      const rcdbLink = document.createElement('a');
-      rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
-      rcdbLink.target = '_blank';
-      rcdbLink.className = 'rcdb-link';
-      rcdbLink.textContent = 'View on RCDB';
-      contentDiv.appendChild(rcdbLink);
+      if (gameEnded) {
+        const rcdbLink = document.createElement('a');
+        rcdbLink.href = `https://rcdb.com/${coaster.id}.htm`;
+        rcdbLink.target = '_blank';
+        rcdbLink.className = 'rcdb-link';
+        rcdbLink.textContent = 'View on RCDB';
+        contentDiv.appendChild(rcdbLink);
+      }
 
       cell.appendChild(bgDiv);
       cell.appendChild(contentDiv);
@@ -2011,7 +2013,7 @@
         case 'height': return coaster.height !== null;
         case 'length': return coaster.length !== null;
         case 'speed': return coaster.speed !== null;
-        case 'inversions': return coaster.inversions !== null;
+        case 'inversions': return coaster.inversions !== null && !isNaN(coaster.inversions);
         case 'year': return coaster.year !== null;
         case 'manufacturer': return coaster.manufacturer !== '';
         case 'coaster type': return coaster.type !== '';
