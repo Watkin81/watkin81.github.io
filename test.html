@@ -1759,20 +1759,6 @@
       });
     }
 
-      // Update any filled cells to show stats in the correct units
-      document.querySelectorAll('.cell.input-cell.filled-cell').forEach(cell => {
-        if (cell.dataset.coasterId) {
-          const coasterId = parseInt(cell.dataset.coasterId);
-          const coaster = allCoasters.find(c => c.id === coasterId);
-          if (coaster) {
-            // Keep the same showStats state
-            const isShowingStats = cell.querySelector('.stats-info') !== null;
-            updateCellDisplay(cell, coaster, isShowingStats);
-          }
-        }
-      });
-    }
-
     function flipCellContent(cell) {
       if (!cell) return;
       const content = cell.querySelector('.cell-content');
