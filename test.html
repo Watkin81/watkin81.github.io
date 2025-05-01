@@ -767,12 +767,12 @@
         if (index === 0 || (index - 4) % 4 === 0) {
           return;
         }
-
+    
         // Calculate column index (for column headers at positions 1, 2, 3)
         const col = (index - 1) % 4;
         if (col >= 0 && col < colCriteria.length) {
           const criterion = colCriteria[col];
-
+    
           // Only update if this criterion has different metric/imperial displays
           if (criterion.values && Array.isArray(criterion.values)) {
             const valueIndex = criterion.values.indexOf(criterion.value);
@@ -780,7 +780,7 @@
               const displayValue = useMetricUnits && criterion.metricValues
                 ? criterion.metricValues[valueIndex]
                 : criterion.values[valueIndex];
-          
+    
               cell.innerHTML = `
                 <div>${displayValue}</div>
                 <div class="criteria-info">${criterion.type}</div>
@@ -788,7 +788,7 @@
             }
           }
         }
-      }
+      });
     }
 
     function validateAllSolutions() {
