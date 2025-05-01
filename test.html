@@ -825,16 +825,19 @@
 
     // Initialize game
     async function initGame() {
-      // Remove unit toggle related code
+      // Initialize unit toggle state from localStorage
+      const toggle = document.getElementById('unitToggle');
+      const savedUnits = localStorage.getItem('useMetricUnits') === 'true';
+      toggle.checked = savedUnits;
+      handleUnitToggle.call(toggle);
+    
       fixMatcherFunctions();
-
-      //newGameBtn.addEventListener('click', createNewGame);
+    
       newGameBtn.style.display = 'none';
       endGameBtn.addEventListener('click', endGame);
-
+    
       const rng = await getSeededRandom();
       setupDailyGame(rng);
-      //createNewGame();
     }
 
     function fixMatcherFunctions() {
@@ -2406,6 +2409,8 @@
         titleElement.textContent = `Coaster Grid #${puzzleNumber}`;
       }
     });
+
+    document.getElementById('unitToggle').addEventListener('change', handleUnitToggle);
   </script>
 </body>
 
