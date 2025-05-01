@@ -761,19 +761,13 @@
     }
 
     function updateUnitDisplay() {
-      // Update column headers with appropriate unit display
       document.querySelectorAll('.cell.header').forEach((cell, index) => {
-        // Skip the first cell (corner cell) and row headers (every 4th cell starting from 5th)
-        if (index === 0 || (index - 4) % 4 === 0) {
-          return;
-        }
+        // Skip the first cell (corner cell) and row headers
+        if (index === 0 || (index - 4) % 4 === 0) return;
     
-        // Calculate column index (for column headers at positions 1, 2, 3)
         const col = (index - 1) % 4;
         if (col >= 0 && col < colCriteria.length) {
           const criterion = colCriteria[col];
-    
-          // Only update if this criterion has different metric/imperial displays
           if (criterion.values && Array.isArray(criterion.values)) {
             const valueIndex = criterion.values.indexOf(criterion.value);
             if (valueIndex !== -1) {
