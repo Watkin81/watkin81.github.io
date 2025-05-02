@@ -2000,6 +2000,9 @@
       }
 
       // Success path
+      if (currentCell.dataset.coasterId) {
+        usedCoasterIds.delete(parseInt(currentCell.dataset.coasterId));
+      }
       usedCoasterIds.add(selectedCoaster.id);
       updateCellDisplay(currentCell, selectedCoaster, false);
       gameGrid[row][col] = selectedCoaster;
