@@ -65,6 +65,21 @@ function sortTable(columnIndex, isStat = false) {
   rows.forEach(row => {
     tbody.appendChild(row);
   });
+
+  if (window.tableData) {
+    const sortedData = [];
+    rows.forEach(row => {
+      const dataIndex = parseInt(row.getAttribute('data-index'));
+      if (!isNaN(dataIndex) && dataIndex < window.tableData.length) {
+        sortedData.push(window.tableData[dataIndex]);
+      }
+    });
+  
+    window.tableData = sortedData;
+    rows.forEach((row, index) => {
+      row.setAttribute('data-index', index);
+    });
+  }
 }
 
 // Safely get DOM element with error handling
@@ -101,7 +116,6 @@ function makeTable(results) {
   var data = results.data;
   const newTable = document.createElement("table");
   
-  // Create header row with sort arrows
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   
@@ -143,6 +157,7 @@ function makeTable(results) {
   // Populate table rows
   for (var j = 0; j < data.length; j++) {
     const newRow = document.createElement("tr");
+    newRow.setAttribute('data-index', j);
     
     // Create cells for each data point
     const cells = [
@@ -234,7 +249,7 @@ function filterTable() {
   }
 }
 
-// Add event listeners safely
+// Add event listeners
 function addEventListenerSafely(id, event, handler) {
   const element = getElement(id);
   if (element) {
@@ -415,9 +430,9 @@ function updateStatColumn(statKey) {
   for (var i = 1; i < tr.length; i++) {
     if (tr[i].getElementsByTagName("td").length > 5) {
       var td = tr[i].getElementsByTagName("td")[5];
-      var dataIndex = i - 1;
+      var dataIndex = parseInt(tr[i].getAttribute('data-index'));
       
-      if (dataIndex < window.tableData.length) {
+      if (!isNaN(dataIndex) && dataIndex < window.tableData.length) {
         td.textContent = window.tableData[dataIndex][statKey] || "N/A";
       }
     }
