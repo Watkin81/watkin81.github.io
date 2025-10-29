@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/coasterweb/static/css/main.39334a2c.css",
+    "main.js": "/coasterweb/static/js/main.ae4dd6a0.js",
+    "static/js/453.419a5d54.chunk.js": "/coasterweb/static/js/453.419a5d54.chunk.js",
+    "index.html": "/coasterweb/index.html",
+    "main.39334a2c.css.map": "/coasterweb/static/css/main.39334a2c.css.map",
+    "main.ae4dd6a0.js.map": "/coasterweb/static/js/main.ae4dd6a0.js.map",
+    "453.419a5d54.chunk.js.map": "/coasterweb/static/js/453.419a5d54.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.39334a2c.css",
+    "static/js/main.ae4dd6a0.js"
+  ]
+}
