@@ -126,7 +126,8 @@ function makeTable(results) {
     { text: "Park", onclick: "sortTable(2)" },
     { text: "Manufacturer", onclick: "sortTable(3)" },
     { text: "Type", onclick: "sortTable(4)" },
-    { text: "Opening Year", onclick: "sortTable(5, true)", id: "statHeader" }
+    { text: "Country", onclick: "sortTable(5)" },
+    { text: "Opening Year", onclick: "sortTable(6, true)", id: "statHeader" }
   ];
   
   // Create header cells
@@ -166,6 +167,7 @@ function makeTable(results) {
       { key: "PARK" },
       { key: "MANUFACTURER" },
       { key: "TYPE" },
+      { key: "Country" },
       { key: "YEAR" }
     ];
     
@@ -185,27 +187,32 @@ function makeTable(results) {
 
     // Set column widths if we have cells
     const tds = document.getElementsByTagName('td');
-    if (tds.length >= 6) {
+    if (tds.length >= 7) {
       tds[0].style.width = '3%';
-      tds[1].style.width = '25%';
-      tds[2].style.width = '25%';
-      tds[3].style.width = '25%';
-      tds[4].style.width = '7%';
-      tds[5].style.width = '15%';
+      tds[1].style.width = '22%';
+      tds[2].style.width = '22%';
+      tds[3].style.width = '20%';
+      tds[4].style.width = '6%';
+      tds[5].style.width = '12%';
+      tds[6].style.width = '15%';
     }
   }
         
   var coasterCount = data[9]?.AGGREGATE_STATS || "N/A";
   var parkCount = data[14]?.AGGREGATE_STATS || "N/A";
+  var countryCount = data[24]?.AGGREGATE_STATS || "N/A";
   
   var coasterCountEl = getElement("coasterCountElement");
   var parkCountEl = getElement("parkCountElement");
+  var countryCountEl = getElement("countryCountElement");
   
   if (coasterCountEl) coasterCountEl.innerHTML = coasterCount;
   if (parkCountEl) parkCountEl.innerHTML = parkCount;
+  if (countryCountEl) countryCountEl.innerHTML = countryCount;
   
   console.log(coasterCount);
   console.log(parkCount);
+  console.log(countryCount);
   
   filterTable();
   showElements();
@@ -215,38 +222,129 @@ function filterTable() {
   var input = getElement("coasterInput");
   var select = getElement("selectManu");
   var selectt = getElement("selectType");
+  var selectc = getElement("selectCountry");
   var table = getElement("coasterTable");
   
-  if (!table || !input || !select || !selectt) return;
+  if (!table || !input || !select || !selectt || !selectc) return;
   
   var filter = input.value.toUpperCase();
   var selectedOption = select.options[select.selectedIndex].value.toUpperCase();
   var selecttedOption = selectt.options[selectt.selectedIndex].value.toUpperCase();
+  var selectedCountry = selectc.options[selectc.selectedIndex].value.toUpperCase();
   
   var tr = table.getElementsByTagName("tr");
   
   for (var i = 0; i < tr.length; i++) {
     var tds = tr[i].getElementsByTagName("td");
-    if (tds.length >= 5) {
+    if (tds.length >= 6) {
       var td = tds[1]; // coaster name
       var te = tds[2]; // park name
       var tdManu = tds[3]; // manufacturer
       var tdType = tds[4]; // type
+      var tdCountry = tds[5]; // country
       
       var txtValue = td.textContent || td.innerText;
       var txtValue2 = te.textContent || te.innerText;
       var manuValue = tdManu.textContent || tdManu.innerText;
       var typeValue = tdType.textContent || tdType.innerText;
+      var countryValue = tdCountry.textContent || tdCountry.innerText;
       
       if ((txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) && 
           (selectedOption === "ALL MANUFACTURERS" || manuValue.toUpperCase().indexOf(selectedOption) > -1) &&
-          (selecttedOption === "WOOD & STEEL" || typeValue.toUpperCase().indexOf(selecttedOption) > -1)) {
+          (selecttedOption === "WOOD & STEEL" || typeValue.toUpperCase().indexOf(selecttedOption) > -1) &&
+          (selectedCountry === "ALL COUNTRIES" || countryValue.toUpperCase().indexOf(selectedCountry) > -1)) {
         tr[i].style.display = "";
       } else {
         tr[i].style.display = "none";
       }
     }       
   }
+
+  updateStats();
+}
+
+// Build the simple stats + bar chart panel based on whatever rows are currently visible
+function updateStats() {
+  var table = getElement("coasterTable");
+  var panel = getElement("statsPanel");
+  if (!table || !panel || !window.tableData) return;
+
+  var tbody = table.getElementsByTagName('tbody')[0];
+  if (!tbody) return;
+
+  var rows = Array.from(tbody.getElementsByTagName('tr')).filter(function (row) {
+    return row.style.display !== "none";
+  });
+
+  var years = [], heights = [], speeds = [], drops = [], invers = [];
+  var countryCounts = {};
+  var typeCounts = {};
+
+  rows.forEach(function (row) {
+    var idx = parseInt(row.getAttribute('data-index'));
+    if (isNaN(idx) || !window.tableData[idx]) return;
+    var d = window.tableData[idx];
+
+    var y = parseFloat(d.YEAR); if (!isNaN(y)) years.push(y);
+    var h = parseFloat(d.HIGHT); if (!isNaN(h)) heights.push(h);
+    var s = parseFloat(d.SPED); if (!isNaN(s)) speeds.push(s);
+    var dr = parseFloat(d.DROP); if (!isNaN(dr)) drops.push(dr);
+    var inv = parseFloat(d.INVER); if (!isNaN(inv)) invers.push(inv);
+
+    var c = (d.Country || "").trim() || "Unknown";
+    countryCounts[c] = (countryCounts[c] || 0) + 1;
+
+    var t = (d.TYPE || "").trim() || "Unknown";
+    typeCounts[t] = (typeCounts[t] || 0) + 1;
+  });
+
+  function avg(arr) {
+    if (arr.length === 0) return "N/A";
+    return (arr.reduce(function (a, b) { return a + b; }, 0) / arr.length).toFixed(1);
+  }
+
+  var html = '<div class="statsRow">';
+  html += statBox("Coasters Shown", rows.length);
+  html += statBox("Avg Opening Year", avg(years));
+  html += statBox("Avg Height (ft)", avg(heights));
+  html += statBox("Avg Speed (mph)", avg(speeds));
+  html += statBox("Avg Drop (ft)", avg(drops));
+  html += statBox("Avg Inversions", avg(invers));
+  html += '</div>';
+
+  html += buildBarChart("By Country", countryCounts);
+  html += buildBarChart("By Type", typeCounts);
+
+  panel.innerHTML = html;
+}
+
+function statBox(label, value) {
+  return '<div class="statBox"><span class="statValue">' + value + '</span><span class="statLabel">' + label + '</span></div>';
+}
+
+function buildBarChart(title, counts) {
+  var entries = Object.keys(counts).map(function (k) { return [k, counts[k]]; });
+  entries.sort(function (a, b) { return b[1] - a[1]; });
+
+  if (entries.length === 0) {
+    return '';
+  }
+
+  var max = entries.reduce(function (m, e) { return Math.max(m, e[1]); }, 1);
+
+  var html = '<div class="barChart"><h4>' + title + '</h4>';
+  entries.forEach(function (entry) {
+    var label = entry[0];
+    var count = entry[1];
+    var pct = (count / max) * 100;
+    html += '<div class="barRow">';
+    html += '<span class="barLabel">' + label + '</span>';
+    html += '<div class="barTrack"><div class="barFill" style="width:' + pct + '%;"></div></div>';
+    html += '<span class="barCount">' + count + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
 }
 
 // Add event listeners
@@ -269,6 +367,11 @@ addEventListenerSafely("selectManu", "change", function() {
 });
 
 addEventListenerSafely("selectType", "change", function() {
+  filterTable();
+  updateURLParams();
+});
+
+addEventListenerSafely("selectCountry", "change", function() {
   filterTable();
   updateURLParams();
 });
@@ -296,7 +399,7 @@ addEventListenerSafely("selectStat", "change", function() {
 
 // show and hide for cosmetics
 function hideElements() {
-  const elements = ['selectManu', 'selectType', 'coasterInput', 'selectStat'];
+  const elements = ['selectManu', 'selectType', 'selectCountry', 'coasterInput', 'selectStat'];
   elements.forEach(id => {
     const element = getElement(id);
     if (element) {
@@ -306,7 +409,7 @@ function hideElements() {
 }
     
 function showElements() {
-  const elements = ['selectManu', 'selectType', 'coasterInput', 'selectStat'];
+  const elements = ['selectManu', 'selectType', 'selectCountry', 'coasterInput', 'selectStat'];
   elements.forEach(id => {
     const element = getElement(id);
     if (element) {
@@ -323,12 +426,14 @@ function showElements() {
 function updateURLParams() {
   const selectManu = getElement("selectManu");
   const selectType = getElement("selectType");
+  const selectCountry = getElement("selectCountry");
   const coasterInput = getElement("coasterInput");
   
-  if (!selectManu || !selectType || !coasterInput) return;
+  if (!selectManu || !selectType || !selectCountry || !coasterInput) return;
   
   var selectedManufacturer = selectManu.value;
   var selectedType = selectType.value;
+  var selectedCountry = selectCountry.value;
   var searchQuery = coasterInput.value;
 
   var queryParams = new URLSearchParams();
@@ -339,6 +444,10 @@ function updateURLParams() {
       
   if (selectedType !== "") {
     queryParams.set("t", selectedType);
+  }
+
+  if (selectedCountry !== "") {
+    queryParams.set("c", selectedCountry);
   }
       
   if (searchQuery !== "") {
@@ -359,12 +468,14 @@ function applyURLParams() {
   
   const selectManu = getElement("selectManu");
   const selectType = getElement("selectType");
+  const selectCountry = getElement("selectCountry");
   const coasterInput = getElement("coasterInput");
   
-  if (!selectManu || !selectType || !coasterInput) return;
+  if (!selectManu || !selectType || !selectCountry || !coasterInput) return;
   
   var selectedManufacturer = urlParams.get("m");
   var selectedType = urlParams.get("t");
+  var selectedCountry = urlParams.get("c");
   var searchQuery = urlParams.get("s");
       
   if (selectedManufacturer && Array.from(selectManu.options).some(option => option.value === selectedManufacturer)) {
@@ -377,6 +488,12 @@ function applyURLParams() {
     selectType.value = selectedType;
   } else {
     selectType.value = "";
+  }
+
+  if (selectedCountry && Array.from(selectCountry.options).some(option => option.value === selectedCountry)) {
+    selectCountry.value = selectedCountry;
+  } else {
+    selectCountry.value = "";
   }
       
   if (searchQuery) {
@@ -428,8 +545,8 @@ function updateStatColumn(statKey) {
 
   // Update the table cells
   for (var i = 1; i < tr.length; i++) {
-    if (tr[i].getElementsByTagName("td").length > 5) {
-      var td = tr[i].getElementsByTagName("td")[5];
+    if (tr[i].getElementsByTagName("td").length > 6) {
+      var td = tr[i].getElementsByTagName("td")[6];
       var dataIndex = parseInt(tr[i].getAttribute('data-index'));
       
       if (!isNaN(dataIndex) && dataIndex < window.tableData.length) {
@@ -437,6 +554,8 @@ function updateStatColumn(statKey) {
       }
     }
   }
+
+  updateStats();
 }
 
 // Apply URL params when DOM is loaded
