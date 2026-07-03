@@ -8,8 +8,11 @@
     <link rel="icon" type="image/x-icon" href="/images/Favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js" integrity="sha384-6kRQDsV2kVYRSENnw7WnekWKCx8/Lmv7rFKpDuR2AoIbjlBShlYcs3x0QlE3kuRh" crossorigin="anonymous"></script>
-    <!-- Minimal extra styling for the new country/stats bits - everything else stays on mainpage.css / rankings.css -->
+    <!-- Minimal extra styling for the new stats/bar-chart bits - everything else stays on mainpage.css / rankings.css -->
     <style>
+      #statsPanel {
+        font-family: Tahoma, Geneva, sans-serif;
+      }
       .statsRow {
         display: flex;
         flex-wrap: wrap;
@@ -25,6 +28,7 @@
         padding: 8px 12px;
         border: 1px solid #ccc;
         border-radius: 6px;
+        font-family: Tahoma, Geneva, sans-serif;
       }
       .statValue {
         font-size: 1.3em;
@@ -37,10 +41,12 @@
       .barChart {
         max-width: 500px;
         margin: 10px auto;
+        font-family: Tahoma, Geneva, sans-serif;
       }
       .barChart h4 {
         margin: 6px 0;
         text-align: center;
+        font-family: Tahoma, Geneva, sans-serif;
       }
       .barRow {
         display: flex;
@@ -53,6 +59,7 @@
         text-align: right;
         font-size: 0.85em;
         flex-shrink: 0;
+        font-family: Tahoma, Geneva, sans-serif;
       }
       .barTrack {
         flex-grow: 1;
@@ -69,6 +76,11 @@
       .barCount {
         width: 30px;
         font-size: 0.85em;
+        font-family: Tahoma, Geneva, sans-serif;
+      }
+      #coasterCountElement {
+        font-family: Tahoma, Geneva, sans-serif;
+        text-align: center;
       }
     </style>
   </head>
@@ -100,9 +112,10 @@
     
     <div class="topData">
       <p id="coasterCountElement"></p>
-      <p id="parkCountElement"></p>
-      <p id="countryCountElement"></p>
     </div>
+
+    <!-- Averages + bar graphs now sit above the filters/search, right after the summary line -->
+    <div id="statsPanel"></div>
     
     <div class="options">
       <br>
@@ -156,7 +169,7 @@
 
       <select id="selectCountry" style="display: none;">
         <option value="">All Countries</option>
-        <option value="united states of america">United States</option>
+        <option value="united states">United States</option>
         <option value="canada">Canada</option>
         <option value="japan">Japan</option>
       </select>
@@ -176,8 +189,6 @@
     
     <div id="loader"></div>
       <p id="coasternames"></p>
-
-      <div id="statsPanel"></div>
 
       <div id="coasterTableDiv">
     </div>

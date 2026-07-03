@@ -109,6 +109,25 @@ function init() {
 }
 
 window.addEventListener('DOMContentLoaded', init);
+
+// Turns "United States of America" into "United States" for display purposes (table + bar chart).
+// Everything else passes through unchanged.
+function abbreviateCountry(name) {
+  if (!name) return name;
+  var trimmed = name.trim();
+  if (trimmed.toLowerCase() === "united states of america") {
+    return "United States";
+  }
+  return trimmed;
+}
+
+// Turns "330 Coasters" into "330 coasters" so the combined summary line reads lowercase.
+function lowerCountLabel(text) {
+  if (!text || text === "N/A") return text;
+  return text.replace(/^(\d+)\s+(\S+)/, function (_, num, word) {
+    return num + ' ' + word.toLowerCase();
+  });
+}
       
 function makeTable(results) {
   window.tableData = results.data;
@@ -167,13 +186,17 @@ function makeTable(results) {
       { key: "PARK" },
       { key: "MANUFACTURER" },
       { key: "TYPE" },
-      { key: "Country" },
+      { key: "Country", format: abbreviateCountry },
       { key: "YEAR" }
     ];
     
     cells.forEach(cell => {
       const td = document.createElement("td");
-      td.textContent = data[j][cell.key] || "";
+      var value = data[j][cell.key] || "";
+      if (cell.format && value) {
+        value = cell.format(value);
+      }
+      td.textContent = value;
       newRow.appendChild(td);
     });
     
@@ -203,16 +226,14 @@ function makeTable(results) {
   var countryCount = data[24]?.AGGREGATE_STATS || "N/A";
   
   var coasterCountEl = getElement("coasterCountElement");
-  var parkCountEl = getElement("parkCountElement");
-  var countryCountEl = getElement("countryCountElement");
   
-  if (coasterCountEl) coasterCountEl.innerHTML = coasterCount;
-  if (parkCountEl) parkCountEl.innerHTML = parkCount;
-  if (countryCountEl) countryCountEl.innerHTML = countryCount;
+  if (coasterCountEl) {
+    coasterCountEl.innerHTML = [coasterCount, parkCount, countryCount]
+      .map(lowerCountLabel)
+      .join(' | ');
+  }
   
-  console.log(coasterCount);
-  console.log(parkCount);
-  console.log(countryCount);
+  console.log(coasterCount, parkCount, countryCount);
   
   filterTable();
   showElements();
@@ -276,7 +297,7 @@ function updateStats() {
     return row.style.display !== "none";
   });
 
-  var years = [], heights = [], speeds = [], drops = [], invers = [];
+  var years = [], heights = [], speeds = [], drops = [];
   var countryCounts = {};
   var typeCounts = {};
 
@@ -289,27 +310,26 @@ function updateStats() {
     var h = parseFloat(d.HIGHT); if (!isNaN(h)) heights.push(h);
     var s = parseFloat(d.SPED); if (!isNaN(s)) speeds.push(s);
     var dr = parseFloat(d.DROP); if (!isNaN(dr)) drops.push(dr);
-    var inv = parseFloat(d.INVER); if (!isNaN(inv)) invers.push(inv);
 
-    var c = (d.Country || "").trim() || "Unknown";
+    var c = abbreviateCountry(d.Country) || "Unknown";
     countryCounts[c] = (countryCounts[c] || 0) + 1;
 
     var t = (d.TYPE || "").trim() || "Unknown";
     typeCounts[t] = (typeCounts[t] || 0) + 1;
   });
 
-  function avg(arr) {
+  function avg(arr, decimals) {
     if (arr.length === 0) return "N/A";
-    return (arr.reduce(function (a, b) { return a + b; }, 0) / arr.length).toFixed(1);
+    var d = typeof decimals === "number" ? decimals : 1;
+    return (arr.reduce(function (a, b) { return a + b; }, 0) / arr.length).toFixed(d);
   }
 
   var html = '<div class="statsRow">';
   html += statBox("Coasters Shown", rows.length);
-  html += statBox("Avg Opening Year", avg(years));
-  html += statBox("Avg Height (ft)", avg(heights));
-  html += statBox("Avg Speed (mph)", avg(speeds));
-  html += statBox("Avg Drop (ft)", avg(drops));
-  html += statBox("Avg Inversions", avg(invers));
+  html += statBox("Avg Opening Year", avg(years, 0));
+  html += statBox("Avg Height (ft)", avg(heights, 1));
+  html += statBox("Avg Speed (mph)", avg(speeds, 1));
+  html += statBox("Avg Drop (ft)", avg(drops, 1));
   html += '</div>';
 
   html += buildBarChart("By Country", countryCounts);
@@ -397,6 +417,29 @@ addEventListenerSafely("selectStat", "change", function() {
   }
 });
 
+// Copies key visual properties (font, border, padding, etc.) from one dropdown to another so
+// dynamically-added selects (like Country) look identical to the ones already styled by rankings.css.
+function matchDropdownStyle(referenceId, targetId) {
+  var reference = getElement(referenceId);
+  var target = getElement(targetId);
+  if (!reference || !target) return;
+
+  var computed = window.getComputedStyle(reference);
+  var props = [
+    'fontFamily', 'fontSize', 'fontWeight', 'color',
+    'backgroundColor', 'border', 'borderRadius', 'padding',
+    'margin', 'height', 'boxShadow', 'cursor', 'appearance'
+  ];
+
+  props.forEach(function (prop) {
+    try {
+      target.style[prop] = computed[prop];
+    } catch (e) {
+      // Ignore unsupported properties on older browsers
+    }
+  });
+}
+
 // show and hide for cosmetics
 function hideElements() {
   const elements = ['selectManu', 'selectType', 'selectCountry', 'coasterInput', 'selectStat'];
@@ -409,6 +452,8 @@ function hideElements() {
 }
     
 function showElements() {
+  matchDropdownStyle('selectManu', 'selectCountry');
+
   const elements = ['selectManu', 'selectType', 'selectCountry', 'coasterInput', 'selectStat'];
   elements.forEach(id => {
     const element = getElement(id);
